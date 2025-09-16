@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 
 export default function Hero() {
 	return (
-		<section className="relative overflow-hidden">
+		<section id="hero" className="relative overflow-hidden">
 			<div
 				className="absolute inset-0 -z-10 bg-cover bg-right"
 				style={{

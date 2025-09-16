@@ -21,11 +21,11 @@ import {
 } from '@/components/ui/sheet';
 
 const navigationItems = [
-	{ name: 'Trang chủ', href: '/' },
-	{ name: 'Giới thiệu', href: '/about' },
-	{ name: 'Dịch vụ', href: '/services' },
-	{ name: 'Đánh giá', href: '/reviews' },
-	{ name: 'Trung tâm', href: '/centers' },
+	{ name: 'Trang chủ', href: '#hero' },
+	{ name: 'Giới thiệu', href: '#about' },
+	{ name: 'Dịch vụ', href: '#services' },
+	{ name: 'Đánh giá', href: '#testimonials' },
+	{ name: 'Liên hệ', href: '#contact' },
 ];
 
 export default function Header() {
