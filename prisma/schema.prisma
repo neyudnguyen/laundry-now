@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================
+// ENUMS
+// ============================
+
+enum ComplaintStatus {
+  PENDING
+  RESOLVED
+  REJECTED
+}
+
+enum OrderStatus {
+  PENDING // Chờ tiếp nhận
+  ACCEPTED // Đã tiếp nhận
+  IN_PROGRESS // Đang giặt
+  DELIVERED // Đã giao
+  NEED_PAYMENT // Cần thanh toán
+  COMPLETED // Hoàn tất
+  CANCELLED // Hủy
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PickupType {
+  HOME
+  SHOP
+}
+
+enum Role {
+  CUSTOMER
+  VENDOR
+  ADMIN
+}
+
+// ============================
+// MODELS
+// ============================
+
+model Address {
+  id              String            @id @default(cuid())
+  province        String
+  district        String
+  ward            String
+  street          String
+  createdAt       DateTime          @default(now())
+  CustomerProfile CustomerProfile[]
+  VendorProfile   VendorProfile[]
+}
+
+model Complaint {
+  id        String          @id @default(cuid())
+  orderId   String
+  userId    String
+  content   String
+  status    ComplaintStatus @default(PENDING)
+  createdAt DateTime        @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
+
+model CustomerProfile {
+  id        String  @id @default(cuid())
+  userId    String  @unique
+  name      String
+  addressId String
+  address   Address @relation(fields: [addressId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  customerId String
+  vendorId   String
+  status     OrderStatus @default(PENDING)
+  pickupType PickupType
+  totalPrice Float
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  customer   User          @relation("CustomerOrders", fields: [customerId], references: [id])
+  vendor     VendorProfile @relation("VendorOrders", fields: [vendorId], references: [id])
+  payments   Payment[]
+  complaints Complaint[]
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  orderId   String
+  userId    String
+  amount    Float
+  status    PaymentStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  email     String?  @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customerProfile CustomerProfile?
+  vendorProfile   VendorProfile?
+  notifications   Notification[]
+  orders          Order[]          @relation("CustomerOrders")
+  complaints      Complaint[]
+  payments        Payment[]
+}
+
+model VendorImage {
+  id       String        @id @default(cuid())
+  vendorId String
+  url      String
+  vendor   VendorProfile @relation(fields: [vendorId], references: [id])
+}
+
+model VendorProfile {
+  id             String        @id @default(cuid())
+  userId         String        @unique
+  shopName       String
+  addressId      String
+  address        Address       @relation(fields: [addressId], references: [id])
+  processingTime Int
+  serviceFee     Float
+  bankAccount    String
+  user           User          @relation(fields: [userId], references: [id])
+  images         VendorImage[]
+  orders         Order[]       @relation("VendorOrders")
+}
