@@ -64,20 +64,14 @@ export default function About() {
 							<CardContent className="flex h-full flex-col items-center justify-center p-6 text-center">
 								<Clock className="h-8 w-8 text-primary mb-3" />
 								<h4 className="font-semibold text-foreground">Nhanh chóng</h4>
-								<p className="text-sm text-muted-foreground mt-1">
-									Hoàn thành trong 24h
-								</p>
 							</CardContent>
 						</Card>
 
 						{/* Card 2 */}
 						<Card className="h-40">
 							<CardContent className="flex h-full flex-col items-center justify-center p-6 text-center">
-								<Shield className="h-8 w-8 text-accent mb-3" />
+								<Shield className="h-8 w-8 text-primary mb-3" />
 								<h4 className="font-semibold text-foreground">An toàn</h4>
-								<p className="text-sm text-muted-foreground mt-1">
-									Hóa chất thân thiện
-								</p>
 							</CardContent>
 						</Card>
 
