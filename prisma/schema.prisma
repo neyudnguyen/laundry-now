@@ -88,15 +88,14 @@ model CustomerProfile {
 }
 
 model VendorProfile {
-  id          String @id @default(cuid()) @map("id")
-  shopName    String @map("shop_name")
-  bankAccount String @map("bank_account")
+  id       String @id @default(cuid()) @map("id")
+  shopName String @map("shop_name")
 
-  userId    String @unique @map("user_id")
+  userId    String  @unique @map("user_id")
   addressId String? @unique @map("address_id")
 
   user    User          @relation(fields: [userId], references: [id])
-  address Address?       @relation(fields: [addressId], references: [id])
+  address Address?      @relation(fields: [addressId], references: [id])
   images  VendorImage[]
 
   @@map("vendor_profiles")
