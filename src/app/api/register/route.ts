@@ -1,3 +1,4 @@
+import { UserRole } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { NextResponse } from 'next/server';
 
@@ -9,17 +10,11 @@ export async function POST(request: Request) {
 		const {
 			phone,
 			password,
-			email,
 			role,
 			// Customer fields
 			fullName,
 			// Vendor fields
 			shopName,
-			// Address fields
-			province,
-			district,
-			ward,
-			street,
 		} = body;
 
 		// Validate required fields
@@ -31,28 +26,16 @@ export async function POST(request: Request) {
 		}
 
 		// Validate role-specific required fields
-		if (role === 'CUSTOMER' && !fullName) {
+		if (role === UserRole.CUSTOMER && !fullName) {
 			return NextResponse.json(
 				{ error: 'Họ và tên là bắt buộc' },
 				{ status: 400 },
 			);
 		}
 
-		if (role === 'VENDOR') {
-			if (!shopName || !email) {
-				return NextResponse.json(
-					{
-						error: 'Tên cửa hàng và email là bắt buộc cho nhà cung cấp dịch vụ',
-					},
-					{ status: 400 },
-				);
-			}
-		}
-
-		// Validate address fields
-		if (!province || !district || !ward || !street) {
+		if (role === UserRole.VENDOR && !shopName) {
 			return NextResponse.json(
-				{ error: 'Địa chỉ đầy đủ là bắt buộc' },
+				{ error: 'Tên cửa hàng là bắt buộc cho nhà cung cấp dịch vụ' },
 				{ status: 400 },
 			);
 		}
@@ -66,37 +49,16 @@ export async function POST(request: Request) {
 			);
 		}
 
-		// Validate email if provided
-		if (email) {
-			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-			if (!emailRegex.test(email)) {
-				return NextResponse.json(
-					{ error: 'Định dạng email không hợp lệ' },
-					{ status: 400 },
-				);
-			}
-		}
-
 		// Check if user already exists
-		const existingUser = await prisma.user.findFirst({
-			where: {
-				OR: [{ phone }, ...(email ? [{ email }] : [])],
-			},
+		const existingUser = await prisma.user.findUnique({
+			where: { phone },
 		});
 
 		if (existingUser) {
-			if (existingUser.phone === phone) {
-				return NextResponse.json(
-					{ error: 'Người dùng với số điện thoại này đã tồn tại' },
-					{ status: 400 },
-				);
-			}
-			if (existingUser.email === email) {
-				return NextResponse.json(
-					{ error: 'Người dùng với email này đã tồn tại' },
-					{ status: 400 },
-				);
-			}
+			return NextResponse.json(
+				{ error: 'Người dùng với số điện thoại này đã tồn tại' },
+				{ status: 400 },
+			);
 		}
 
 		// Hash password
@@ -110,12 +72,12 @@ export async function POST(request: Request) {
 				data: {
 					phone,
 					password: hashedPassword,
-					email: email || null,
-					role: role as 'CUSTOMER' | 'VENDOR',
+					email: null, // Will be updated later if needed
+					role: role as UserRole,
 				},
 			});
 
-			if (role === 'CUSTOMER') {
+			if (role === UserRole.CUSTOMER) {
 				// Create customer profile
 				const customerProfile = await tx.customerProfile.create({
 					data: {
@@ -124,36 +86,14 @@ export async function POST(request: Request) {
 					},
 				});
 
-				// Create address for customer
-				await tx.address.create({
-					data: {
-						province,
-						district,
-						ward,
-						street,
-						customerProfileId: customerProfile.id,
-					},
-				});
-
 				return { user, profile: customerProfile };
 			} else {
-				// Create address first for vendor
-				const address = await tx.address.create({
-					data: {
-						province,
-						district,
-						ward,
-						street,
-					},
-				});
-
 				// Create vendor profile
 				const vendorProfile = await tx.vendorProfile.create({
 					data: {
 						shopName,
-						bankAccount: '', // Will be filled later
 						userId: user.id,
-						addressId: address.id,
+						addressId: null, // Will be set later when address is added
 					},
 				});
 
