@@ -18,148 +18,97 @@ datasource db {
 // ENUMS
 // ============================
 
-enum ComplaintStatus {
-  PENDING
-  RESOLVED
-  REJECTED
-}
+enum UserRole {
+  CUSTOMER @map("customer")
+  VENDOR   @map("vendor")
 
-enum OrderStatus {
-  PENDING // Chờ tiếp nhận
-  ACCEPTED // Đã tiếp nhận
-  IN_PROGRESS // Đang giặt
-  DELIVERED // Đã giao
-  NEED_PAYMENT // Cần thanh toán
-  COMPLETED // Hoàn tất
-  CANCELLED // Hủy
-}
-
-enum PaymentStatus {
-  PENDING
-  SUCCESS
-  FAILED
-  REFUNDED
-}
-
-enum PickupType {
-  HOME
-  SHOP
-}
-
-enum Role {
-  CUSTOMER
-  VENDOR
-  ADMIN
+  @@map("user_roles")
 }
 
 // ============================
 // MODELS
 // ============================
 
-model Address {
-  id              String            @id @default(cuid())
-  province        String
-  district        String
-  ward            String
-  street          String
-  createdAt       DateTime          @default(now())
-  CustomerProfile CustomerProfile[]
-  VendorProfile   VendorProfile[]
-}
+model Admin {
+  id       String @id @default(cuid()) @map("id")
+  email    String @unique @map("email")
+  password String @map("password")
+  name     String @map("name")
 
-model Complaint {
-  id        String          @id @default(cuid())
-  orderId   String
-  userId    String
-  content   String
-  status    ComplaintStatus @default(PENDING)
-  createdAt DateTime        @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  order Order @relation(fields: [orderId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
-}
-
-model CustomerProfile {
-  id        String  @id @default(cuid())
-  userId    String  @unique
-  name      String
-  addressId String
-  address   Address @relation(fields: [addressId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  message   String
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
-}
-
-model Order {
-  id         String      @id @default(cuid())
-  customerId String
-  vendorId   String
-  status     OrderStatus @default(PENDING)
-  pickupType PickupType
-  totalPrice Float
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-
-  customer   User          @relation("CustomerOrders", fields: [customerId], references: [id])
-  vendor     VendorProfile @relation("VendorOrders", fields: [vendorId], references: [id])
-  payments   Payment[]
-  complaints Complaint[]
-}
-
-model Payment {
-  id        String        @id @default(cuid())
-  orderId   String
-  userId    String
-  amount    Float
-  status    PaymentStatus @default(PENDING)
-  createdAt DateTime      @default(now())
-
-  order Order @relation(fields: [orderId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
+  @@map("admins")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  phone     String   @unique
-  email     String?  @unique
-  password  String
-  role      Role
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id       String   @id @default(cuid()) @map("id")
+  phone    String   @unique @map("phone")
+  password String   @map("password")
+  email    String?  @unique @map("email")
+  role     UserRole @default(CUSTOMER) @map("role")
 
   customerProfile CustomerProfile?
   vendorProfile   VendorProfile?
-  notifications   Notification[]
-  orders          Order[]          @relation("CustomerOrders")
-  complaints      Complaint[]
-  payments        Payment[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
 }
 
-model VendorImage {
-  id       String        @id @default(cuid())
-  vendorId String
-  url      String
-  vendor   VendorProfile @relation(fields: [vendorId], references: [id])
+model Address {
+  id       String @id @default(cuid()) @map("id")
+  province String @map("province")
+  district String @map("district")
+  ward     String @map("ward")
+  street   String @map("street")
+
+  customerProfileId String?
+
+  customerProfile CustomerProfile? @relation(fields: [customerProfileId], references: [id])
+  vendorProfile   VendorProfile?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("addresses")
+}
+
+model CustomerProfile {
+  id       String @id @default(cuid()) @map("id")
+  fullName String @map("full_name")
+
+  userId String @unique @map("user_id")
+
+  user      User      @relation(fields: [userId], references: [id])
+  addresses Address[]
+
+  @@map("customer_profiles")
 }
 
 model VendorProfile {
-  id             String        @id @default(cuid())
-  userId         String        @unique
-  shopName       String
-  addressId      String
-  address        Address       @relation(fields: [addressId], references: [id])
-  processingTime Int
-  serviceFee     Float
-  bankAccount    String
-  user           User          @relation(fields: [userId], references: [id])
-  images         VendorImage[]
-  orders         Order[]       @relation("VendorOrders")
+  id          String @id @default(cuid()) @map("id")
+  shopName    String @map("shop_name")
+  bankAccount String @map("bank_account")
+
+  userId    String @unique @map("user_id")
+  addressId String @unique @map("address_id")
+
+  user    User          @relation(fields: [userId], references: [id])
+  address Address       @relation(fields: [addressId], references: [id])
+  images  VendorImage[]
+
+  @@map("vendor_profiles")
+}
+
+model VendorImage {
+  id  String @id @default(cuid()) @map("id")
+  url String @map("url")
+
+  vendorId String @map("vendor_id")
+
+  vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_images")
 }
