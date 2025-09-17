@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -28,6 +27,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks';
 
 // Customer registration schema
 const customerSchema = z
@@ -74,6 +74,7 @@ type VendorFormValues = z.infer<typeof vendorSchema>;
 
 export default function RegisterPage() {
 	const [isLoading, setIsLoading] = useState(false);
+	const { toast } = useToast();
 	const router = useRouter();
 
 	const customerForm = useForm<CustomerFormValues>({
