@@ -30,9 +30,9 @@ import { Input } from '@/components/ui/input';
 const loginSchema = z.object({
 	phone: z
 		.string()
-		.min(10, 'Phone number must be at least 10 digits')
-		.regex(/^[0-9]+$/, 'Phone number must contain only digits'),
-	password: z.string().min(1, 'Password is required'),
+		.min(10, 'Số điện thoại phải có ít nhất 10 số')
+		.regex(/^[0-9]+$/, 'Số điện thoại chỉ được chứa số'),
+	password: z.string().min(1, 'Mật khẩu là bắt buộc'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -60,18 +60,18 @@ export default function LoginPage() {
 			});
 
 			if (result?.error) {
-				toast.error('Invalid phone number or password');
+				toast.error('Số điện thoại hoặc mật khẩu không hợp lệ');
 				return;
 			}
 
 			if (result?.ok) {
-				toast.success('Login successful!');
+				toast.success('Đăng nhập thành công!');
 				router.push('/dashboard');
 				router.refresh();
 			}
 		} catch (error) {
 			console.error('Login error:', error);
-			toast.error('An error occurred during login');
+			toast.error('Đã xảy ra lỗi trong quá trình đăng nhập');
 		} finally {
 			setIsLoading(false);
 		}
@@ -82,10 +82,10 @@ export default function LoginPage() {
 			<Card className="w-full max-w-md">
 				<CardHeader className="space-y-1">
 					<CardTitle className="text-2xl font-bold text-center">
-						Welcome Back
+						Chào Mừng Trở Lại
 					</CardTitle>
 					<CardDescription className="text-center">
-						Sign in to your account to continue
+						Đăng nhập vào tài khoản của bạn để tiếp tục
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -96,10 +96,10 @@ export default function LoginPage() {
 								name="phone"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Phone Number</FormLabel>
+										<FormLabel>Số Điện Thoại</FormLabel>
 										<FormControl>
 											<Input
-												placeholder="Enter your phone number"
+												placeholder="Nhập số điện thoại của bạn"
 												{...field}
 												disabled={isLoading}
 											/>
@@ -114,11 +114,11 @@ export default function LoginPage() {
 								name="password"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Password</FormLabel>
+										<FormLabel>Mật Khẩu</FormLabel>
 										<FormControl>
 											<Input
 												type="password"
-												placeholder="Enter your password"
+												placeholder="Nhập mật khẩu của bạn"
 												{...field}
 												disabled={isLoading}
 											/>
@@ -129,18 +129,18 @@ export default function LoginPage() {
 							/>
 
 							<Button type="submit" className="w-full" disabled={isLoading}>
-								{isLoading ? 'Signing In...' : 'Sign In'}
+								{isLoading ? 'Đang đăng nhập...' : 'Đăng Nhập'}
 							</Button>
 						</form>
 					</Form>
 
 					<div className="mt-4 text-center text-sm">
-						Don&apos;t have an account?{' '}
+						Chưa có tài khoản?{' '}
 						<Link
 							href="/register"
 							className="underline underline-offset-4 hover:text-primary"
 						>
-							Create account
+							Tạo tài khoản
 						</Link>
 					</div>
 				</CardContent>

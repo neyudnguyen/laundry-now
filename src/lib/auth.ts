@@ -71,8 +71,8 @@ export const authConfig = {
 						return null;
 					}
 
-					// Only allow customers to login through this flow
-					if (user.role !== 'CUSTOMER') {
+					// Allow both customers and vendors to login
+					if (user.role !== 'CUSTOMER' && user.role !== 'VENDOR') {
 						return null;
 					}
 
