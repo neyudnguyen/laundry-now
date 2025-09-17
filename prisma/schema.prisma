@@ -93,10 +93,10 @@ model VendorProfile {
   bankAccount String @map("bank_account")
 
   userId    String @unique @map("user_id")
-  addressId String @unique @map("address_id")
+  addressId String? @unique @map("address_id")
 
   user    User          @relation(fields: [userId], references: [id])
-  address Address       @relation(fields: [addressId], references: [id])
+  address Address?       @relation(fields: [addressId], references: [id])
   images  VendorImage[]
 
   @@map("vendor_profiles")
