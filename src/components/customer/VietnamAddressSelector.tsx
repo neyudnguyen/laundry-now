@@ -152,7 +152,7 @@ export function VietnamAddressSelector({
 	}, [selectedDistrictCode]);
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+		<div className="space-y-4">
 			<FormField
 				control={control}
 				name="province"
@@ -177,7 +177,7 @@ export function VietnamAddressSelector({
 									/>
 								</SelectTrigger>
 							</FormControl>
-							<SelectContent>
+							<SelectContent className="max-h-[200px] overflow-y-auto">
 								{provinces.map((province) => (
 									<SelectItem key={province.code} value={province.name}>
 										{province.name}
@@ -214,7 +214,7 @@ export function VietnamAddressSelector({
 									/>
 								</SelectTrigger>
 							</FormControl>
-							<SelectContent>
+							<SelectContent className="max-h-[200px] overflow-y-auto">
 								{districts.map((district) => (
 									<SelectItem key={district.code} value={district.name}>
 										{district.name}
@@ -266,7 +266,7 @@ export function VietnamAddressSelector({
 									/>
 								</SelectTrigger>
 							</FormControl>
-							<SelectContent>
+							<SelectContent className="max-h-[200px] overflow-y-auto">
 								{wards.map((ward) => (
 									<SelectItem key={ward.code} value={ward.name}>
 										{ward.name}

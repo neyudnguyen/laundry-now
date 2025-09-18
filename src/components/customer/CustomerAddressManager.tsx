@@ -205,7 +205,7 @@ export function CustomerAddressManager() {
 								Thêm địa chỉ
 							</Button>
 						</DialogTrigger>
-						<DialogContent className="max-w-2xl">
+						<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
 							<DialogHeader>
 								<DialogTitle>
 									{editingAddress ? 'Chỉnh sửa địa chỉ' : 'Thêm địa chỉ mới'}
@@ -220,7 +220,7 @@ export function CustomerAddressManager() {
 							<Form {...form}>
 								<form
 									onSubmit={form.handleSubmit(onSubmit)}
-									className="space-y-4"
+									className="space-y-6"
 								>
 									<VietnamAddressSelector
 										control={form.control}

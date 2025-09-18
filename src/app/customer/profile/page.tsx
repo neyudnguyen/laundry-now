@@ -1,6 +1,5 @@
 'use client';
 
-import { MapPin, Settings, User } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -8,7 +7,6 @@ import { useEffect, useState } from 'react';
 import { CustomerAddressManager } from '@/components/customer/CustomerAddressManager';
 import { CustomerBasicInfo } from '@/components/customer/CustomerBasicInfo';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 
 interface CustomerData {
@@ -88,7 +86,7 @@ const CustomerProfilePage = () => {
 
 	return (
 		<div className="container mx-auto py-8">
-			<div className="max-w-4xl mx-auto">
+			<div className="max-w-6xl mx-auto space-y-8">
 				{/* Header */}
 				<div className="mb-8">
 					<div className="flex items-center space-x-4 mb-4">
@@ -104,31 +102,17 @@ const CustomerProfilePage = () => {
 								{customerData?.user?.profile?.fullName || 'Tài khoản của tôi'}
 							</h1>
 							<p className="text-muted-foreground">
-								Quản lý thông tin cá nhân và cài đặt tài khoản
+								Quản lý thông tin cá nhân
 							</p>
 						</div>
 					</div>
 					<Separator />
 				</div>
 
-				{/* Tabs Content */}
-				<Tabs defaultValue="profile" className="space-y-6">
-					<TabsList className="grid w-full grid-cols-3">
-						<TabsTrigger value="profile" className="flex items-center gap-2">
-							<User className="h-4 w-4" />
-							Thông tin cá nhân
-						</TabsTrigger>
-						<TabsTrigger value="addresses" className="flex items-center gap-2">
-							<MapPin className="h-4 w-4" />
-							Địa chỉ
-						</TabsTrigger>
-						<TabsTrigger value="settings" className="flex items-center gap-2">
-							<Settings className="h-4 w-4" />
-							Cài đặt
-						</TabsTrigger>
-					</TabsList>
-
-					<TabsContent value="profile" className="space-y-6">
+				{/* Content Layout - 2 sections */}
+				<div className="space-y-8">
+					{/* Thông tin cơ bản */}
+					<section>
 						<CustomerBasicInfo
 							initialData={{
 								fullName: customerData?.user?.profile?.fullName || '',
@@ -137,19 +121,13 @@ const CustomerProfilePage = () => {
 							}}
 							onSuccess={handleProfileUpdate}
 						/>
-					</TabsContent>
+					</section>
 
-					<TabsContent value="addresses" className="space-y-6">
+					{/* Quản lý địa chỉ */}
+					<section>
 						<CustomerAddressManager />
-					</TabsContent>
-
-					<TabsContent value="settings" className="space-y-6">
-						<div className="text-center py-8 text-muted-foreground">
-							<Settings className="h-12 w-12 mx-auto mb-4 opacity-50" />
-							<p>Tính năng cài đặt sẽ được phát triển trong tương lai</p>
-						</div>
-					</TabsContent>
-				</Tabs>
+					</section>
+				</div>
 			</div>
 		</div>
 	);
