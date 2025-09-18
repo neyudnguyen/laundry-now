@@ -66,6 +66,7 @@ const API_BASE_URL = 'https://provinces.open-api.vn/api/v1';
 export function VietnamAddressSelector({
 	control,
 	onLocationChange,
+	defaultValues,
 }: VietnamAddressSelectorProps) {
 	const [provinces, setProvinces] = useState<Province[]>([]);
 	const [districts, setDistricts] = useState<District[]>([]);
@@ -98,6 +99,16 @@ export function VietnamAddressSelector({
 		fetchProvinces();
 	}, []);
 
+	// Handle defaultValues when provinces are loaded
+	useEffect(() => {
+		if (provinces.length > 0 && defaultValues?.province) {
+			const province = provinces.find((p) => p.name === defaultValues.province);
+			if (province) {
+				setSelectedProvinceCode(province.code);
+			}
+		}
+	}, [provinces, defaultValues?.province]);
+
 	// Load districts when province changes
 	useEffect(() => {
 		const fetchDistricts = async () => {
@@ -125,6 +136,16 @@ export function VietnamAddressSelector({
 
 		fetchDistricts();
 	}, [selectedProvinceCode]);
+
+	// Handle defaultValues for district when districts are loaded
+	useEffect(() => {
+		if (districts.length > 0 && defaultValues?.district) {
+			const district = districts.find((d) => d.name === defaultValues.district);
+			if (district) {
+				setSelectedDistrictCode(district.code);
+			}
+		}
+	}, [districts, defaultValues?.district]);
 
 	// Load wards when district changes
 	useEffect(() => {
