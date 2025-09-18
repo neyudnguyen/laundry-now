@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signIn } from 'next-auth/react';
+import { getSession, signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -67,7 +67,16 @@ export default function LoginPage() {
 
 			if (result?.ok) {
 				toast.success('Đăng nhập thành công!');
-				router.push('/dashboard');
+
+				// Get session to determine user role for redirect
+				const session = await getSession();
+				if (session?.user?.role === 'CUSTOMER') {
+					router.push('/customer/dashboard');
+				} else if (session?.user?.role === 'VENDOR') {
+					router.push('/vendor/dashboard');
+				} else {
+					router.push('/customer/dashboard'); // Default fallback
+				}
 				router.refresh();
 			}
 		} catch (error) {

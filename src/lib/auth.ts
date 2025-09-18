@@ -11,13 +11,22 @@ export const authConfig = {
 	callbacks: {
 		authorized({ auth, request: { nextUrl } }) {
 			const isLoggedIn = !!auth?.user;
-			const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
+			const isOnCustomerDashboard = nextUrl.pathname.startsWith('/customer');
+			const isOnVendorDashboard = nextUrl.pathname.startsWith('/vendor');
+			const isOnOldDashboard = nextUrl.pathname.startsWith('/dashboard');
 
-			if (isOnDashboard) {
+			if (isOnCustomerDashboard || isOnVendorDashboard || isOnOldDashboard) {
 				if (isLoggedIn) return true;
 				return false; // Redirect unauthenticated users to login page
 			} else if (isLoggedIn) {
-				return Response.redirect(new URL('/dashboard', nextUrl));
+				// Redirect based on user role
+				const userRole = auth.user.role;
+				if (userRole === 'CUSTOMER') {
+					return Response.redirect(new URL('/customer/dashboard', nextUrl));
+				} else if (userRole === 'VENDOR') {
+					return Response.redirect(new URL('/vendor/dashboard', nextUrl));
+				}
+				return Response.redirect(new URL('/customer/dashboard', nextUrl)); // Default fallback
 			}
 			return true;
 		},

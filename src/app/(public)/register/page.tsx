@@ -129,7 +129,7 @@ export default function RegisterPage() {
 			});
 
 			if (signInResult?.ok) {
-				router.push('/dashboard');
+				router.push('/customer/dashboard');
 				router.refresh();
 			} else {
 				toast.error('Tự động đăng nhập thất bại. Vui lòng đăng nhập thủ công.');
@@ -175,7 +175,7 @@ export default function RegisterPage() {
 			});
 
 			if (signInResult?.ok) {
-				router.push('/dashboard');
+				router.push('/vendor/dashboard');
 				router.refresh();
 			} else {
 				toast.error('Tự động đăng nhập thất bại. Vui lòng đăng nhập thủ công.');
