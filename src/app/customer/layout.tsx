@@ -166,25 +166,6 @@ export default function CustomerLayout({
 							</SidebarMenu>
 						</SidebarGroupContent>
 					</SidebarGroup>
-
-					<SidebarGroup>
-						<SidebarGroupLabel>Cài đặt</SidebarGroupLabel>
-						<SidebarGroupContent>
-							<SidebarMenu>
-								<SidebarMenuItem>
-									<SidebarMenuButton asChild>
-										<Link
-											href="/customer/settings"
-											className="flex items-center gap-3"
-										>
-											<Settings className="h-4 w-4" />
-											<span>Cài đặt tài khoản</span>
-										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							</SidebarMenu>
-						</SidebarGroupContent>
-					</SidebarGroup>
 				</SidebarContent>
 
 				<SidebarFooter className="border-t px-4 py-4">
