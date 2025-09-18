@@ -29,7 +29,7 @@ import {
 
 const menuItems = [
 	{
-		title: 'Trang chủ',
+		title: 'Bảng điều khiển',
 		icon: Home,
 		href: '/customer/dashboard',
 	},
@@ -136,7 +136,7 @@ export default function CustomerLayout({
 
 				<SidebarContent>
 					<SidebarGroup>
-						<SidebarGroupLabel>Tuỳ chọn</SidebarGroupLabel>
+						<SidebarGroupLabel>Bảng điều khiển</SidebarGroupLabel>
 						<SidebarGroupContent>
 							<SidebarMenu>
 								{menuItems.map((item) => (
