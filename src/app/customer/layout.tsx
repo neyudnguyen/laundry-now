@@ -1,15 +1,7 @@
 'use client';
 
 import { UserRole } from '@prisma/client';
-import {
-	Bell,
-	History,
-	Home,
-	LogOut,
-	Settings,
-	ShoppingBag,
-	User,
-} from 'lucide-react';
+import { Bell, History, Home, LogOut, ShoppingBag, User } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
