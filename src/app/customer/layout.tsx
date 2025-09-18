@@ -126,101 +126,95 @@ export default function CustomerLayout({
 
 	return (
 		<SidebarProvider>
-			<div className="flex h-screen w-full">
-				<Sidebar variant="inset">
-					<SidebarHeader className="border-b px-6 py-4">
-						<div className="flex items-center gap-3">
-							<Avatar className="h-10 w-10">
-								<AvatarImage src="" alt={userDisplayName} />
-								<AvatarFallback className="bg-primary text-primary-foreground">
-									{userInitials}
-								</AvatarFallback>
-							</Avatar>
-							<div className="flex flex-col">
-								<span className="text-sm font-medium">{userDisplayName}</span>
-								<span className="text-xs text-muted-foreground">
-									Khách hàng
-								</span>
-							</div>
+			<Sidebar variant="inset">
+				<SidebarHeader className="border-b py-4">
+					<div className="flex items-center gap-3">
+						<Avatar className="h-10 w-10">
+							<AvatarImage src="" alt={userDisplayName} />
+							<AvatarFallback className="bg-primary text-primary-foreground">
+								{userInitials}
+							</AvatarFallback>
+						</Avatar>
+						<div className="flex flex-col">
+							<span className="text-sm font-medium">{userDisplayName}</span>
+							<span className="text-xs text-muted-foreground">Khách hàng</span>
 						</div>
-					</SidebarHeader>
+					</div>
+				</SidebarHeader>
 
-					<SidebarContent>
-						<SidebarGroup>
-							<SidebarGroupLabel>Menu</SidebarGroupLabel>
-							<SidebarGroupContent>
-								<SidebarMenu>
-									{menuItems.map((item) => (
-										<SidebarMenuItem key={item.href}>
-											<SidebarMenuButton
-												asChild
-												isActive={pathname === item.href}
-											>
-												<Link
-													href={item.href}
-													className="flex items-center gap-3"
-												>
-													<item.icon className="h-4 w-4" />
-													<span>{item.title}</span>
-												</Link>
-											</SidebarMenuButton>
-										</SidebarMenuItem>
-									))}
-								</SidebarMenu>
-							</SidebarGroupContent>
-						</SidebarGroup>
-
-						<SidebarSeparator />
-
-						<SidebarGroup>
-							<SidebarGroupLabel>Cài đặt</SidebarGroupLabel>
-							<SidebarGroupContent>
-								<SidebarMenu>
-									<SidebarMenuItem>
-										<SidebarMenuButton asChild>
+				<SidebarContent>
+					<SidebarGroup>
+						<SidebarGroupLabel>Tuỳ chọn</SidebarGroupLabel>
+						<SidebarGroupContent>
+							<SidebarMenu>
+								{menuItems.map((item) => (
+									<SidebarMenuItem key={item.href}>
+										<SidebarMenuButton
+											asChild
+											isActive={pathname === item.href}
+										>
 											<Link
-												href="/customer/settings"
+												href={item.href}
 												className="flex items-center gap-3"
 											>
-												<Settings className="h-4 w-4" />
-												<span>Cài đặt tài khoản</span>
+												<item.icon className="h-4 w-4" />
+												<span>{item.title}</span>
 											</Link>
 										</SidebarMenuButton>
 									</SidebarMenuItem>
-								</SidebarMenu>
-							</SidebarGroupContent>
-						</SidebarGroup>
-					</SidebarContent>
+								))}
+							</SidebarMenu>
+						</SidebarGroupContent>
+					</SidebarGroup>
 
-					<SidebarFooter className="border-t px-4 py-4">
-						<Button
-							variant="ghost"
-							onClick={handleSignOut}
-							className="w-full justify-start gap-3 text-left"
-						>
-							<LogOut className="h-4 w-4" />
-							Đăng xuất
-						</Button>
-					</SidebarFooter>
+					<SidebarGroup>
+						<SidebarGroupLabel>Cài đặt</SidebarGroupLabel>
+						<SidebarGroupContent>
+							<SidebarMenu>
+								<SidebarMenuItem>
+									<SidebarMenuButton asChild>
+										<Link
+											href="/customer/settings"
+											className="flex items-center gap-3"
+										>
+											<Settings className="h-4 w-4" />
+											<span>Cài đặt tài khoản</span>
+										</Link>
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							</SidebarMenu>
+						</SidebarGroupContent>
+					</SidebarGroup>
+				</SidebarContent>
 
-					<SidebarRail />
-				</Sidebar>
+				<SidebarFooter className="border-t px-4 py-4">
+					<Button
+						variant="ghost"
+						onClick={handleSignOut}
+						className="w-full justify-start gap-3 text-left"
+					>
+						<LogOut className="h-4 w-4" />
+						Đăng xuất
+					</Button>
+				</SidebarFooter>
 
-				<SidebarInset>
-					<header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-						<SidebarTrigger className="-ml-1" />
-						<SidebarSeparator orientation="vertical" className="mr-2 h-4" />
-						<div className="flex items-center gap-2">
-							<h1 className="text-lg font-semibold">
-								{menuItems.find((item) => item.href === pathname)?.title ||
-									'Dashboard'}
-							</h1>
-						</div>
-					</header>
+				<SidebarRail />
+			</Sidebar>
 
-					<main className="flex-1 overflow-auto p-6">{children}</main>
-				</SidebarInset>
-			</div>
+			<SidebarInset>
+				<header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+					<SidebarTrigger />
+					<SidebarSeparator orientation="vertical" className="mr-2 h-4" />
+					<div className="flex items-center gap-2">
+						<h1 className="text-lg font-semibold">
+							{menuItems.find((item) => item.href === pathname)?.title ||
+								'Dashboard'}
+						</h1>
+					</div>
+				</header>
+
+				<main className="flex-1 overflow-auto p-6">{children}</main>
+			</SidebarInset>
 		</SidebarProvider>
 	);
 }
