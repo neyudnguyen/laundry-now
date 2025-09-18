@@ -101,9 +101,7 @@ const CustomerProfilePage = () => {
 							<h1 className="text-3xl font-bold tracking-tight">
 								{customerData?.user?.profile?.fullName || 'Tài khoản của tôi'}
 							</h1>
-							<p className="text-muted-foreground">
-								Quản lý thông tin cá nhân
-							</p>
+							<p className="text-muted-foreground">Quản lý thông tin cá nhân</p>
 						</div>
 					</div>
 					<Separator />
