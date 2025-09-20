@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { deleteImageFromUrl } from '@/lib/supabase';
 
 export async function DELETE(
 	request: NextRequest,
@@ -28,20 +29,33 @@ export async function DELETE(
 			);
 		}
 
-		// Verify image belongs to vendor and delete
-		const deletedImage = await prisma.vendorImage.deleteMany({
+		// Find the image first to get URL
+		const image = await prisma.vendorImage.findFirst({
 			where: {
 				id: imageId,
 				vendorId: vendorProfile.id,
 			},
 		});
 
-		if (deletedImage.count === 0) {
+		if (!image) {
 			return NextResponse.json(
 				{ error: 'Image not found or not owned by vendor' },
 				{ status: 404 },
 			);
 		}
+
+		// Delete from Supabase Storage
+		try {
+			await deleteImageFromUrl(image.url);
+		} catch (storageError) {
+			console.error('Error deleting from storage:', storageError);
+			// Continue with database deletion even if storage deletion fails
+		}
+
+		// Delete from database
+		await prisma.vendorImage.delete({
+			where: { id: imageId },
+		});
 
 		return NextResponse.json({ success: true });
 	} catch (error) {

@@ -20,6 +20,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { uploadImage } from '@/lib/supabase';
 
 interface VendorImage {
 	id: string;
@@ -28,17 +29,22 @@ interface VendorImage {
 
 interface VendorImageManagerProps {
 	vendorImages?: VendorImage[];
+	vendorId?: string;
 	onSuccess?: () => void;
 }
 
 export function VendorImageManager({
 	vendorImages = [],
+	vendorId,
 	onSuccess,
 }: VendorImageManagerProps) {
 	const [images, setImages] = useState<VendorImage[]>(vendorImages);
 	const [isUploading, setIsUploading] = useState(false);
 	const [selectedImage, setSelectedImage] = useState<string | null>(null);
 	const { toast } = useToast();
+
+	// Maximum number of images allowed
+	const MAX_IMAGES = 5;
 
 	// Update images when prop changes
 	useEffect(() => {
@@ -50,62 +56,68 @@ export function VendorImageManager({
 			const files = event.target.files;
 			if (!files || files.length === 0) return;
 
-			const file = files[0];
-
-			// Validate file type
-			if (!file.type.startsWith('image/')) {
-				toast.error('Vui lòng chọn file ảnh hợp lệ');
+			// Check if adding new images would exceed the limit
+			if (images.length + files.length > MAX_IMAGES) {
+				toast.error(`Chỉ được phép tối đa ${MAX_IMAGES} ảnh`);
 				return;
 			}
 
-			// Validate file size (max 5MB)
-			if (file.size > 5 * 1024 * 1024) {
-				toast.error('Kích thước file không được vượt quá 5MB');
+			if (!vendorId) {
+				toast.error('Không thể xác định vendor ID');
 				return;
 			}
 
 			setIsUploading(true);
 
 			try {
-				// Convert file to base64 for simple storage (in real app, you'd upload to cloud storage)
-				const reader = new FileReader();
-				reader.onload = async (e) => {
-					const base64Url = e.target?.result as string;
+				// Process multiple files
+				const uploadPromises = Array.from(files).map(async (file) => {
+					// Validate file type
+					if (!file.type.startsWith('image/')) {
+						throw new Error(`File ${file.name} không phải là ảnh hợp lệ`);
+					}
 
-					// Call API to save image
+					// Validate file size (max 5MB)
+					if (file.size > 5 * 1024 * 1024) {
+						throw new Error(`File ${file.name} vượt quá 5MB`);
+					}
+
+					// Upload to Supabase
+					const url = await uploadImage(file, vendorId);
+
+					// Call API to save image info to database
 					const response = await fetch('/api/vendor/images', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify({ url: base64Url }),
+						body: JSON.stringify({ url }),
 					});
 
-					if (response.ok) {
-						const { image } = await response.json();
-						setImages((prev) => [...prev, image]);
-						toast.success('Ảnh đã được thêm thành công');
-						onSuccess?.();
-					} else {
-						throw new Error('Failed to upload image');
+					if (!response.ok) {
+						throw new Error(`Failed to save ${file.name} to database`);
 					}
-				};
 
-				reader.onerror = () => {
-					throw new Error('Failed to read file');
-				};
+					const { image } = await response.json();
+					return image;
+				});
 
-				reader.readAsDataURL(file);
+				const uploadedImages = await Promise.all(uploadPromises);
+				setImages((prev) => [...prev, ...uploadedImages]);
+				toast.success(`${uploadedImages.length} ảnh đã được thêm thành công`);
+				onSuccess?.();
 			} catch (error) {
-				console.error('Error uploading image:', error);
-				toast.error('Không thể tải ảnh lên');
+				console.error('Error uploading images:', error);
+				toast.error(
+					error instanceof Error ? error.message : 'Không thể tải ảnh lên',
+				);
 			} finally {
 				setIsUploading(false);
 				// Reset input
 				event.target.value = '';
 			}
 		},
-		[toast, onSuccess],
+		[images.length, MAX_IMAGES, vendorId, toast, onSuccess],
 	);
 
 	const handleDeleteImage = async (imageId: string) => {
@@ -140,16 +152,28 @@ export function VendorImageManager({
 					{/* Upload Button */}
 					<div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
 						<ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-						<p className="text-muted-foreground mb-4">
-							Thêm ảnh cửa hàng (JPG, PNG, tối đa 5MB)
+						<p className="text-muted-foreground mb-2">
+							Thêm ảnh cửa hàng (JPG, PNG, tối đa 5MB mỗi ảnh)
+						</p>
+						<p className="text-sm text-muted-foreground mb-4">
+							{images.length}/{MAX_IMAGES} ảnh | Có thể chọn nhiều ảnh cùng lúc
 						</p>
 						<label htmlFor="image-upload">
-							<Button disabled={isUploading} className="cursor-pointer" asChild>
+							<Button
+								disabled={isUploading || images.length >= MAX_IMAGES}
+								className="cursor-pointer"
+								asChild
+							>
 								<span>
 									{isUploading ? (
 										<>
 											<Upload className="h-4 w-4 mr-2 animate-spin" />
 											Đang tải...
+										</>
+									) : images.length >= MAX_IMAGES ? (
+										<>
+											<ImageIcon className="h-4 w-4 mr-2" />
+											Đã đủ {MAX_IMAGES} ảnh
 										</>
 									) : (
 										<>
@@ -164,8 +188,9 @@ export function VendorImageManager({
 							id="image-upload"
 							type="file"
 							accept="image/*"
+							multiple
 							onChange={handleFileSelect}
-							disabled={isUploading}
+							disabled={isUploading || images.length >= MAX_IMAGES}
 							className="hidden"
 						/>
 					</div>

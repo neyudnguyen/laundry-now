@@ -150,6 +150,7 @@ const VendorProfilePage = () => {
 					<section>
 						<VendorImageManager
 							vendorImages={vendorData?.user?.vendorProfile?.images || []}
+							vendorId={vendorData?.user?.vendorProfile?.id}
 							onSuccess={handleProfileUpdate}
 						/>
 					</section>
