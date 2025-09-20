@@ -210,7 +210,7 @@ export function VendorImageManager({
 										fill
 										className="object-cover"
 									/>
-									<div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
+									<div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
 										<Button
 											variant="destructive"
 											size="sm"
