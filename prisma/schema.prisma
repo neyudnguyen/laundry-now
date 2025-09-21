@@ -44,7 +44,6 @@ enum OrderStatus {
   PENDING      @map("pending") // Chờ tiếp nhận
   ACCEPTED     @map("accepted") // Đã tiếp nhận
   IN_PROGRESS  @map("in_progress") // Đang giặt
-  DELIVERED    @map("delivered") // Đã giao
   NEED_PAYMENT @map("need_payment") // Cần thanh toán
   COMPLETED    @map("completed") // Hoàn tất
   CANCELLED    @map("cancelled") // Đã hủy
