@@ -25,6 +25,40 @@ enum UserRole {
   @@map("user_roles")
 }
 
+enum PaymentMethod {
+  COD    @map("cod")
+  QRCODE @map("qrcode")
+
+  @@map("payment_methods")
+}
+
+enum PaymentStatus {
+  PENDING   @map("pending")
+  COMPLETED @map("completed")
+  FAILED    @map("failed")
+
+  @@map("payment_statuses")
+}
+
+enum OrderStatus {
+  PENDING      @map("pending") // Chờ tiếp nhận
+  ACCEPTED     @map("accepted") // Đã tiếp nhận
+  IN_PROGRESS  @map("in_progress") // Đang giặt
+  DELIVERED    @map("delivered") // Đã giao
+  NEED_PAYMENT @map("need_payment") // Cần thanh toán
+  COMPLETED    @map("completed") // Hoàn tất
+  CANCELLED    @map("cancelled") // Đã hủy
+
+  @@map("order_statuses")
+}
+
+enum PickupType {
+  HOME  @map("home") // Đón tại nhà
+  STORE @map("store") // Đón tại cửa hàng
+
+  @@map("pickup_types")
+}
+
 // ============================
 // MODELS
 // ============================
@@ -83,6 +117,7 @@ model CustomerProfile {
 
   user      User      @relation(fields: [userId], references: [id])
   addresses Address[]
+  Order     Order[]
 
   @@map("customer_profiles")
 }
@@ -98,6 +133,7 @@ model VendorProfile {
   address           Address?           @relation(fields: [addressId], references: [id])
   images            VendorImage[]
   vendorServiceFees VendorServiceFee[]
+  Order             Order[]
 
   @@map("vendor_profiles")
 }
@@ -116,7 +152,7 @@ model VendorImage {
 model VendorServiceFee {
   id   String @id @default(cuid()) @map("id")
   name String @map("name")
-  fee  Float  @map("fee") // fee per kg
+  fee  Int    @map("fee") // fee per kg
 
   vendorId String @map("vendor_id")
 
@@ -126,4 +162,43 @@ model VendorServiceFee {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("vendor_service_fees")
+}
+
+model Order {
+  id            String        @id @default(cuid()) @map("id")
+  status        OrderStatus   @default(PENDING) @map("status")
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+  paymentMethod PaymentMethod @default(COD) @map("payment_method")
+  pickupType    PickupType    @default(STORE) @map("pickup_type")
+  servicePrice  Int           @default(0) @map("service_price")
+  deliveryFee   Int           @default(0) @map("delivery_fee")
+  notes         String?       @map("notes")
+
+  customerId String @map("customer_id")
+  vendorId   String @map("vendor_id")
+
+  customer CustomerProfile @relation(fields: [customerId], references: [id])
+  vendor   VendorProfile   @relation(fields: [vendorId], references: [id])
+  items    OrderItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(cuid()) @map("id")
+  name      String @map("name")
+  quantity  Int    @map("quantity") // in kg
+  unitPrice Int    @map("unit_price") // price per kg
+
+  orderId String @map("order_id")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("order_items")
 }
