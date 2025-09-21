@@ -131,25 +131,24 @@ export default function OrderDetailDialog({
 	});
 	const { toast } = useToast();
 
-	// Fetch vendor services
-	const fetchVendorServices = async () => {
-		try {
-			const response = await fetch('/api/vendor/services');
-			if (response.ok) {
-				const data = await response.json();
-				setVendorServices(data.services);
-			}
-		} catch (error) {
-			console.error('Error fetching vendor services:', error);
-		}
-	};
-
+	// Fetch vendor services once when component mounts
 	useEffect(() => {
-		if (isOpen) {
-			fetchVendorServices();
-		}
-	}, [isOpen]);
+		const fetchVendorServices = async () => {
+			try {
+				const response = await fetch('/api/vendor/services');
+				if (response.ok) {
+					const data = await response.json();
+					setVendorServices(data.services);
+				}
+			} catch (error) {
+				console.error('Error fetching vendor services:', error);
+			}
+		};
 
+		fetchVendorServices();
+	}, []);
+
+	// Update states when order changes
 	useEffect(() => {
 		if (order) {
 			setOrderItems(order.items);
@@ -215,7 +214,6 @@ export default function OrderDetailDialog({
 			}
 
 			toast.success('Cập nhật thông tin đơn hàng thành công');
-			onOrderUpdate();
 		} catch (error) {
 			console.error('Error updating order settings:', error);
 			toast.error('Không thể cập nhật thông tin đơn hàng');
@@ -267,7 +265,6 @@ export default function OrderDetailDialog({
 			setNewItem({ serviceId: '', quantity: 0.1, unitPrice: 0 });
 			setShowNewItemForm(false);
 			toast.success('Thêm dịch vụ thành công');
-			onOrderUpdate();
 		} catch (error) {
 			console.error('Error adding order item:', error);
 			toast.error('Không thể thêm dịch vụ');
@@ -304,7 +301,6 @@ export default function OrderDetailDialog({
 			);
 			setEditingItem(null);
 			toast.success('Cập nhật dịch vụ thành công');
-			onOrderUpdate();
 		} catch (error) {
 			console.error('Error updating order item:', error);
 			toast.error('Không thể cập nhật dịch vụ');
@@ -329,7 +325,6 @@ export default function OrderDetailDialog({
 
 			setOrderItems(orderItems.filter((item) => item.id !== itemId));
 			toast.success('Xóa dịch vụ thành công');
-			onOrderUpdate();
 		} catch (error) {
 			console.error('Error deleting order item:', error);
 			toast.error('Không thể xóa dịch vụ');
