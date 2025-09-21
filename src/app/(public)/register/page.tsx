@@ -129,7 +129,7 @@ export default function RegisterPage() {
 			});
 
 			if (signInResult?.ok) {
-				router.push('/customer/dashboard');
+				router.push('/customer/marketplace');
 				router.refresh();
 			} else {
 				toast.error('Tự động đăng nhập thất bại. Vui lòng đăng nhập thủ công.');

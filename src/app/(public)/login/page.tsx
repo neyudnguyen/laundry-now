@@ -71,11 +71,11 @@ export default function LoginPage() {
 				// Get session to determine user role for redirect
 				const session = await getSession();
 				if (session?.user?.role === 'CUSTOMER') {
-					router.push('/customer/dashboard');
+					router.push('/customer/marketplace');
 				} else if (session?.user?.role === 'VENDOR') {
 					router.push('/vendor/dashboard');
 				} else {
-					router.push('/customer/dashboard'); // Default fallback
+					router.push('/customer/marketplace'); // Default fallback
 				}
 				router.refresh();
 			}

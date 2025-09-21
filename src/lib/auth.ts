@@ -22,11 +22,11 @@ export const authConfig = {
 				// Redirect based on user role
 				const userRole = auth.user.role;
 				if (userRole === 'CUSTOMER') {
-					return Response.redirect(new URL('/customer/dashboard', nextUrl));
+					return Response.redirect(new URL('/customer/marketplace', nextUrl));
 				} else if (userRole === 'VENDOR') {
 					return Response.redirect(new URL('/vendor/dashboard', nextUrl));
 				}
-				return Response.redirect(new URL('/customer/dashboard', nextUrl)); // Default fallback
+				return Response.redirect(new URL('/customer/marketplace', nextUrl)); // Default fallback
 			}
 			return true;
 		},

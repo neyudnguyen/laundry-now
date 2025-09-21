@@ -103,7 +103,7 @@ export default function VendorLayout({
 		if (session.user.role !== UserRole.VENDOR) {
 			// Redirect to appropriate dashboard based on role
 			if (session.user.role === UserRole.CUSTOMER) {
-				router.push('/customer/dashboard');
+				router.push('/customer/marketplace');
 			} else {
 				router.push('/login');
 			}

@@ -204,7 +204,7 @@ export default function ServicesPage() {
 				<div>
 					<h1 className="text-2xl font-bold">Quản lý dịch vụ</h1>
 					<p className="text-muted-foreground">
-						Quản lý các dịch vụ giặt là mà bạn cung cấp
+						Quản lý các dịch vụ giặt ủi mà bạn cung cấp
 					</p>
 				</div>
 				<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

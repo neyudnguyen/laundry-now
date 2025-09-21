@@ -1,7 +1,7 @@
 'use client';
 
 import { UserRole } from '@prisma/client';
-import { Bell, History, Home, LogOut, ShoppingBag, User } from 'lucide-react';
+import { Bell, History, LogOut, Search, ShoppingBag, User } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -29,9 +29,9 @@ import {
 
 const menuItems = [
 	{
-		title: 'Bảng điều khiển',
-		icon: Home,
-		href: '/customer/dashboard',
+		title: 'Tìm cửa hàng',
+		icon: Search,
+		href: '/customer/marketplace',
 	},
 	{
 		title: 'Thông báo',
@@ -96,8 +96,8 @@ export default function CustomerLayout({
 		return (
 			<div className="flex h-screen items-center justify-center">
 				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-					<p className="mt-2 text-sm text-gray-600">Đang tải...</p>
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+					<p className="mt-2 text-sm text-muted-foreground">Đang tải...</p>
 				</div>
 			</div>
 		);
