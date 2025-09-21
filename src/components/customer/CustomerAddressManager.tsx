@@ -90,6 +90,7 @@ export function CustomerAddressManager() {
 
 	useEffect(() => {
 		fetchAddresses();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Handle form submission
