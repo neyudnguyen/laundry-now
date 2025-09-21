@@ -189,7 +189,7 @@ model Order {
 model OrderItem {
   id        String @id @default(cuid()) @map("id")
   name      String @map("name")
-  quantity  Int    @map("quantity") // in kg
+  quantity  Float  @map("quantity") // in kg
   unitPrice Int    @map("unit_price") // price per kg
 
   orderId String @map("order_id")
