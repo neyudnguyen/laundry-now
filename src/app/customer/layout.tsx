@@ -44,7 +44,7 @@ const menuItems = [
 		href: '/customer/profile',
 	},
 	{
-		title: 'Đơn hàng',
+		title: 'Đặt hàng',
 		icon: ShoppingBag,
 		href: '/customer/orders',
 	},
