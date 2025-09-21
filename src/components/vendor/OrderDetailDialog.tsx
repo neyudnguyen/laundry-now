@@ -28,7 +28,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks';
 
 interface OrderItem {
@@ -397,10 +396,15 @@ export default function OrderDetailDialog({
 					{/* Order Settings */}
 					{canEditSettings && (
 						<div className="space-y-4 border-t pt-4">
-							<h3 className="font-medium">Cài đặt đơn hàng</h3>
-							<div className="grid grid-cols-2 gap-4">
-								<div>
-									<Label htmlFor="paymentMethod">Phương thức thanh toán</Label>
+							<h3 className="font-medium">Cài đặt thanh toán & giao hàng</h3>
+							<div className="space-y-4">
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+									<Label
+										htmlFor="paymentMethod"
+										className="text-sm font-medium"
+									>
+										Phương thức thanh toán
+									</Label>
 									<Select
 										value={orderSettings.paymentMethod}
 										onValueChange={(value) =>
@@ -419,30 +423,43 @@ export default function OrderDetailDialog({
 										</SelectContent>
 									</Select>
 								</div>
-								<div>
-									<Label htmlFor="pickupType">Giao hàng</Label>
+
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+									<Label htmlFor="pickupType" className="text-sm font-medium">
+										Loại giao hàng
+									</Label>
 									<Select
 										value={orderSettings.pickupType}
-										onValueChange={(value) =>
-											setOrderSettings({ ...orderSettings, pickupType: value })
-										}
+										onValueChange={(value) => {
+											setOrderSettings({
+												...orderSettings,
+												pickupType: value,
+												// Reset phí giao hàng về 0 khi chọn nhận tại cửa hàng
+												deliveryFee:
+													value === 'STORE' ? 0 : orderSettings.deliveryFee,
+											});
+										}}
 									>
 										<SelectTrigger>
 											<SelectValue />
 										</SelectTrigger>
 										<SelectContent>
 											<SelectItem value="HOME">Giao tại nhà</SelectItem>
-											<SelectItem value="STORE">Giao tại cửa hàng</SelectItem>
+											<SelectItem value="STORE">Nhận tại cửa hàng</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>
-							</div>
-							<div className="grid grid-cols-2 gap-4">
-								<div>
-									<Label htmlFor="deliveryFee">Phí giao hàng</Label>
+
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+									<Label htmlFor="deliveryFee" className="text-sm font-medium">
+										Phí giao hàng (VND)
+									</Label>
 									<Input
 										type="number"
+										min="0"
+										placeholder="0"
 										value={orderSettings.deliveryFee}
+										disabled={orderSettings.pickupType === 'STORE'}
 										onChange={(e) =>
 											setOrderSettings({
 												...orderSettings,
@@ -451,23 +468,12 @@ export default function OrderDetailDialog({
 										}
 									/>
 								</div>
-								<div>
-									<Label htmlFor="notes">Ghi chú</Label>
-									<Textarea
-										value={orderSettings.notes}
-										onChange={(e) =>
-											setOrderSettings({
-												...orderSettings,
-												notes: e.target.value,
-											})
-										}
-										placeholder="Ghi chú cho đơn hàng..."
-									/>
-								</div>
 							</div>
-							<Button onClick={updateOrderSettings} disabled={updating}>
-								Cập nhật thông tin
-							</Button>
+							<div className="flex justify-start pt-2">
+								<Button onClick={updateOrderSettings} disabled={updating}>
+									{updating ? 'Đang cập nhật...' : 'Cập nhật thông tin'}
+								</Button>
+							</div>
 						</div>
 					)}
 
