@@ -2,6 +2,7 @@
 
 import { Mail, MapPin, Phone, ShoppingCart, Store } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -51,6 +52,7 @@ export default function VendorMarketplacePage() {
 		null,
 	);
 	const [loadingDetail, setLoadingDetail] = useState(false);
+	const router = useRouter();
 
 	const loadVendors = async () => {
 		try {
@@ -313,6 +315,11 @@ export default function VendorMarketplacePage() {
 														<Button
 															className="flex-1"
 															disabled={selectedVendor.services.length === 0}
+															onClick={() =>
+																router.push(
+																	`/customer/orders?vendorId=${selectedVendor.id}`,
+																)
+															}
 														>
 															<ShoppingCart className="h-4 w-4 mr-2" />
 															Tạo đơn hàng
