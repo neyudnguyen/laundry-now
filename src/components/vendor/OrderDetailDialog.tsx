@@ -38,6 +38,12 @@ interface OrderItem {
 	unitPrice: number;
 }
 
+interface VendorServiceFee {
+	id: string;
+	name: string;
+	fee: number;
+}
+
 interface Order {
 	id: string;
 	status: string;
@@ -109,9 +115,10 @@ export default function OrderDetailDialog({
 }: OrderDetailDialogProps) {
 	const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 	const [editingItem, setEditingItem] = useState<OrderItem | null>(null);
+	const [vendorServices, setVendorServices] = useState<VendorServiceFee[]>([]);
 	const [newItem, setNewItem] = useState({
-		name: '',
-		quantity: 1,
+		serviceId: '',
+		quantity: 0.1,
 		unitPrice: 0,
 	});
 	const [showNewItemForm, setShowNewItemForm] = useState(false);
@@ -123,6 +130,25 @@ export default function OrderDetailDialog({
 		notes: '',
 	});
 	const { toast } = useToast();
+
+	// Fetch vendor services
+	const fetchVendorServices = async () => {
+		try {
+			const response = await fetch('/api/vendor/services');
+			if (response.ok) {
+				const data = await response.json();
+				setVendorServices(data.services);
+			}
+		} catch (error) {
+			console.error('Error fetching vendor services:', error);
+		}
+	};
+
+	useEffect(() => {
+		if (isOpen) {
+			fetchVendorServices();
+		}
+	}, [isOpen]);
 
 	useEffect(() => {
 		if (order) {
@@ -199,13 +225,24 @@ export default function OrderDetailDialog({
 	};
 
 	const addOrderItem = async () => {
-		if (
-			!order ||
-			!newItem.name ||
-			newItem.quantity <= 0 ||
-			newItem.unitPrice <= 0
-		) {
-			toast.error('Vui lòng điền đầy đủ thông tin hợp lệ');
+		if (!order || !newItem.serviceId || newItem.quantity <= 0) {
+			toast.error('Vui lòng chọn dịch vụ và nhập số kg hợp lệ');
+			return;
+		}
+
+		// Tìm service được chọn để lấy tên và giá
+		const selectedService = vendorServices.find(
+			(s) => s.id === newItem.serviceId,
+		);
+		if (!selectedService) {
+			toast.error('Dịch vụ không hợp lệ');
+			return;
+		}
+
+		// Validate quantity (1 decimal place)
+		const roundedQuantity = Math.round(newItem.quantity * 10) / 10;
+		if (roundedQuantity !== newItem.quantity) {
+			toast.error('Số kg chỉ được phép 1 chữ số thập phân (ví dụ: 0.5, 1.2)');
 			return;
 		}
 
@@ -213,7 +250,11 @@ export default function OrderDetailDialog({
 			const response = await fetch(`/api/vendor/orders/${order.id}/items`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(newItem),
+				body: JSON.stringify({
+					name: selectedService.name,
+					quantity: roundedQuantity,
+					unitPrice: selectedService.fee,
+				}),
 			});
 
 			if (!response.ok) {
@@ -223,7 +264,7 @@ export default function OrderDetailDialog({
 
 			const data = await response.json();
 			setOrderItems([...orderItems, data.item]);
-			setNewItem({ name: '', quantity: 1, unitPrice: 0 });
+			setNewItem({ serviceId: '', quantity: 0.1, unitPrice: 0 });
 			setShowNewItemForm(false);
 			toast.success('Thêm dịch vụ thành công');
 			onOrderUpdate();
@@ -440,35 +481,62 @@ export default function OrderDetailDialog({
 
 							{showNewItemForm && (
 								<div className="grid grid-cols-4 gap-2 p-3 border rounded">
-									<Input
-										placeholder="Tên dịch vụ"
-										value={newItem.name}
-										onChange={(e) =>
-											setNewItem({ ...newItem, name: e.target.value })
-										}
-									/>
+									<Select
+										value={newItem.serviceId}
+										onValueChange={(value) => {
+											const service = vendorServices.find(
+												(s) => s.id === value,
+											);
+											setNewItem({
+												serviceId: value,
+												quantity: newItem.quantity,
+												unitPrice: service?.fee || 0,
+											});
+										}}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder="Chọn dịch vụ" />
+										</SelectTrigger>
+										<SelectContent>
+											{vendorServices.map((service) => (
+												<SelectItem key={service.id} value={service.id}>
+													{service.name} -{' '}
+													{new Intl.NumberFormat('vi-VN', {
+														style: 'currency',
+														currency: 'VND',
+													}).format(service.fee)}
+													/kg
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
 									<Input
 										type="number"
-										placeholder="Số lượng (kg)"
+										placeholder="Số kg (0.1-999.9)"
 										value={newItem.quantity}
-										onChange={(e) =>
+										step="0.1"
+										min="0.1"
+										max="999.9"
+										onChange={(e) => {
+											const value = parseFloat(e.target.value);
+											const roundedValue = Math.round(value * 10) / 10;
 											setNewItem({
 												...newItem,
-												quantity: parseInt(e.target.value) || 1,
-											})
-										}
+												quantity: roundedValue || 0.1,
+											});
+										}}
 									/>
-									<Input
-										type="number"
-										placeholder="Giá/kg"
-										value={newItem.unitPrice}
-										onChange={(e) =>
-											setNewItem({
-												...newItem,
-												unitPrice: parseInt(e.target.value) || 0,
-											})
-										}
-									/>
+									<div className="text-sm text-muted-foreground flex items-center">
+										{newItem.serviceId && (
+											<span>
+												Thành tiền:{' '}
+												{new Intl.NumberFormat('vi-VN', {
+													style: 'currency',
+													currency: 'VND',
+												}).format(newItem.quantity * newItem.unitPrice)}
+											</span>
+										)}
+									</div>
 									<div className="flex gap-1">
 										<Button onClick={addOrderItem} size="sm">
 											<Check className="w-4 h-4" />
@@ -476,7 +544,11 @@ export default function OrderDetailDialog({
 										<Button
 											onClick={() => {
 												setShowNewItemForm(false);
-												setNewItem({ name: '', quantity: 1, unitPrice: 0 });
+												setNewItem({
+													serviceId: '',
+													quantity: 0.1,
+													unitPrice: 0,
+												});
 											}}
 											variant="outline"
 											size="sm"
@@ -517,12 +589,18 @@ export default function OrderDetailDialog({
 														<Input
 															type="number"
 															value={editingItem.quantity}
-															onChange={(e) =>
+															step="0.1"
+															min="0.1"
+															max="999.9"
+															onChange={(e) => {
+																const value = parseFloat(e.target.value);
+																const roundedValue =
+																	Math.round(value * 10) / 10;
 																setEditingItem({
 																	...editingItem,
-																	quantity: parseInt(e.target.value) || 1,
-																})
-															}
+																	quantity: roundedValue || 0.1,
+																});
+															}}
 														/>
 													</TableCell>
 													<TableCell>

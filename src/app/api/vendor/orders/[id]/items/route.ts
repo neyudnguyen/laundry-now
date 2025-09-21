@@ -79,6 +79,15 @@ export async function POST(
 			);
 		}
 
+		// Validate quantity decimal places (only 1 decimal place allowed)
+		const roundedQuantity = Math.round(quantity * 10) / 10;
+		if (Math.abs(roundedQuantity - quantity) > 0.001) {
+			return NextResponse.json(
+				{ error: 'Quantity can only have 1 decimal place (e.g., 0.5, 1.2)' },
+				{ status: 400 },
+			);
+		}
+
 		// Verify order ownership and status
 		const order = await prisma.order.findUnique({
 			where: { id: orderId },
@@ -111,7 +120,7 @@ export async function POST(
 		const orderItem = await prisma.orderItem.create({
 			data: {
 				name,
-				quantity,
+				quantity: roundedQuantity,
 				unitPrice,
 				orderId,
 			},
