@@ -12,6 +12,7 @@ import {
 	ShoppingBag,
 	Store,
 	User,
+	Wrench,
 } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -53,6 +54,11 @@ const menuItems = [
 		title: 'Thông tin cá nhân',
 		icon: User,
 		href: '/vendor/profile',
+	},
+	{
+		title: 'Quản lý dịch vụ',
+		icon: Wrench,
+		href: '/vendor/services',
 	},
 	{
 		title: 'Đơn hàng',
