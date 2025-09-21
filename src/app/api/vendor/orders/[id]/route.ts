@@ -11,7 +11,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function PATCH(
 	request: NextRequest,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const session = await auth();
@@ -30,7 +30,7 @@ export async function PATCH(
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
-		const orderId = params.id;
+		const { id: orderId } = await params;
 		const body = await request.json();
 
 		// Get current order to check ownership and current status

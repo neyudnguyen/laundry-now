@@ -62,13 +62,13 @@ const statusVariants = {
 } as const;
 
 const paymentMethodLabels = {
-	COD: 'Thanh toán khi nhận',
+	COD: 'Tiền mặt',
 	QRCODE: 'Quét mã QR',
 };
 
 const pickupTypeLabels = {
-	HOME: 'Đón tại nhà',
-	STORE: 'Đón tại cửa hàng',
+	HOME: 'Giao tại nhà',
+	STORE: 'Giao tại cửa hàng',
 };
 
 export default function VendorOrders() {
@@ -172,7 +172,7 @@ export default function VendorOrders() {
 									<TableHead>Khách hàng</TableHead>
 									<TableHead>Trạng thái</TableHead>
 									<TableHead>Loại thanh toán</TableHead>
-									<TableHead>Loại đón</TableHead>
+									<TableHead>Giao hàng</TableHead>
 									<TableHead>Tổng tiền</TableHead>
 									<TableHead>Thao tác</TableHead>
 								</TableRow>

@@ -366,13 +366,13 @@ export default function OrderDetailDialog({
 											<SelectValue />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="COD">Thanh toán khi nhận</SelectItem>
+											<SelectItem value="COD">Tiền mặt</SelectItem>
 											<SelectItem value="QRCODE">Quét mã QR</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>
 								<div>
-									<Label htmlFor="pickupType">Loại đón</Label>
+									<Label htmlFor="pickupType">Giao hàng</Label>
 									<Select
 										value={orderSettings.pickupType}
 										onValueChange={(value) =>
@@ -383,8 +383,8 @@ export default function OrderDetailDialog({
 											<SelectValue />
 										</SelectTrigger>
 										<SelectContent>
-											<SelectItem value="HOME">Đón tại nhà</SelectItem>
-											<SelectItem value="STORE">Đón tại cửa hàng</SelectItem>
+											<SelectItem value="HOME">Giao tại nhà</SelectItem>
+											<SelectItem value="STORE">Giao tại cửa hàng</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>

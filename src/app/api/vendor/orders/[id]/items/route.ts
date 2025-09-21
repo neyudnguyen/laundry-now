@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 // GET order items
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const session = await auth();
@@ -15,7 +15,7 @@ export async function GET(
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const orderId = params.id;
+		const { id: orderId } = await params;
 
 		// Verify order ownership
 		const order = await prisma.order.findUnique({
@@ -51,7 +51,7 @@ export async function GET(
 // POST new order item
 export async function POST(
 	request: NextRequest,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const session = await auth();
@@ -60,7 +60,7 @@ export async function POST(
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const orderId = params.id;
+		const { id: orderId } = await params;
 		const body = await request.json();
 		const { name, quantity, unitPrice } = body;
 

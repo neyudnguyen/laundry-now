@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 // PUT update order item
 export async function PUT(
 	request: NextRequest,
-	{ params }: { params: { id: string; itemId: string } },
+	{ params }: { params: Promise<{ id: string; itemId: string }> },
 ) {
 	try {
 		const session = await auth();
@@ -15,7 +15,7 @@ export async function PUT(
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const { id: orderId, itemId } = params;
+		const { id: orderId, itemId } = await params;
 		const body = await request.json();
 		const { name, quantity, unitPrice } = body;
 
@@ -103,7 +103,7 @@ export async function PUT(
 // DELETE order item
 export async function DELETE(
 	request: NextRequest,
-	{ params }: { params: { id: string; itemId: string } },
+	{ params }: { params: Promise<{ id: string; itemId: string }> },
 ) {
 	try {
 		const session = await auth();
@@ -112,7 +112,7 @@ export async function DELETE(
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const { id: orderId, itemId } = params;
+		const { id: orderId, itemId } = await params;
 
 		// Verify order ownership and status
 		const order = await prisma.order.findUnique({
