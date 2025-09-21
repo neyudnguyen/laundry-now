@@ -190,8 +190,8 @@ export default function ServicesPage() {
 		return (
 			<div className="flex h-[400px] items-center justify-center">
 				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
-					<p className="mt-2 text-sm text-gray-600">Đang tải...</p>
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+					<p className="mt-2 text-sm text-muted-foreground">Đang tải...</p>
 				</div>
 			</div>
 		);
@@ -202,17 +202,14 @@ export default function ServicesPage() {
 			{/* Header */}
 			<div className="flex items-center justify-between">
 				<div>
-					<h1 className="text-2xl font-bold text-gray-900">Quản lý dịch vụ</h1>
-					<p className="text-gray-600">
+					<h1 className="text-2xl font-bold">Quản lý dịch vụ</h1>
+					<p className="text-muted-foreground">
 						Quản lý các dịch vụ giặt là mà bạn cung cấp
 					</p>
 				</div>
 				<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 					<DialogTrigger asChild>
-						<Button
-							onClick={handleCreate}
-							className="bg-orange-500 hover:bg-orange-600"
-						>
+						<Button onClick={handleCreate}>
 							<Plus className="h-4 w-4 mr-2" />
 							Thêm dịch vụ
 						</Button>
@@ -269,10 +266,7 @@ export default function ServicesPage() {
 									>
 										Hủy
 									</Button>
-									<Button
-										type="submit"
-										className="bg-orange-500 hover:bg-orange-600"
-									>
+									<Button type="submit">
 										{editingService ? 'Cập nhật' : 'Thêm'}
 									</Button>
 								</div>
@@ -286,17 +280,12 @@ export default function ServicesPage() {
 			{services.length === 0 ? (
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center py-12">
-						<DollarSign className="h-12 w-12 text-gray-400 mb-4" />
-						<h3 className="text-lg font-medium text-gray-900 mb-2">
-							Chưa có dịch vụ nào
-						</h3>
-						<p className="text-gray-600 text-center mb-4">
+						<DollarSign className="h-12 w-12 text-muted-foreground mb-4" />
+						<h3 className="text-lg font-medium mb-2">Chưa có dịch vụ nào</h3>
+						<p className="text-muted-foreground text-center mb-4">
 							Thêm dịch vụ đầu tiên để khách hàng có thể đặt hàng
 						</p>
-						<Button
-							onClick={handleCreate}
-							className="bg-orange-500 hover:bg-orange-600"
-						>
+						<Button onClick={handleCreate}>
 							<Plus className="h-4 w-4 mr-2" />
 							Thêm dịch vụ đầu tiên
 						</Button>
@@ -333,7 +322,7 @@ export default function ServicesPage() {
 											variant="ghost"
 											size="sm"
 											onClick={() => setDeletingService(service)}
-											className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+											className="h-8 w-8 p-0 text-destructive hover:text-destructive"
 										>
 											<Trash2 className="h-4 w-4" />
 										</Button>
@@ -341,7 +330,7 @@ export default function ServicesPage() {
 								</div>
 							</CardHeader>
 							<CardContent className="pt-0">
-								<p className="text-sm text-gray-600">
+								<p className="text-sm text-muted-foreground">
 									Cập nhật:{' '}
 									{new Date(service.updatedAt).toLocaleDateString('vi-VN')}
 								</p>
@@ -368,7 +357,7 @@ export default function ServicesPage() {
 						<AlertDialogCancel>Hủy</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={handleDelete}
-							className="bg-red-600 hover:bg-red-700"
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 						>
 							Xóa
 						</AlertDialogAction>

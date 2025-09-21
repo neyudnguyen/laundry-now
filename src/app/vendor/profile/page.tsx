@@ -104,7 +104,7 @@ const VendorProfilePage = () => {
 				{/* Header */}
 				<div className="mb-8">
 					<div className="flex items-center space-x-4 mb-4">
-						<div className="h-16 w-16 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center text-white text-xl font-bold">
+						<div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xl font-bold">
 							{vendorData?.user?.vendorProfile?.shopName
 								?.charAt(0)
 								?.toUpperCase() ||

@@ -123,8 +123,8 @@ export default function VendorLayout({
 		return (
 			<div className="flex h-screen items-center justify-center">
 				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-					<p className="mt-2 text-sm text-gray-600">Đang tải...</p>
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+					<p className="mt-2 text-sm text-muted-foreground">Đang tải...</p>
 				</div>
 			</div>
 		);
@@ -150,7 +150,7 @@ export default function VendorLayout({
 					<div className="flex items-center gap-3">
 						<Avatar className="h-10 w-10">
 							<AvatarImage src="" alt={shopDisplayName} />
-							<AvatarFallback className="bg-orange-500 text-white">
+							<AvatarFallback className="bg-purple-500 text-white">
 								{shopInitials}
 							</AvatarFallback>
 						</Avatar>
@@ -227,7 +227,7 @@ export default function VendorLayout({
 					<SidebarTrigger />
 					<SidebarSeparator orientation="vertical" className="mr-2 h-4" />
 					<div className="flex items-center gap-2">
-						<Store className="h-5 w-5 text-orange-500" />
+						<Store className="h-5 w-5" />
 						<h1 className="text-lg font-semibold">
 							{menuItems.find((item) => item.href === pathname)?.title ||
 								'Dashboard Nhà cung cấp'}

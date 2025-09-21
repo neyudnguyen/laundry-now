@@ -119,25 +119,13 @@ export default function VendorDashboard() {
 			case 'Đã tiếp nhận':
 				return <Badge variant="default">{status}</Badge>;
 			case 'Đang giặt':
-				return (
-					<Badge variant="default" className="bg-blue-500">
-						{status}
-					</Badge>
-				);
+				return <Badge variant="default">{status}</Badge>;
 			case 'Đã giao':
-				return (
-					<Badge variant="default" className="bg-green-500">
-						{status}
-					</Badge>
-				);
+				return <Badge variant="secondary">{status}</Badge>;
 			case 'Chờ thanh toán':
 				return <Badge variant="destructive">{status}</Badge>;
 			case 'Hoàn tất':
-				return (
-					<Badge variant="default" className="bg-emerald-500">
-						{status}
-					</Badge>
-				);
+				return <Badge variant="secondary">{status}</Badge>;
 			case 'Đơn hủy':
 				return <Badge variant="outline">{status}</Badge>;
 			default:
@@ -148,13 +136,13 @@ export default function VendorDashboard() {
 	const getNotificationIcon = (type: string) => {
 		switch (type) {
 			case 'new_order':
-				return <Package className="h-4 w-4 text-blue-500" />;
+				return <Package className="h-4 w-4" />;
 			case 'completed':
-				return <CheckCircle className="h-4 w-4 text-green-500" />;
+				return <CheckCircle className="h-4 w-4" />;
 			case 'payment':
-				return <DollarSign className="h-4 w-4 text-emerald-500" />;
+				return <DollarSign className="h-4 w-4" />;
 			case 'complaint':
-				return <MessageSquare className="h-4 w-4 text-red-500" />;
+				return <MessageSquare className="h-4 w-4" />;
 			default:
 				return <Bell className="h-4 w-4" />;
 		}
@@ -170,14 +158,16 @@ export default function VendorDashboard() {
 	return (
 		<div className="space-y-6">
 			{/* Welcome Message */}
-			<div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-lg p-6 text-white">
-				<h1 className="text-2xl font-bold mb-2">
-					Chào mừng đến với Dashboard Nhà cung cấp!
-				</h1>
-				<p className="text-orange-100">
-					Quản lý đơn hàng, theo dõi doanh thu và phát triển cửa hàng của bạn.
-				</p>
-			</div>
+			<Card className="bg-primary text-primary-foreground">
+				<CardContent className="p-6">
+					<h1 className="text-2xl font-bold mb-2">
+						Chào mừng đến với Dashboard Nhà cung cấp!
+					</h1>
+					<p className="opacity-90">
+						Quản lý đơn hàng, theo dõi doanh thu và phát triển cửa hàng của bạn.
+					</p>
+				</CardContent>
+			</Card>
 
 			{/* Dashboard Stats */}
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
@@ -197,10 +187,10 @@ export default function VendorDashboard() {
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 						<CardTitle className="text-sm font-medium">Đang xử lý</CardTitle>
-						<Clock className="h-4 w-4 text-blue-500" />
+						<Clock className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold text-blue-600">
+						<div className="text-2xl font-bold">
 							{dashboardStats.activeOrders}
 						</div>
 						<p className="text-xs text-muted-foreground">Đơn hàng đang xử lý</p>
@@ -212,10 +202,10 @@ export default function VendorDashboard() {
 						<CardTitle className="text-sm font-medium">
 							Doanh thu tháng
 						</CardTitle>
-						<TrendingUp className="h-4 w-4 text-green-500" />
+						<TrendingUp className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold text-green-600">
+						<div className="text-2xl font-bold">
 							{formatCurrency(dashboardStats.monthlyRevenue)}
 						</div>
 						<p className="text-xs text-muted-foreground">Tháng 9/2025</p>
@@ -225,10 +215,10 @@ export default function VendorDashboard() {
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 						<CardTitle className="text-sm font-medium">Hoa hồng (2%)</CardTitle>
-						<DollarSign className="h-4 w-4 text-emerald-500" />
+						<DollarSign className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold text-emerald-600">
+						<div className="text-2xl font-bold">
 							{formatCurrency(dashboardStats.monthlyCommission)}
 						</div>
 						<p className="text-xs text-muted-foreground">Từ doanh thu tháng</p>
@@ -238,7 +228,7 @@ export default function VendorDashboard() {
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 						<CardTitle className="text-sm font-medium">Hoàn tất</CardTitle>
-						<CheckCircle className="h-4 w-4 text-emerald-500" />
+						<CheckCircle className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">
@@ -251,10 +241,10 @@ export default function VendorDashboard() {
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 						<CardTitle className="text-sm font-medium">Khiếu nại</CardTitle>
-						<AlertCircle className="h-4 w-4 text-red-500" />
+						<AlertCircle className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold text-red-600">
+						<div className="text-2xl font-bold">
 							{dashboardStats.pendingComplaints}
 						</div>
 						<p className="text-xs text-muted-foreground">Cần xử lý</p>
@@ -303,7 +293,7 @@ export default function VendorDashboard() {
 									<div className="font-semibold">
 										{formatCurrency(order.total)}
 									</div>
-									<div className="text-sm text-green-600">
+									<div className="text-sm text-muted-foreground">
 										HH: {formatCurrency(order.commission)}
 									</div>
 									<Button variant="outline" size="sm" className="mt-2">
@@ -368,16 +358,14 @@ export default function VendorDashboard() {
 								key={stat.month}
 								className="text-center p-4 border rounded-lg"
 							>
-								<div className="text-lg font-bold text-orange-600">
-									{stat.month}
-								</div>
+								<div className="text-lg font-bold">{stat.month}</div>
 								<div className="text-sm font-medium">
 									{formatCurrency(stat.revenue)}
 								</div>
 								<div className="text-xs text-muted-foreground">
 									{stat.orders} đơn hàng
 								</div>
-								<div className="text-xs text-green-600">
+								<div className="text-xs text-muted-foreground">
 									HH: {formatCurrency(stat.revenue * 0.02)}
 								</div>
 							</div>
