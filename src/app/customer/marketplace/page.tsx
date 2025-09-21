@@ -192,144 +192,155 @@ export default function VendorMarketplacePage() {
 									</div>
 								</div>
 
-								<Dialog>
-									<DialogTrigger asChild>
-										<Button
-											className="w-full"
-											onClick={() => loadVendorDetail(vendor.id)}
-										>
-											Xem chi tiết
-										</Button>
-									</DialogTrigger>
-									<DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-										<DialogHeader>
-											<DialogTitle>Thông tin cửa hàng</DialogTitle>
-										</DialogHeader>
+								<div className="flex gap-2">
+									<Dialog>
+										<DialogTrigger asChild>
+											<Button
+												variant="ghost"
+												className="flex-1"
+												onClick={() => loadVendorDetail(vendor.id)}
+											>
+												Xem chi tiết
+											</Button>
+										</DialogTrigger>
+										<DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+											<DialogHeader>
+												<DialogTitle>Thông tin cửa hàng</DialogTitle>
+											</DialogHeader>
 
-										{loadingDetail ? (
-											<div className="flex items-center justify-center py-8">
-												<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-											</div>
-										) : (
-											selectedVendor && (
-												<div className="space-y-6">
-													<div className="flex items-start gap-4">
-														{selectedVendor.images.length > 0 ? (
-															<div className="relative h-20 w-20 rounded-lg overflow-hidden flex-shrink-0">
-																<Image
-																	src={selectedVendor.images[0].url}
-																	alt={selectedVendor.shopName}
-																	fill
-																	className="object-cover"
-																	unoptimized
-																/>
-															</div>
-														) : (
-															<Avatar className="h-20 w-20">
-																<AvatarFallback className="text-2xl">
-																	{selectedVendor.shopName
-																		.charAt(0)
-																		.toUpperCase()}
-																</AvatarFallback>
-															</Avatar>
-														)}
-														<div className="flex-1">
-															<h2 className="text-xl font-bold">
-																{selectedVendor.shopName}
-															</h2>
-															<div className="space-y-1 mt-2">
-																<div className="flex items-center gap-2 text-sm">
-																	<Phone className="h-4 w-4 text-muted-foreground" />
-																	<span>{selectedVendor.phone}</span>
+											{loadingDetail ? (
+												<div className="flex items-center justify-center py-8">
+													<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+												</div>
+											) : (
+												selectedVendor && (
+													<div className="space-y-6">
+														<div className="flex items-start gap-4">
+															{selectedVendor.images.length > 0 ? (
+																<div className="relative h-20 w-20 rounded-lg overflow-hidden flex-shrink-0">
+																	<Image
+																		src={selectedVendor.images[0].url}
+																		alt={selectedVendor.shopName}
+																		fill
+																		className="object-cover"
+																		unoptimized
+																	/>
 																</div>
-																{selectedVendor.email && (
+															) : (
+																<Avatar className="h-20 w-20">
+																	<AvatarFallback className="text-2xl">
+																		{selectedVendor.shopName
+																			.charAt(0)
+																			.toUpperCase()}
+																	</AvatarFallback>
+																</Avatar>
+															)}
+															<div className="flex-1">
+																<h2 className="text-xl font-bold">
+																	{selectedVendor.shopName}
+																</h2>
+																<div className="space-y-1 mt-2">
 																	<div className="flex items-center gap-2 text-sm">
-																		<Mail className="h-4 w-4 text-muted-foreground" />
-																		<span>{selectedVendor.email}</span>
+																		<Phone className="h-4 w-4 text-muted-foreground" />
+																		<span>{selectedVendor.phone}</span>
 																	</div>
-																)}
-																{selectedVendor.address && (
-																	<div className="flex items-start gap-2 text-sm">
-																		<MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-																		<span>
-																			{selectedVendor.address.fullAddress}
-																		</span>
-																	</div>
-																)}
+																	{selectedVendor.email && (
+																		<div className="flex items-center gap-2 text-sm">
+																			<Mail className="h-4 w-4 text-muted-foreground" />
+																			<span>{selectedVendor.email}</span>
+																		</div>
+																	)}
+																	{selectedVendor.address && (
+																		<div className="flex items-start gap-2 text-sm">
+																			<MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+																			<span>
+																				{selectedVendor.address.fullAddress}
+																			</span>
+																		</div>
+																	)}
+																</div>
 															</div>
 														</div>
-													</div>
 
-													{selectedVendor.images.length > 1 && (
+														{selectedVendor.images.length > 1 && (
+															<div>
+																<h3 className="font-medium mb-3">
+																	Hình ảnh cửa hàng
+																</h3>
+																<div className="grid grid-cols-3 gap-2">
+																	{selectedVendor.images.map((image) => (
+																		<div
+																			key={image.id}
+																			className="relative aspect-square rounded-lg overflow-hidden"
+																		>
+																			<Image
+																				src={image.url}
+																				alt="Hình ảnh cửa hàng"
+																				fill
+																				className="object-cover"
+																				unoptimized
+																			/>
+																		</div>
+																	))}
+																</div>
+															</div>
+														)}
+
 														<div>
 															<h3 className="font-medium mb-3">
-																Hình ảnh cửa hàng
+																Bảng giá dịch vụ
 															</h3>
-															<div className="grid grid-cols-3 gap-2">
-																{selectedVendor.images.map((image) => (
-																	<div
-																		key={image.id}
-																		className="relative aspect-square rounded-lg overflow-hidden"
-																	>
-																		<Image
-																			src={image.url}
-																			alt="Hình ảnh cửa hàng"
-																			fill
-																			className="object-cover"
-																			unoptimized
-																		/>
-																	</div>
-																))}
-															</div>
+															{selectedVendor.services.length > 0 ? (
+																<div className="grid gap-2">
+																	{selectedVendor.services.map((service) => (
+																		<div
+																			key={service.id}
+																			className="flex justify-between items-center p-3 border rounded-lg"
+																		>
+																			<span className="font-medium">
+																				{service.name}
+																			</span>
+																			<Badge variant="secondary">
+																				{formatCurrency(service.fee)}/kg
+																			</Badge>
+																		</div>
+																	))}
+																</div>
+															) : (
+																<p className="text-muted-foreground text-center py-4">
+																	Cửa hàng chưa có dịch vụ nào
+																</p>
+															)}
 														</div>
-													)}
 
-													<div>
-														<h3 className="font-medium mb-3">
-															Bảng giá dịch vụ
-														</h3>
-														{selectedVendor.services.length > 0 ? (
-															<div className="grid gap-2">
-																{selectedVendor.services.map((service) => (
-																	<div
-																		key={service.id}
-																		className="flex justify-between items-center p-3 border rounded-lg"
-																	>
-																		<span className="font-medium">
-																			{service.name}
-																		</span>
-																		<Badge variant="secondary">
-																			{formatCurrency(service.fee)}/kg
-																		</Badge>
-																	</div>
-																))}
-															</div>
-														) : (
-															<p className="text-muted-foreground text-center py-4">
-																Cửa hàng chưa có dịch vụ nào
-															</p>
-														)}
+														<div className="flex gap-3">
+															<Button
+																className="flex-1"
+																onClick={() =>
+																	router.push(
+																		`/customer/orders?vendorId=${selectedVendor.id}`,
+																	)
+																}
+															>
+																<ShoppingCart className="h-4 w-4 mr-2" />
+																Tạo đơn hàng
+															</Button>
+														</div>
 													</div>
-
-													<div className="flex gap-3">
-														<Button
-															className="flex-1"
-															disabled={selectedVendor.services.length === 0}
-															onClick={() =>
-																router.push(
-																	`/customer/orders?vendorId=${selectedVendor.id}`,
-																)
-															}
-														>
-															<ShoppingCart className="h-4 w-4 mr-2" />
-															Tạo đơn hàng
-														</Button>
-													</div>
-												</div>
-											)
-										)}
-									</DialogContent>
-								</Dialog>
+												)
+											)}
+										</DialogContent>
+									</Dialog>
+									<Button
+										className="flex-1"
+										onClick={() =>
+											router.push(`/customer/orders?vendorId=${vendor.id}`)
+										}
+									>
+										<ShoppingCart className="h-4 w-4 mr-2" />
+										Tạo đơn hàng
+									</Button>
+								</div>
 							</CardContent>
 						</Card>
 					))}
