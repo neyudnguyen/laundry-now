@@ -167,3 +167,59 @@ export async function POST(request: NextRequest) {
 		);
 	}
 }
+
+export async function GET() {
+	try {
+		const session = await auth();
+
+		if (!session?.user?.id) {
+			return NextResponse.json(
+				{ error: 'Không có quyền truy cập' },
+				{ status: 401 },
+			);
+		}
+
+		// Lấy thông tin customer profile
+		const customer = await prisma.customerProfile.findUnique({
+			where: { userId: session.user.id },
+		});
+
+		if (!customer) {
+			return NextResponse.json(
+				{ error: 'Không tìm thấy thông tin khách hàng' },
+				{ status: 404 },
+			);
+		}
+
+		// Lấy danh sách orders với đầy đủ thông tin
+		const orders = await prisma.order.findMany({
+			where: {
+				customerId: customer.id,
+			},
+			include: {
+				items: true,
+				vendor: {
+					include: {
+						user: {
+							select: {
+								phone: true,
+							},
+						},
+						address: true,
+					},
+				},
+			},
+			orderBy: {
+				createdAt: 'desc',
+			},
+		});
+
+		return NextResponse.json({ orders });
+	} catch (error) {
+		console.error('Error fetching customer orders:', error);
+		return NextResponse.json(
+			{ error: 'Có lỗi xảy ra khi lấy danh sách đơn hàng' },
+			{ status: 500 },
+		);
+	}
+}
