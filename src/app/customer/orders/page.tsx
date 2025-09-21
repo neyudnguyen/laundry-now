@@ -253,51 +253,49 @@ const CustomerOrdersPage = () => {
 				</p>
 			</div>
 
-			<div className="grid lg:grid-cols-2 gap-6">
-				{/* Left Column - Vendor Info & Services */}
-				<div className="space-y-6">
-					{/* Vendor Info */}
-					<Card>
-						<CardHeader>
-							<CardTitle>Thông tin cửa hàng</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="flex items-start gap-4">
-								{vendor.images.length > 0 ? (
-									<div className="relative h-16 w-16 rounded-lg overflow-hidden flex-shrink-0">
-										<Image
-											src={vendor.images[0].url}
-											alt={vendor.shopName}
-											fill
-											className="object-cover"
-											unoptimized
-										/>
-									</div>
-								) : (
-									<Avatar className="h-16 w-16">
-										<AvatarFallback className="text-lg">
-											{vendor.shopName.charAt(0).toUpperCase()}
-										</AvatarFallback>
-									</Avatar>
-								)}
-								<div className="flex-1">
-									<h3 className="font-semibold text-lg">{vendor.shopName}</h3>
-									<p className="text-sm text-muted-foreground">
-										{vendor.phone}
-									</p>
-									{vendor.address && (
-										<div className="flex items-start gap-1 mt-1">
-											<MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-											<p className="text-sm text-muted-foreground">
-												{vendor.address.fullAddress}
-											</p>
-										</div>
-									)}
-								</div>
+			{/* Vendor Info - Full Width */}
+			<Card>
+				<CardHeader>
+					<CardTitle>Thông tin cửa hàng</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<div className="flex items-start gap-4">
+						{vendor.images.length > 0 ? (
+							<div className="relative h-16 w-16 rounded-lg overflow-hidden flex-shrink-0">
+								<Image
+									src={vendor.images[0].url}
+									alt={vendor.shopName}
+									fill
+									className="object-cover"
+									unoptimized
+								/>
 							</div>
-						</CardContent>
-					</Card>
+						) : (
+							<Avatar className="h-16 w-16">
+								<AvatarFallback className="text-lg">
+									{vendor.shopName.charAt(0).toUpperCase()}
+								</AvatarFallback>
+							</Avatar>
+						)}
+						<div className="flex-1">
+							<h3 className="font-semibold text-lg">{vendor.shopName}</h3>
+							<p className="text-sm text-muted-foreground">{vendor.phone}</p>
+							{vendor.address && (
+								<div className="flex items-start gap-1 mt-1">
+									<MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+									<p className="text-sm text-muted-foreground">
+										{vendor.address.fullAddress}
+									</p>
+								</div>
+							)}
+						</div>
+					</div>
+				</CardContent>
+			</Card>
 
+			<div className="grid lg:grid-cols-2 gap-6">
+				{/* Left Column - Services */}
+				<div className="space-y-6">
 					{/* Services */}
 					<Card>
 						<CardHeader>
@@ -333,10 +331,7 @@ const CustomerOrdersPage = () => {
 							)}
 						</CardContent>
 					</Card>
-				</div>
 
-				{/* Right Column - Order Form */}
-				<div className="space-y-6">
 					{/* Selected Services */}
 					<Card>
 						<CardHeader>
@@ -386,7 +381,10 @@ const CustomerOrdersPage = () => {
 							)}
 						</CardContent>
 					</Card>
+				</div>
 
+				{/* Right Column - Order Form */}
+				<div className="space-y-6">
 					{/* Order Options */}
 					<Card>
 						<CardHeader>
