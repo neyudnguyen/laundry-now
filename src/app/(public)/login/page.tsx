@@ -1,10 +1,10 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getSession, signIn } from 'next-auth/react';
+import { getSession, signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -41,6 +41,19 @@ export default function LoginPage() {
 	const [isLoading, setIsLoading] = useState(false);
 	const { toast } = useToast();
 	const router = useRouter();
+	const { data: session } = useSession();
+
+	// Redirect if already logged in
+	useEffect(() => {
+		if (session?.user) {
+			// User is already logged in, redirect to appropriate dashboard
+			if (session.user.role === 'CUSTOMER') {
+				router.push('/customer/marketplace');
+			} else if (session.user.role === 'VENDOR') {
+				router.push('/vendor/dashboard');
+			}
+		}
+	}, [session, router]);
 
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
