@@ -360,6 +360,7 @@ export default function OrderDetailDialog({
 	};
 
 	const canEditItems = order.status === 'ACCEPTED';
+	const canViewItems = order.status === 'COMPLETED' || orderItems.length > 0;
 	const canEditSettings = order.status === 'NEED_PAYMENT';
 	const availableActions =
 		statusActions[order.status as keyof typeof statusActions] || [];
@@ -716,6 +717,41 @@ export default function OrderDetailDialog({
 									))}
 								</TableBody>
 							</Table>
+						</div>
+					)}
+
+					{/* Order Items - View Only (for COMPLETED and other statuses with items) */}
+					{!canEditItems && canViewItems && (
+						<div className="space-y-4 border-t pt-4">
+							<h3 className="font-medium">Dịch vụ đã thực hiện</h3>
+							{orderItems.length > 0 ? (
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>Dịch vụ</TableHead>
+											<TableHead>Số lượng (kg)</TableHead>
+											<TableHead>Đơn giá</TableHead>
+											<TableHead>Thành tiền</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{orderItems.map((item) => (
+											<TableRow key={item.id}>
+												<TableCell>{item.name}</TableCell>
+												<TableCell>{item.quantity}</TableCell>
+												<TableCell>{formatCurrency(item.unitPrice)}</TableCell>
+												<TableCell>
+													{formatCurrency(item.quantity * item.unitPrice)}
+												</TableCell>
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
+							) : (
+								<div className="text-center py-8 text-muted-foreground">
+									<p>Chưa có dịch vụ nào được thêm</p>
+								</div>
+							)}
 						</div>
 					)}
 
