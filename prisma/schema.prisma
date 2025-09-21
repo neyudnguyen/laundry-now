@@ -118,7 +118,7 @@ model VendorServiceFee {
   name String @map("name")
   fee  Float  @map("fee") // fee per kg
 
-  vendorId String @unique @map("vendor_id")
+  vendorId String @map("vendor_id")
 
   vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 
