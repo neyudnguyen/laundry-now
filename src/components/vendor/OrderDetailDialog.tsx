@@ -480,66 +480,79 @@ export default function OrderDetailDialog({
 							</div>
 
 							{showNewItemForm && (
-								<div className="grid grid-cols-4 gap-2 p-3 border rounded">
-									<Select
-										value={newItem.serviceId}
-										onValueChange={(value) => {
-											const service = vendorServices.find(
-												(s) => s.id === value,
-											);
-											setNewItem({
-												serviceId: value,
-												quantity: newItem.quantity,
-												unitPrice: service?.fee || 0,
-											});
-										}}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="Chọn dịch vụ" />
-										</SelectTrigger>
-										<SelectContent>
-											{vendorServices.map((service) => (
-												<SelectItem key={service.id} value={service.id}>
-													{service.name} -{' '}
-													{new Intl.NumberFormat('vi-VN', {
-														style: 'currency',
-														currency: 'VND',
-													}).format(service.fee)}
-													/kg
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<Input
-										type="number"
-										placeholder="Số kg (0.1-999.9)"
-										value={newItem.quantity}
-										step="0.1"
-										min="0.1"
-										max="999.9"
-										onChange={(e) => {
-											const value = parseFloat(e.target.value);
-											const roundedValue = Math.round(value * 10) / 10;
-											setNewItem({
-												...newItem,
-												quantity: roundedValue || 0.1,
-											});
-										}}
-									/>
-									<div className="text-sm text-muted-foreground flex items-center">
-										{newItem.serviceId && (
-											<span>
-												Thành tiền:{' '}
+								<div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div className="space-y-2">
+											<Label className="text-sm font-medium">Dịch vụ</Label>
+											<Select
+												value={newItem.serviceId}
+												onValueChange={(value) => {
+													const service = vendorServices.find(
+														(s) => s.id === value,
+													);
+													setNewItem({
+														serviceId: value,
+														quantity: newItem.quantity,
+														unitPrice: service?.fee || 0,
+													});
+												}}
+											>
+												<SelectTrigger>
+													<SelectValue placeholder="Chọn dịch vụ" />
+												</SelectTrigger>
+												<SelectContent>
+													{vendorServices.map((service) => (
+														<SelectItem key={service.id} value={service.id}>
+															{service.name} -{' '}
+															{new Intl.NumberFormat('vi-VN', {
+																style: 'currency',
+																currency: 'VND',
+															}).format(service.fee)}
+															/kg
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</div>
+										<div className="space-y-2">
+											<Label className="text-sm font-medium">
+												Số lượng (kg)
+											</Label>
+											<Input
+												type="number"
+												placeholder="0.1-999.9"
+												value={newItem.quantity}
+												step="0.1"
+												min="0.1"
+												max="999.9"
+												onChange={(e) => {
+													const value = parseFloat(e.target.value);
+													const roundedValue = Math.round(value * 10) / 10;
+													setNewItem({
+														...newItem,
+														quantity: roundedValue || 0.1,
+													});
+												}}
+											/>
+										</div>
+									</div>
+
+									{newItem.serviceId && (
+										<div className="p-2 bg-background border rounded text-sm">
+											<span className="font-medium">Thành tiền: </span>
+											<span className="text-primary font-semibold">
 												{new Intl.NumberFormat('vi-VN', {
 													style: 'currency',
 													currency: 'VND',
 												}).format(newItem.quantity * newItem.unitPrice)}
 											</span>
-										)}
-									</div>
-									<div className="flex gap-1">
+										</div>
+									)}
+
+									<div className="flex gap-2 justify-end">
 										<Button onClick={addOrderItem} size="sm">
-											<Check className="w-4 h-4" />
+											<Check className="w-4 h-4 mr-1" />
+											Thêm
 										</Button>
 										<Button
 											onClick={() => {
@@ -553,7 +566,8 @@ export default function OrderDetailDialog({
 											variant="outline"
 											size="sm"
 										>
-											<X className="w-4 h-4" />
+											<X className="w-4 h-4 mr-1" />
+											Hủy
 										</Button>
 									</div>
 								</div>
