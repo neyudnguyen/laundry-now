@@ -123,6 +123,9 @@ export default function OrderDetailDialog({
 	});
 	const [showNewItemForm, setShowNewItemForm] = useState(false);
 	const [updating, setUpdating] = useState(false);
+	const [addingItem, setAddingItem] = useState(false);
+	const [updatingItem, setUpdatingItem] = useState(false);
+	const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
 	const [orderSettings, setOrderSettings] = useState({
 		paymentMethod: '',
 		pickupType: '',
@@ -245,6 +248,7 @@ export default function OrderDetailDialog({
 		}
 
 		try {
+			setAddingItem(true);
 			const response = await fetch(`/api/vendor/orders/${order.id}/items`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -268,6 +272,8 @@ export default function OrderDetailDialog({
 		} catch (error) {
 			console.error('Error adding order item:', error);
 			toast.error('Không thể thêm dịch vụ');
+		} finally {
+			setAddingItem(false);
 		}
 	};
 
@@ -275,6 +281,7 @@ export default function OrderDetailDialog({
 		if (!order || !editingItem) return;
 
 		try {
+			setUpdatingItem(true);
 			const response = await fetch(
 				`/api/vendor/orders/${order.id}/items/${editingItem.id}`,
 				{
@@ -304,6 +311,8 @@ export default function OrderDetailDialog({
 		} catch (error) {
 			console.error('Error updating order item:', error);
 			toast.error('Không thể cập nhật dịch vụ');
+		} finally {
+			setUpdatingItem(false);
 		}
 	};
 
@@ -311,6 +320,7 @@ export default function OrderDetailDialog({
 		if (!order) return;
 
 		try {
+			setDeletingItemId(itemId);
 			const response = await fetch(
 				`/api/vendor/orders/${order.id}/items/${itemId}`,
 				{
@@ -328,6 +338,8 @@ export default function OrderDetailDialog({
 		} catch (error) {
 			console.error('Error deleting order item:', error);
 			toast.error('Không thể xóa dịch vụ');
+		} finally {
+			setDeletingItemId(null);
 		}
 	};
 
@@ -467,7 +479,7 @@ export default function OrderDetailDialog({
 								<Button
 									onClick={() => setShowNewItemForm(true)}
 									size="sm"
-									disabled={showNewItemForm}
+									disabled={showNewItemForm || addingItem}
 								>
 									<Plus className="w-4 h-4 mr-2" />
 									Thêm dịch vụ
@@ -545,9 +557,13 @@ export default function OrderDetailDialog({
 									)}
 
 									<div className="flex gap-2 justify-end">
-										<Button onClick={addOrderItem} size="sm">
+										<Button
+											onClick={addOrderItem}
+											size="sm"
+											disabled={addingItem}
+										>
 											<Check className="w-4 h-4 mr-1" />
-											Thêm
+											{addingItem ? 'Đang thêm...' : 'Thêm'}
 										</Button>
 										<Button
 											onClick={() => {
@@ -560,6 +576,7 @@ export default function OrderDetailDialog({
 											}}
 											variant="outline"
 											size="sm"
+											disabled={addingItem}
 										>
 											<X className="w-4 h-4 mr-1" />
 											Hủy
@@ -631,13 +648,18 @@ export default function OrderDetailDialog({
 													</TableCell>
 													<TableCell>
 														<div className="flex gap-1">
-															<Button onClick={updateOrderItem} size="sm">
+															<Button
+																onClick={updateOrderItem}
+																size="sm"
+																disabled={updatingItem}
+															>
 																<Check className="w-4 h-4" />
 															</Button>
 															<Button
 																onClick={() => setEditingItem(null)}
 																variant="outline"
 																size="sm"
+																disabled={updatingItem}
 															>
 																<X className="w-4 h-4" />
 															</Button>
@@ -660,6 +682,11 @@ export default function OrderDetailDialog({
 																onClick={() => setEditingItem(item)}
 																variant="outline"
 																size="sm"
+																disabled={
+																	deletingItemId === item.id ||
+																	addingItem ||
+																	updatingItem
+																}
 															>
 																<Edit className="w-4 h-4" />
 															</Button>
@@ -667,6 +694,11 @@ export default function OrderDetailDialog({
 																onClick={() => deleteOrderItem(item.id)}
 																variant="outline"
 																size="sm"
+																disabled={
+																	deletingItemId === item.id ||
+																	addingItem ||
+																	updatingItem
+																}
 															>
 																<Trash2 className="w-4 h-4" />
 															</Button>
