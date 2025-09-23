@@ -70,34 +70,42 @@ interface OrderDetailDialogProps {
 }
 
 const statusLabels = {
-	PENDING: 'Chờ tiếp nhận',
-	ACCEPTED: 'Đã tiếp nhận',
-	IN_PROGRESS: 'Đang giặt',
-	NEED_PAYMENT: 'Cần thanh toán',
+	PENDING_CONFIRMATION: 'Chờ xác nhận',
+	CONFIRMED: 'Đã xác nhận',
+	PICKED_UP: 'Đã lấy đồ',
+	IN_WASHING: 'Đang giặt',
+	PAYMENT_REQUIRED: 'Cần thanh toán',
 	COMPLETED: 'Hoàn tất',
 	CANCELLED: 'Đã hủy',
 };
 
 const statusActions = {
-	PENDING: [
-		{ action: 'ACCEPTED', label: 'Tiếp nhận', variant: 'default' as const },
+	PENDING_CONFIRMATION: [
+		{ action: 'CONFIRMED', label: 'Xác nhận đơn', variant: 'default' as const },
 		{ action: 'CANCELLED', label: 'Hủy đơn', variant: 'destructive' as const },
 	],
-	ACCEPTED: [
+	CONFIRMED: [
 		{
-			action: 'IN_PROGRESS',
+			action: 'PICKED_UP',
+			label: 'Đã lấy đồ',
+			variant: 'default' as const,
+		},
+	],
+	PICKED_UP: [
+		{
+			action: 'IN_WASHING',
 			label: 'Bắt đầu giặt',
 			variant: 'default' as const,
 		},
 	],
-	IN_PROGRESS: [
+	IN_WASHING: [
 		{
-			action: 'NEED_PAYMENT',
+			action: 'PAYMENT_REQUIRED',
 			label: 'Yêu cầu thanh toán',
 			variant: 'default' as const,
 		},
 	],
-	NEED_PAYMENT: [
+	PAYMENT_REQUIRED: [
 		{
 			action: 'COMPLETED',
 			label: 'Hoàn tất đơn hàng',

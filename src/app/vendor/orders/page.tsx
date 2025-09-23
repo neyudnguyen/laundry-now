@@ -44,19 +44,21 @@ interface Order {
 }
 
 const statusLabels = {
-	PENDING: 'Chờ tiếp nhận',
-	ACCEPTED: 'Đã tiếp nhận',
-	IN_PROGRESS: 'Đang giặt',
-	NEED_PAYMENT: 'Cần thanh toán',
+	PENDING_CONFIRMATION: 'Chờ xác nhận',
+	CONFIRMED: 'Đã xác nhận',
+	PICKED_UP: 'Đã lấy đồ',
+	IN_WASHING: 'Đang giặt',
+	PAYMENT_REQUIRED: 'Cần thanh toán',
 	COMPLETED: 'Hoàn tất',
 	CANCELLED: 'Đã hủy',
 };
 
 const statusVariants = {
-	PENDING: 'secondary',
-	ACCEPTED: 'default',
-	IN_PROGRESS: 'outline',
-	NEED_PAYMENT: 'destructive',
+	PENDING_CONFIRMATION: 'secondary',
+	CONFIRMED: 'default',
+	PICKED_UP: 'default',
+	IN_WASHING: 'outline',
+	PAYMENT_REQUIRED: 'destructive',
 	COMPLETED: 'default',
 	CANCELLED: 'secondary',
 } as const;
