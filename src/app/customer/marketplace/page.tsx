@@ -1,14 +1,23 @@
 'use client';
 
-import { Mail, MapPin, Phone, ShoppingCart, Store } from 'lucide-react';
+import {
+	Filter,
+	Mail,
+	MapPin,
+	Phone,
+	ShoppingCart,
+	Store,
+	X,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
 	Dialog,
 	DialogContent,
@@ -16,6 +25,24 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from '@/components/ui/sheet';
+import { Slider } from '@/components/ui/slider';
 import { StarRating } from '@/components/ui/star-rating';
 
 interface VendorService {
@@ -55,13 +82,34 @@ interface VendorDetail extends Vendor {
 	}[];
 }
 
+interface FilterState {
+	searchText: string;
+	minRating: number;
+	selectedProvinces: string[];
+	selectedServices: string[];
+	priceRange: [number, number];
+	sortBy: 'rating' | 'name' | 'reviews';
+	sortOrder: 'asc' | 'desc';
+}
+
 export default function VendorMarketplacePage() {
 	const [vendors, setVendors] = useState<Vendor[]>([]);
+	const [filteredVendors, setFilteredVendors] = useState<Vendor[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [selectedVendor, setSelectedVendor] = useState<VendorDetail | null>(
 		null,
 	);
 	const [loadingDetail, setLoadingDetail] = useState(false);
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [filters, setFilters] = useState<FilterState>({
+		searchText: '',
+		minRating: 0,
+		selectedProvinces: [],
+		selectedServices: [],
+		priceRange: [0, 100000],
+		sortBy: 'rating',
+		sortOrder: 'desc',
+	});
 	const router = useRouter();
 
 	const loadVendors = async () => {
@@ -70,6 +118,7 @@ export default function VendorMarketplacePage() {
 			if (response.ok) {
 				const data = await response.json();
 				setVendors(data.vendors);
+				setFilteredVendors(data.vendors);
 			} else {
 				console.error('Failed to load vendors');
 			}
@@ -78,6 +127,109 @@ export default function VendorMarketplacePage() {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	// Get unique provinces and services for filter options
+	const uniqueProvinces = useMemo(() => {
+		const provinces = vendors
+			.map((vendor) => vendor.address?.province)
+			.filter(Boolean) as string[];
+		return [...new Set(provinces)].sort();
+	}, [vendors]);
+
+	const uniqueServices = useMemo(() => {
+		const services = vendors.flatMap((vendor) =>
+			vendor.services.map((service) => service.name),
+		);
+		return [...new Set(services)].sort();
+	}, [vendors]);
+
+	// Filter and sort vendors
+	const applyFilters = useMemo(() => {
+		let filtered = vendors.filter((vendor) => {
+			// Search text filter
+			if (
+				filters.searchText &&
+				!vendor.shopName
+					.toLowerCase()
+					.includes(filters.searchText.toLowerCase())
+			) {
+				return false;
+			}
+
+			// Rating filter
+			if (vendor.averageRating < filters.minRating) {
+				return false;
+			}
+
+			// Province filter
+			if (
+				filters.selectedProvinces.length > 0 &&
+				(!vendor.address ||
+					!filters.selectedProvinces.includes(vendor.address.province))
+			) {
+				return false;
+			}
+
+			// Service filter
+			if (filters.selectedServices.length > 0) {
+				const vendorServices = vendor.services.map((service) => service.name);
+				if (
+					!filters.selectedServices.some((service) =>
+						vendorServices.includes(service),
+					)
+				) {
+					return false;
+				}
+			}
+
+			// Price range filter
+			const minPrice = Math.min(...vendor.services.map((s) => s.fee));
+			const maxPrice = Math.max(...vendor.services.map((s) => s.fee));
+			if (
+				minPrice > filters.priceRange[1] ||
+				maxPrice < filters.priceRange[0]
+			) {
+				return false;
+			}
+
+			return true;
+		});
+
+		// Sort filtered results
+		filtered = filtered.sort((a, b) => {
+			let comparison = 0;
+			switch (filters.sortBy) {
+				case 'rating':
+					comparison = a.averageRating - b.averageRating;
+					break;
+				case 'name':
+					comparison = a.shopName.localeCompare(b.shopName, 'vi');
+					break;
+				case 'reviews':
+					comparison = a.reviewCount - b.reviewCount;
+					break;
+			}
+			return filters.sortOrder === 'desc' ? -comparison : comparison;
+		});
+
+		return filtered;
+	}, [vendors, filters]);
+
+	useEffect(() => {
+		setFilteredVendors(applyFilters);
+	}, [applyFilters]);
+
+	const resetFilters = () => {
+		setFilters({
+			searchText: '',
+			minRating: 0,
+			selectedProvinces: [],
+			selectedServices: [],
+			priceRange: [0, 100000],
+			sortBy: 'rating',
+			sortOrder: 'desc',
+		});
 	};
 
 	const loadVendorDetail = async (vendorId: string) => {
@@ -121,14 +273,309 @@ export default function VendorMarketplacePage() {
 
 	return (
 		<div className="space-y-6">
-			<div>
-				<h1 className="text-2xl font-bold">Tìm cửa hàng giặt ủi</h1>
-				<p className="text-muted-foreground">
-					Khám phá các cửa hàng giặt ủi gần bạn và chọn dịch vụ phù hợp
-				</p>
+			<div className="space-y-4">
+				<div>
+					<h1 className="text-2xl font-bold">Tìm cửa hàng giặt ủi</h1>
+					<p className="text-muted-foreground">
+						Khám phá các cửa hàng giặt ủi gần bạn và chọn dịch vụ phù hợp
+					</p>
+				</div>
+
+				{/* Search and Filter Bar */}
+				<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+					<div className="flex-1 max-w-md">
+						<Input
+							placeholder="Tìm kiếm cửa hàng..."
+							value={filters.searchText}
+							onChange={(e) =>
+								setFilters((prev) => ({ ...prev, searchText: e.target.value }))
+							}
+						/>
+					</div>
+					<div className="flex items-center gap-2">
+						<Select
+							value={`${filters.sortBy}-${filters.sortOrder}`}
+							onValueChange={(value) => {
+								const [sortBy, sortOrder] = value.split('-') as [
+									'rating' | 'name' | 'reviews',
+									'asc' | 'desc',
+								];
+								setFilters((prev) => ({ ...prev, sortBy, sortOrder }));
+							}}
+						>
+							<SelectTrigger className="w-[200px]">
+								<SelectValue placeholder="Sắp xếp theo" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="rating-desc">Đánh giá cao nhất</SelectItem>
+								<SelectItem value="rating-asc">Đánh giá thấp nhất</SelectItem>
+								<SelectItem value="reviews-desc">
+									Nhiều đánh giá nhất
+								</SelectItem>
+								<SelectItem value="name-asc">Tên A-Z</SelectItem>
+								<SelectItem value="name-desc">Tên Z-A</SelectItem>
+							</SelectContent>
+						</Select>
+						<Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+							<SheetTrigger asChild>
+								<Button variant="outline" size="icon">
+									<Filter className="h-4 w-4" />
+								</Button>
+							</SheetTrigger>
+							<SheetContent>
+								<SheetHeader>
+									<SheetTitle>Bộ lọc tìm kiếm</SheetTitle>
+								</SheetHeader>
+								<div className="mt-6 space-y-6">
+									{/* Rating Filter */}
+									<div className="space-y-3">
+										<Label className="text-sm font-medium">
+											Đánh giá tối thiểu
+										</Label>
+										<div className="space-y-2">
+											<Slider
+												value={[filters.minRating]}
+												onValueChange={([value]) =>
+													setFilters((prev) => ({ ...prev, minRating: value }))
+												}
+												max={5}
+												min={0}
+												step={0.5}
+											/>
+											<div className="flex items-center justify-between text-sm text-muted-foreground">
+												<span>0 sao</span>
+												<span className="font-medium">
+													{filters.minRating} sao trở lên
+												</span>
+												<span>5 sao</span>
+											</div>
+										</div>
+									</div>
+
+									<Separator />
+
+									{/* Province Filter */}
+									{uniqueProvinces.length > 0 && (
+										<div className="space-y-3">
+											<Label className="text-sm font-medium">
+												Tỉnh/Thành phố
+											</Label>
+											<div className="space-y-2 max-h-40 overflow-y-auto">
+												{uniqueProvinces.map((province) => (
+													<div
+														key={province}
+														className="flex items-center space-x-2"
+													>
+														<Checkbox
+															id={`province-${province}`}
+															checked={filters.selectedProvinces.includes(
+																province,
+															)}
+															onCheckedChange={(checked) => {
+																if (checked) {
+																	setFilters((prev) => ({
+																		...prev,
+																		selectedProvinces: [
+																			...prev.selectedProvinces,
+																			province,
+																		],
+																	}));
+																} else {
+																	setFilters((prev) => ({
+																		...prev,
+																		selectedProvinces:
+																			prev.selectedProvinces.filter(
+																				(p) => p !== province,
+																			),
+																	}));
+																}
+															}}
+														/>
+														<Label
+															htmlFor={`province-${province}`}
+															className="text-sm"
+														>
+															{province}
+														</Label>
+													</div>
+												))}
+											</div>
+										</div>
+									)}
+
+									<Separator />
+
+									{/* Service Filter */}
+									{uniqueServices.length > 0 && (
+										<div className="space-y-3">
+											<Label className="text-sm font-medium">Dịch vụ</Label>
+											<div className="space-y-2 max-h-40 overflow-y-auto">
+												{uniqueServices.map((service) => (
+													<div
+														key={service}
+														className="flex items-center space-x-2"
+													>
+														<Checkbox
+															id={`service-${service}`}
+															checked={filters.selectedServices.includes(
+																service,
+															)}
+															onCheckedChange={(checked) => {
+																if (checked) {
+																	setFilters((prev) => ({
+																		...prev,
+																		selectedServices: [
+																			...prev.selectedServices,
+																			service,
+																		],
+																	}));
+																} else {
+																	setFilters((prev) => ({
+																		...prev,
+																		selectedServices:
+																			prev.selectedServices.filter(
+																				(s) => s !== service,
+																			),
+																	}));
+																}
+															}}
+														/>
+														<Label
+															htmlFor={`service-${service}`}
+															className="text-sm"
+														>
+															{service}
+														</Label>
+													</div>
+												))}
+											</div>
+										</div>
+									)}
+
+									<Separator />
+
+									{/* Price Range Filter */}
+									<div className="space-y-3">
+										<Label className="text-sm font-medium">Khoảng giá</Label>
+										<div className="space-y-2">
+											<Slider
+												value={filters.priceRange}
+												onValueChange={(value) =>
+													setFilters((prev) => ({
+														...prev,
+														priceRange: value as [number, number],
+													}))
+												}
+												max={100000}
+												min={0}
+												step={1000}
+											/>
+											<div className="flex items-center justify-between text-sm text-muted-foreground">
+												<span>{formatCurrency(filters.priceRange[0])}</span>
+												<span>{formatCurrency(filters.priceRange[1])}</span>
+											</div>
+										</div>
+									</div>
+
+									<Separator />
+
+									{/* Reset Button */}
+									<Button
+										variant="outline"
+										className="w-full"
+										onClick={resetFilters}
+									>
+										<X className="h-4 w-4 mr-2" />
+										Xóa bộ lọc
+									</Button>
+								</div>
+							</SheetContent>
+						</Sheet>
+					</div>
+				</div>
+
+				{/* Active Filters */}
+				{(filters.searchText ||
+					filters.minRating > 0 ||
+					filters.selectedProvinces.length > 0 ||
+					filters.selectedServices.length > 0 ||
+					filters.priceRange[0] > 0 ||
+					filters.priceRange[1] < 100000) && (
+					<div className="flex flex-wrap gap-2">
+						{filters.searchText && (
+							<Badge variant="secondary" className="gap-1">
+								Tìm kiếm: {filters.searchText}
+								<X
+									className="h-3 w-3 cursor-pointer"
+									onClick={() =>
+										setFilters((prev) => ({ ...prev, searchText: '' }))
+									}
+								/>
+							</Badge>
+						)}
+						{filters.minRating > 0 && (
+							<Badge variant="secondary" className="gap-1">
+								Từ {filters.minRating} sao
+								<X
+									className="h-3 w-3 cursor-pointer"
+									onClick={() =>
+										setFilters((prev) => ({ ...prev, minRating: 0 }))
+									}
+								/>
+							</Badge>
+						)}
+						{filters.selectedProvinces.map((province) => (
+							<Badge key={province} variant="secondary" className="gap-1">
+								{province}
+								<X
+									className="h-3 w-3 cursor-pointer"
+									onClick={() =>
+										setFilters((prev) => ({
+											...prev,
+											selectedProvinces: prev.selectedProvinces.filter(
+												(p) => p !== province,
+											),
+										}))
+									}
+								/>
+							</Badge>
+						))}
+						{filters.selectedServices.map((service) => (
+							<Badge key={service} variant="secondary" className="gap-1">
+								{service}
+								<X
+									className="h-3 w-3 cursor-pointer"
+									onClick={() =>
+										setFilters((prev) => ({
+											...prev,
+											selectedServices: prev.selectedServices.filter(
+												(s) => s !== service,
+											),
+										}))
+									}
+								/>
+							</Badge>
+						))}
+					</div>
+				)}
 			</div>
 
-			{vendors.length === 0 ? (
+			{filteredVendors.length === 0 && vendors.length > 0 ? (
+				<Card>
+					<CardContent className="flex flex-col items-center justify-center py-12">
+						<Store className="h-12 w-12 text-muted-foreground mb-4" />
+						<h3 className="text-lg font-medium mb-2">
+							Không tìm thấy cửa hàng nào
+						</h3>
+						<p className="text-muted-foreground text-center mb-4">
+							Không có cửa hàng nào phù hợp với bộ lọc hiện tại.
+						</p>
+						<Button variant="outline" onClick={resetFilters}>
+							Xóa bộ lọc
+						</Button>
+					</CardContent>
+				</Card>
+			) : vendors.length === 0 ? (
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center py-12">
 						<Store className="h-12 w-12 text-muted-foreground mb-4" />
@@ -140,7 +587,7 @@ export default function VendorMarketplacePage() {
 				</Card>
 			) : (
 				<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-					{vendors.map((vendor) => (
+					{filteredVendors.map((vendor) => (
 						<Card key={vendor.id} className="hover:shadow-md transition-shadow">
 							<CardHeader className="pb-3">
 								<div className="flex items-start gap-3">
