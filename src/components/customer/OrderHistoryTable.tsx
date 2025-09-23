@@ -26,10 +26,11 @@ export interface OrderItem {
 export interface Order {
 	id: string;
 	status:
-		| 'PENDING'
-		| 'ACCEPTED'
-		| 'IN_PROGRESS'
-		| 'NEED_PAYMENT'
+		| 'PENDING_CONFIRMATION'
+		| 'CONFIRMED'
+		| 'PICKED_UP'
+		| 'IN_WASHING'
+		| 'PAYMENT_REQUIRED'
 		| 'COMPLETED'
 		| 'CANCELLED';
 	paymentStatus: 'PENDING' | 'COMPLETED' | 'FAILED';
@@ -60,13 +61,15 @@ interface OrderHistoryTableProps {
 
 const getStatusBadgeVariant = (status: Order['status']) => {
 	switch (status) {
-		case 'PENDING':
+		case 'PENDING_CONFIRMATION':
 			return 'secondary';
-		case 'ACCEPTED':
+		case 'CONFIRMED':
 			return 'default';
-		case 'IN_PROGRESS':
+		case 'PICKED_UP':
 			return 'default';
-		case 'NEED_PAYMENT':
+		case 'IN_WASHING':
+			return 'default';
+		case 'PAYMENT_REQUIRED':
 			return 'destructive';
 		case 'COMPLETED':
 			return 'default';
@@ -79,13 +82,15 @@ const getStatusBadgeVariant = (status: Order['status']) => {
 
 const getStatusText = (status: Order['status']) => {
 	switch (status) {
-		case 'PENDING':
-			return 'Chờ tiếp nhận';
-		case 'ACCEPTED':
-			return 'Đã tiếp nhận';
-		case 'IN_PROGRESS':
+		case 'PENDING_CONFIRMATION':
+			return 'Chờ xác nhận';
+		case 'CONFIRMED':
+			return 'Đã xác nhận';
+		case 'PICKED_UP':
+			return 'Đã lấy đồ';
+		case 'IN_WASHING':
 			return 'Đang giặt';
-		case 'NEED_PAYMENT':
+		case 'PAYMENT_REQUIRED':
 			return 'Cần thanh toán';
 		case 'COMPLETED':
 			return 'Hoàn tất';
