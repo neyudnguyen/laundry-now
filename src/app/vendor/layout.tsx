@@ -20,6 +20,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
 	Sidebar,
@@ -38,6 +39,7 @@ import {
 	SidebarSeparator,
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { useUnreadNotifications } from '@/hooks/use-unread-notifications';
 
 const menuItems = [
 	{
@@ -88,6 +90,7 @@ export default function VendorLayout({
 	children: React.ReactNode;
 }) {
 	const { data: session, status } = useSession();
+	const { unreadCount } = useUnreadNotifications();
 	const router = useRouter();
 	const pathname = usePathname();
 
@@ -179,7 +182,16 @@ export default function VendorLayout({
 												className="flex items-center gap-3"
 											>
 												<item.icon className="h-4 w-4" />
-												<span>{item.title}</span>
+												<span className="flex-1">{item.title}</span>
+												{item.href === '/vendor/notifications' &&
+													unreadCount > 0 && (
+														<Badge
+															variant="destructive"
+															className="ml-auto text-xs"
+														>
+															{unreadCount > 99 ? '99+' : unreadCount}
+														</Badge>
+													)}
 											</Link>
 										</SidebarMenuButton>
 									</SidebarMenuItem>
