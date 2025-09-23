@@ -87,6 +87,7 @@ model User {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  reviews   Review[]
 
   @@map("users")
 }
@@ -117,7 +118,7 @@ model CustomerProfile {
 
   user      User      @relation(fields: [userId], references: [id])
   addresses Address[]
-  Order     Order[]
+  orders    Order[]
 
   @@map("customer_profiles")
 }
@@ -133,7 +134,8 @@ model VendorProfile {
   address           Address?           @relation(fields: [addressId], references: [id])
   images            VendorImage[]
   vendorServiceFees VendorServiceFee[]
-  Order             Order[]
+  orders            Order[]
+  reviews           Review[]
 
   @@map("vendor_profiles")
 }
@@ -174,8 +176,9 @@ model Order {
   deliveryFee   Int           @default(0) @map("delivery_fee")
   notes         String?       @map("notes")
 
-  customerId String @map("customer_id")
-  vendorId   String @map("vendor_id")
+  customerId String  @map("customer_id")
+  vendorId   String  @map("vendor_id")
+  reviewId   String? @unique @map("review_id")
 
   customer CustomerProfile @relation(fields: [customerId], references: [id])
   vendor   VendorProfile   @relation(fields: [vendorId], references: [id])
@@ -183,6 +186,7 @@ model Order {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  review    Review?  @relation(fields: [reviewId], references: [id])
 
   @@map("orders")
 }
@@ -201,4 +205,22 @@ model OrderItem {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("order_items")
+}
+
+model Review {
+  id      String  @id @default(cuid()) @map("id")
+  rating  Int     @map("rating") // Điểm số (số sao hoặc điểm số, ví dụ 1-5)
+  comment String? @map("comment") // Nhận xét của khách hàng hoặc nhà cung cấp
+
+  customerId String @map("customer_id")
+  vendorId   String @map("vendor_id")
+
+  customer User          @relation(fields: [customerId], references: [id])
+  vendor   VendorProfile @relation(fields: [vendorId], references: [id])
+  order    Order?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("reviews")
 }
