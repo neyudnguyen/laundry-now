@@ -369,7 +369,6 @@ export default function OrderDetailDialog({
 
 	const canEditItems = order.status === 'PICKED_UP';
 	const canViewItems = order.status === 'COMPLETED' || orderItems.length > 0;
-	const canEditSettings = order.status === 'PAYMENT_REQUIRED';
 	const canEditDeliveryFee =
 		order.status === 'PICKED_UP' && order.pickupType === 'HOME';
 	const availableActions =
@@ -430,90 +429,6 @@ export default function OrderDetailDialog({
 							<div className="flex justify-start pt-2">
 								<Button onClick={updateOrderSettings} disabled={updating}>
 									{updating ? 'Đang cập nhật...' : 'Cập nhật phí giao hàng'}
-								</Button>
-							</div>
-						</div>
-					)}
-
-					{/* Order Settings */}
-					{canEditSettings && (
-						<div className="space-y-4 border-t pt-4">
-							<h3 className="font-medium">Cài đặt thanh toán & giao hàng</h3>
-							<div className="space-y-4">
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-									<Label
-										htmlFor="paymentMethod"
-										className="text-sm font-medium"
-									>
-										Phương thức thanh toán
-									</Label>
-									<Select
-										value={orderSettings.paymentMethod}
-										onValueChange={(value) =>
-											setOrderSettings({
-												...orderSettings,
-												paymentMethod: value,
-											})
-										}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="COD">Tiền mặt</SelectItem>
-											<SelectItem value="QRCODE">Quét mã QR</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-									<Label htmlFor="pickupType" className="text-sm font-medium">
-										Loại giao hàng
-									</Label>
-									<Select
-										value={orderSettings.pickupType}
-										onValueChange={(value) => {
-											setOrderSettings({
-												...orderSettings,
-												pickupType: value,
-												// Reset phí giao hàng về 0 khi chọn nhận tại cửa hàng
-												deliveryFee:
-													value === 'STORE' ? 0 : orderSettings.deliveryFee,
-											});
-										}}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="HOME">Giao tại nhà</SelectItem>
-											<SelectItem value="STORE">Nhận tại cửa hàng</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-									<Label htmlFor="deliveryFee" className="text-sm font-medium">
-										Phí giao hàng (VND)
-									</Label>
-									<Input
-										type="number"
-										min="0"
-										placeholder="0"
-										value={orderSettings.deliveryFee}
-										disabled={orderSettings.pickupType === 'STORE'}
-										onChange={(e) =>
-											setOrderSettings({
-												...orderSettings,
-												deliveryFee: parseInt(e.target.value) || 0,
-											})
-										}
-									/>
-								</div>
-							</div>
-							<div className="flex justify-start pt-2">
-								<Button onClick={updateOrderSettings} disabled={updating}>
-									{updating ? 'Đang cập nhật...' : 'Cập nhật thông tin'}
 								</Button>
 							</div>
 						</div>
