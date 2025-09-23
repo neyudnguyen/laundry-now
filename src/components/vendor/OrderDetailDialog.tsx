@@ -370,6 +370,8 @@ export default function OrderDetailDialog({
 	const canEditItems = order.status === 'PICKED_UP';
 	const canViewItems = order.status === 'COMPLETED' || orderItems.length > 0;
 	const canEditSettings = order.status === 'PAYMENT_REQUIRED';
+	const canEditDeliveryFee =
+		order.status === 'PICKED_UP' && order.pickupType === 'HOME';
 	const availableActions =
 		statusActions[order.status as keyof typeof statusActions] || [];
 
@@ -401,6 +403,37 @@ export default function OrderDetailDialog({
 							</div>
 						</div>
 					</div>
+
+					{/* Delivery Fee Settings - Only for PICKED_UP status with HOME delivery */}
+					{canEditDeliveryFee && (
+						<div className="space-y-4 border-t pt-4">
+							<h3 className="font-medium">Cài đặt phí giao hàng</h3>
+							<div className="space-y-4">
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+									<Label htmlFor="deliveryFee" className="text-sm font-medium">
+										Phí giao hàng (VND)
+									</Label>
+									<Input
+										type="number"
+										min="0"
+										placeholder="0"
+										value={orderSettings.deliveryFee}
+										onChange={(e) =>
+											setOrderSettings({
+												...orderSettings,
+												deliveryFee: parseInt(e.target.value) || 0,
+											})
+										}
+									/>
+								</div>
+							</div>
+							<div className="flex justify-start pt-2">
+								<Button onClick={updateOrderSettings} disabled={updating}>
+									{updating ? 'Đang cập nhật...' : 'Cập nhật phí giao hàng'}
+								</Button>
+							</div>
+						</div>
+					)}
 
 					{/* Order Settings */}
 					{canEditSettings && (

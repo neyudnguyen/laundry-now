@@ -97,6 +97,36 @@ export async function PATCH(
 			}
 		}
 
+		// Validate delivery fee updates - allow only for PICKED_UP with HOME delivery or PAYMENT_REQUIRED
+		if (deliveryFee !== undefined) {
+			if (
+				currentOrder.status !== 'PICKED_UP' &&
+				currentOrder.status !== 'PAYMENT_REQUIRED'
+			) {
+				return NextResponse.json(
+					{
+						error:
+							'Can only update delivery fee when order status is PICKED_UP or PAYMENT_REQUIRED',
+					},
+					{ status: 400 },
+				);
+			}
+
+			// For PICKED_UP status, only allow if pickup type is HOME
+			if (
+				currentOrder.status === 'PICKED_UP' &&
+				currentOrder.pickupType !== 'HOME'
+			) {
+				return NextResponse.json(
+					{
+						error:
+							'Can only update delivery fee for home delivery orders when status is PICKED_UP',
+					},
+					{ status: 400 },
+				);
+			}
+		}
+
 		// Calculate service price from order items
 		let servicePrice = currentOrder.servicePrice;
 		if (currentOrder.items.length > 0) {
