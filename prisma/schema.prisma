@@ -41,19 +41,20 @@ enum PaymentStatus {
 }
 
 enum OrderStatus {
-  PENDING      @map("pending") // Chờ tiếp nhận
-  ACCEPTED     @map("accepted") // Đã tiếp nhận
-  IN_PROGRESS  @map("in_progress") // Đang giặt
-  NEED_PAYMENT @map("need_payment") // Cần thanh toán
-  COMPLETED    @map("completed") // Hoàn tất
-  CANCELLED    @map("cancelled") // Đã hủy
+  PENDING_CONFIRMATION @map("pending_confirmation") // Chờ xác nhận
+  CONFIRMED            @map("confirmed") // Đã xác nhận
+  PICKED_UP            @map("picked_up") // Đã lấy đồ
+  IN_WASHING           @map("in_washing") // Đang giặt
+  PAYMENT_REQUIRED     @map("payment_required") // Cần thanh toán
+  COMPLETED            @map("completed") // Hoàn tất
+  CANCELLED            @map("cancelled") // Đã hủy
 
   @@map("order_statuses")
 }
 
 enum PickupType {
-  HOME  @map("home") // Đón tại nhà
-  STORE @map("store") // Đón tại cửa hàng
+  HOME  @map("home") // Giao tại nhà
+  STORE @map("store") // Giao tại cửa hàng
 
   @@map("pickup_types")
 }
@@ -165,7 +166,7 @@ model VendorServiceFee {
 
 model Order {
   id            String        @id @default(cuid()) @map("id")
-  status        OrderStatus   @default(PENDING) @map("status")
+  status        OrderStatus   @default(PENDING_CONFIRMATION) @map("status")
   paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
   paymentMethod PaymentMethod @default(COD) @map("payment_method")
   pickupType    PickupType    @default(STORE) @map("pickup_type")
