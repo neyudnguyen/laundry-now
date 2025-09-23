@@ -14,7 +14,8 @@ export async function PATCH(
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const notificationId = params.id;
+		const { id } = await params;
+		const notificationId = id;
 		const { isRead } = await request.json();
 
 		// Check if notification belongs to the current user
@@ -63,7 +64,8 @@ export async function DELETE(
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const notificationId = params.id;
+		const { id } = await params;
+		const notificationId = id;
 
 		// Check if notification belongs to the current user
 		const notification = await prisma.notification.findFirst({
