@@ -37,6 +37,7 @@ export async function GET() {
 					},
 				},
 				items: true,
+				review: true,
 			},
 			orderBy: {
 				createdAt: 'desc',

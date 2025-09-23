@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye, RefreshCw } from 'lucide-react';
+import { Eye, RefreshCw, Star } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +41,12 @@ interface Order {
 		};
 	};
 	items: OrderItem[];
+	review?: {
+		id: string;
+		rating: number;
+		comment: string | null;
+		createdAt: string;
+	} | null;
 }
 
 const statusLabels = {
@@ -175,6 +181,7 @@ export default function VendorOrders() {
 									<TableHead>Trạng thái</TableHead>
 									<TableHead>Loại thanh toán</TableHead>
 									<TableHead>Giao hàng</TableHead>
+									<TableHead>Đánh giá</TableHead>
 									<TableHead>Tổng tiền</TableHead>
 									<TableHead>Thao tác</TableHead>
 								</TableRow>
@@ -221,6 +228,22 @@ export default function VendorOrders() {
 													order.pickupType as keyof typeof pickupTypeLabels
 												]
 											}
+										</TableCell>
+										<TableCell>
+											{order.review ? (
+												<div className="flex items-center gap-2">
+													<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+													<span className="text-sm">
+														{order.review.rating}/5
+													</span>
+												</div>
+											) : order.status === 'COMPLETED' ? (
+												<span className="text-xs text-muted-foreground">
+													Chưa đánh giá
+												</span>
+											) : (
+												<span className="text-xs text-muted-foreground">-</span>
+											)}
 										</TableCell>
 										<TableCell className="font-medium">
 											{formatCurrency(getTotalAmount(order))}

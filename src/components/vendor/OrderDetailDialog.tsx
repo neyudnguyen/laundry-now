@@ -20,6 +20,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { StarRating } from '@/components/ui/star-rating';
 import {
 	Table,
 	TableBody,
@@ -60,6 +61,12 @@ interface Order {
 		};
 	};
 	items: OrderItem[];
+	review?: {
+		id: string;
+		rating: number;
+		comment: string | null;
+		createdAt: string;
+	} | null;
 }
 
 interface OrderDetailDialogProps {
@@ -736,6 +743,44 @@ export default function OrderDetailDialog({
 							</div>
 						</div>
 					</div>
+
+					{/* Customer Review */}
+					{order?.review && (
+						<div className="border-t pt-4">
+							<h3 className="font-medium mb-4">Đánh giá từ khách hàng</h3>
+							<div className="bg-muted/50 rounded-lg p-4 space-y-3">
+								<div className="flex items-center justify-between">
+									<span className="text-sm font-medium">Điểm đánh giá:</span>
+									<StarRating value={order.review.rating} readonly size="sm" />
+								</div>
+
+								{order.review.comment && (
+									<div className="space-y-2">
+										<span className="text-sm font-medium">Nhận xét:</span>
+										<p className="text-sm text-muted-foreground bg-background p-3 rounded border">
+											{order.review.comment}
+										</p>
+									</div>
+								)}
+
+								<div className="flex items-center justify-between text-xs text-muted-foreground">
+									<span>Đánh giá lúc:</span>
+									<span>
+										{new Date(order.review.createdAt).toLocaleDateString(
+											'vi-VN',
+											{
+												day: '2-digit',
+												month: '2-digit',
+												year: 'numeric',
+												hour: '2-digit',
+												minute: '2-digit',
+											},
+										)}
+									</span>
+								</div>
+							</div>
+						</div>
+					)}
 
 					{/* Action Buttons */}
 					{availableActions.length > 0 && (
