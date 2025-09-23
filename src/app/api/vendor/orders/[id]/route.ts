@@ -64,10 +64,11 @@ export async function PATCH(
 		// Validate status transitions
 		if (status) {
 			const validTransitions: Record<string, string[]> = {
-				PENDING: ['ACCEPTED', 'CANCELLED'],
-				ACCEPTED: ['IN_PROGRESS', 'CANCELLED'],
-				IN_PROGRESS: ['NEED_PAYMENT'],
-				NEED_PAYMENT: ['COMPLETED'], // Only for COD, QRCODE auto-completes
+				PENDING_CONFIRMATION: ['CONFIRMED', 'CANCELLED'],
+				CONFIRMED: ['PICKED_UP', 'CANCELLED'],
+				PICKED_UP: ['IN_WASHING'],
+				IN_WASHING: ['PAYMENT_REQUIRED'],
+				PAYMENT_REQUIRED: ['COMPLETED'], // Only for COD, QRCODE auto-completes
 			};
 
 			const allowedNextStatuses = validTransitions[currentOrder.status];

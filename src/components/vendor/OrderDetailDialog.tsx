@@ -367,9 +367,9 @@ export default function OrderDetailDialog({
 		return serviceTotal + orderSettings.deliveryFee;
 	};
 
-	const canEditItems = order.status === 'ACCEPTED';
+	const canEditItems = order.status === 'PICKED_UP';
 	const canViewItems = order.status === 'COMPLETED' || orderItems.length > 0;
-	const canEditSettings = order.status === 'NEED_PAYMENT';
+	const canEditSettings = order.status === 'PAYMENT_REQUIRED';
 	const availableActions =
 		statusActions[order.status as keyof typeof statusActions] || [];
 
@@ -809,11 +809,11 @@ export default function OrderDetailDialog({
 									</Button>
 								))}
 							</div>
-							{order.status === 'NEED_PAYMENT' &&
+							{order.status === 'PAYMENT_REQUIRED' &&
 								order.paymentMethod === 'QRCODE' && (
 									<div className="mt-2">
 										<Button variant="outline" disabled>
-											Tạo mã QR thanh toán (Tính năng đang phát triển)
+											Quét QR
 										</Button>
 									</div>
 								)}
