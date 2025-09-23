@@ -151,8 +151,7 @@ const CustomerOrdersPage = () => {
 		);
 	};
 
-	const deliveryFee = pickupType === 'HOME' ? 20000 : 0;
-	const totalPrice = calculateServicePrice() + deliveryFee;
+	const totalPrice = calculateServicePrice();
 
 	const handleSubmitOrder = async () => {
 		if (!vendor) return;
@@ -474,10 +473,6 @@ const CustomerOrdersPage = () => {
 										<span>Tiền dịch vụ:</span>
 										<span>{formatCurrency(calculateServicePrice())}</span>
 									</div>
-									<div className="flex justify-between">
-										<span>Phí giao hàng:</span>
-										<span>{formatCurrency(deliveryFee)}</span>
-									</div>
 									{pickupType === 'HOME' && (
 										<p className="text-xs text-muted-foreground">
 											* Phí giao hàng có thể thay đổi tùy theo cửa hàng quyết
@@ -496,17 +491,12 @@ const CustomerOrdersPage = () => {
 								</>
 							) : (
 								<>
-									<div className="flex justify-between">
-										<span>Phí giao hàng:</span>
-										<span>{formatCurrency(deliveryFee)}</span>
-									</div>
 									{pickupType === 'HOME' && (
 										<p className="text-xs text-muted-foreground">
 											* Phí giao hàng có thể thay đổi tùy theo cửa hàng quyết
 											định sau khi giặt xong
 										</p>
 									)}
-									<Separator />
 									<div className="text-center py-4">
 										<p className="text-muted-foreground">
 											Chưa chọn dịch vụ nào
