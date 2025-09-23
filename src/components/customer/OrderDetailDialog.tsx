@@ -9,6 +9,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { StarRating } from '@/components/ui/star-rating';
 
 import { Order } from './OrderHistoryTable';
 
@@ -20,13 +21,15 @@ interface OrderDetailDialogProps {
 
 const getStatusText = (status: Order['status']) => {
 	switch (status) {
-		case 'PENDING':
-			return 'Chờ tiếp nhận';
-		case 'ACCEPTED':
-			return 'Đã tiếp nhận';
-		case 'IN_PROGRESS':
+		case 'PENDING_CONFIRMATION':
+			return 'Chờ xác nhận';
+		case 'CONFIRMED':
+			return 'Đã xác nhận';
+		case 'PICKED_UP':
+			return 'Đã lấy đồ';
+		case 'IN_WASHING':
 			return 'Đang giặt';
-		case 'NEED_PAYMENT':
+		case 'PAYMENT_REQUIRED':
 			return 'Cần thanh toán';
 		case 'COMPLETED':
 			return 'Hoàn tất';
@@ -242,6 +245,37 @@ export function OrderDetailDialog({
 							</div>
 						</CardContent>
 					</Card>
+
+					{/* Đánh giá (nếu có) */}
+					{order.review && (
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-base">Đánh giá của bạn</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-3">
+								<div className="flex justify-between items-center">
+									<span className="text-sm font-medium">Điểm đánh giá:</span>
+									<StarRating value={order.review.rating} readonly size="sm" />
+								</div>
+
+								{order.review.comment && (
+									<div className="space-y-2">
+										<span className="text-sm font-medium">Nhận xét:</span>
+										<p className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+											{order.review.comment}
+										</p>
+									</div>
+								)}
+
+								<div className="flex justify-between items-center">
+									<span className="text-sm font-medium">Ngày đánh giá:</span>
+									<span className="text-sm">
+										{formatDate(order.review.createdAt)}
+									</span>
+								</div>
+							</CardContent>
+						</Card>
+					)}
 				</div>
 			</DialogContent>
 		</Dialog>

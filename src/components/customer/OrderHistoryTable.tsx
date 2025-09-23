@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/table';
 
 import { OrderDetailDialog } from './OrderDetailDialog';
+import { ReviewDialog } from './ReviewDialog';
 
 export interface OrderItem {
 	id: string;
@@ -53,6 +54,12 @@ export interface Order {
 			street: string;
 		};
 	};
+	review?: {
+		id: string;
+		rating: number;
+		comment: string | null;
+		createdAt: string;
+	} | null;
 }
 
 interface OrderHistoryTableProps {
@@ -144,8 +151,19 @@ const formatDate = (dateString: string) => {
 
 export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 	const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+	const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
+	const [orderList, setOrderList] = useState<Order[]>(orders);
 
-	if (orders.length === 0) {
+	useEffect(() => {
+		setOrderList(orders);
+	}, [orders]);
+
+	const handleReviewSubmitted = () => {
+		// Refresh orders to update review status
+		window.location.reload();
+	};
+
+	if (orderList.length === 0) {
 		return (
 			<Card>
 				<CardContent className="flex items-center justify-center py-12">
@@ -175,7 +193,7 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{orders.map((order) => (
+							{orderList.map((order) => (
 								<TableRow key={order.id}>
 									<TableCell className="font-medium">
 										#{order.id.slice(-8)}
@@ -208,13 +226,24 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 									</TableCell>
 									<TableCell>{formatDate(order.createdAt)}</TableCell>
 									<TableCell>
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => setSelectedOrder(order)}
-										>
-											Xem chi tiết
-										</Button>
+										<div className="flex gap-2">
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => setSelectedOrder(order)}
+											>
+												Xem chi tiết
+											</Button>
+											{order.status === 'COMPLETED' && !order.review && (
+												<Button
+													variant="default"
+													size="sm"
+													onClick={() => setReviewOrder(order)}
+												>
+													Đánh giá
+												</Button>
+											)}
+										</div>
 									</TableCell>
 								</TableRow>
 							))}
@@ -228,6 +257,16 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 					order={selectedOrder}
 					open={!!selectedOrder}
 					onOpenChange={(open: boolean) => !open && setSelectedOrder(null)}
+				/>
+			)}
+
+			{reviewOrder && (
+				<ReviewDialog
+					orderId={reviewOrder.id}
+					vendorName={reviewOrder.vendor.shopName}
+					isOpen={!!reviewOrder}
+					onClose={() => setReviewOrder(null)}
+					onReviewSubmitted={handleReviewSubmitted}
 				/>
 			)}
 		</>

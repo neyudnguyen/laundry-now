@@ -208,6 +208,7 @@ export async function GET() {
 						address: true,
 					},
 				},
+				review: true,
 			},
 			orderBy: {
 				createdAt: 'desc',
