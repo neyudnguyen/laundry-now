@@ -97,12 +97,12 @@ export async function POST(request: NextRequest) {
 		const orderData = {
 			customerId: customerProfile.id,
 			vendorId: vendorId,
-			status: 'PENDING' as const,
+			status: 'PENDING_CONFIRMATION' as const,
 			paymentStatus: 'PENDING' as const,
 			paymentMethod: paymentMethod,
 			pickupType: pickupType,
 			servicePrice: servicePrice,
-			deliveryFee: pickupType === 'HOME' ? 20000 : 0, // 20k delivery fee for home pickup
+			deliveryFee: 0, // Không tính phí giao hàng cố định
 			notes: notes || '',
 			...(orderItems.length > 0 && {
 				items: {
