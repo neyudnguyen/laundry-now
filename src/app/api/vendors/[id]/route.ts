@@ -25,6 +25,22 @@ export async function GET(
 						fee: 'asc',
 					},
 				},
+				reviews: {
+					include: {
+						customer: {
+							include: {
+								customerProfile: {
+									select: {
+										fullName: true,
+									},
+								},
+							},
+						},
+					},
+					orderBy: {
+						createdAt: 'desc',
+					},
+				},
 			},
 		});
 
@@ -58,6 +74,22 @@ export async function GET(
 				name: service.name,
 				fee: service.fee,
 			})),
+			reviews: vendor.reviews.map((review) => ({
+				id: review.id,
+				rating: review.rating,
+				comment: review.comment,
+				createdAt: review.createdAt,
+				customerName: review.customer.customerProfile?.fullName || 'Khách hàng',
+			})),
+			averageRating:
+				vendor.reviews.length > 0
+					? Math.round(
+							(vendor.reviews.reduce((sum, review) => sum + review.rating, 0) /
+								vendor.reviews.length) *
+								10,
+						) / 10
+					: 0,
+			reviewCount: vendor.reviews.length,
 		};
 
 		return NextResponse.json(formattedVendor);

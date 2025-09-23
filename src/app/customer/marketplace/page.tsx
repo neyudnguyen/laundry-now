@@ -16,6 +16,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
+import { StarRating } from '@/components/ui/star-rating';
 
 interface VendorService {
 	id: string;
@@ -39,10 +40,19 @@ interface Vendor {
 	address: VendorAddress | null;
 	image: string | null;
 	services: VendorService[];
+	averageRating: number;
+	reviewCount: number;
 }
 
 interface VendorDetail extends Vendor {
 	images: { id: string; url: string }[];
+	reviews: {
+		id: string;
+		rating: number;
+		comment: string | null;
+		createdAt: string;
+		customerName: string;
+	}[];
 }
 
 export default function VendorMarketplacePage() {
@@ -155,6 +165,28 @@ export default function VendorMarketplacePage() {
 										<CardTitle className="text-lg line-clamp-1">
 											{vendor.shopName}
 										</CardTitle>
+
+										{/* Rating */}
+										{vendor.reviewCount > 0 ? (
+											<div className="flex items-center gap-2 mt-1">
+												<StarRating
+													value={vendor.averageRating}
+													readonly
+													size="sm"
+												/>
+												<span className="text-sm text-muted-foreground">
+													{vendor.averageRating}/5 ({vendor.reviewCount} đánh
+													giá)
+												</span>
+											</div>
+										) : (
+											<div className="flex items-center gap-1 mt-1">
+												<span className="text-xs text-muted-foreground">
+													Chưa có đánh giá
+												</span>
+											</div>
+										)}
+
 										{vendor.address && (
 											<div className="flex items-start gap-1 mt-1">
 												<MapPin className="h-3 w-3 text-muted-foreground mt-0.5 flex-shrink-0" />
@@ -309,6 +341,71 @@ export default function VendorMarketplacePage() {
 															) : (
 																<p className="text-muted-foreground text-center py-4">
 																	Cửa hàng chưa có dịch vụ nào
+																</p>
+															)}
+														</div>
+
+														{/* Reviews Section */}
+														<div>
+															<h3 className="font-medium mb-3">
+																Đánh giá từ khách hàng
+															</h3>
+															{selectedVendor.reviews &&
+															selectedVendor.reviews.length > 0 ? (
+																<div className="space-y-4">
+																	{/* Rating Summary */}
+																	<div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
+																		<div className="text-center">
+																			<div className="text-2xl font-bold">
+																				{selectedVendor.averageRating}/5
+																			</div>
+																			<StarRating
+																				value={selectedVendor.averageRating}
+																				readonly
+																				size="sm"
+																			/>
+																			<div className="text-xs text-muted-foreground mt-1">
+																				{selectedVendor.reviewCount} đánh giá
+																			</div>
+																		</div>
+																	</div>
+
+																	{/* Review List */}
+																	<div className="space-y-3 max-h-60 overflow-y-auto">
+																		{selectedVendor.reviews.map((review) => (
+																			<div
+																				key={review.id}
+																				className="border rounded-lg p-3"
+																			>
+																				<div className="flex items-start justify-between mb-2">
+																					<div className="flex items-center gap-2">
+																						<span className="font-medium text-sm">
+																							{review.customerName}
+																						</span>
+																						<StarRating
+																							value={review.rating}
+																							readonly
+																							size="sm"
+																						/>
+																					</div>
+																					<span className="text-xs text-muted-foreground">
+																						{new Date(
+																							review.createdAt,
+																						).toLocaleDateString('vi-VN')}
+																					</span>
+																				</div>
+																				{review.comment && (
+																					<p className="text-sm text-muted-foreground">
+																						{review.comment}
+																					</p>
+																				)}
+																			</div>
+																		))}
+																	</div>
+																</div>
+															) : (
+																<p className="text-muted-foreground text-center py-4">
+																	Cửa hàng chưa có đánh giá nào
 																</p>
 															)}
 														</div>
