@@ -26,6 +26,7 @@ export async function GET(
 					},
 				},
 				reviews: {
+					take: 10,
 					include: {
 						customer: {
 							include: {
