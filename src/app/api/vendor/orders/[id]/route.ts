@@ -7,6 +7,7 @@ import {
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import { createOrderNotification } from '@/lib/notifications';
 import { prisma } from '@/lib/prisma';
 
 export async function PATCH(
@@ -175,6 +176,58 @@ export async function PATCH(
 				items: true,
 			},
 		});
+
+		// Create notification for customer when status changes
+		if (status && status !== currentOrder.status) {
+			try {
+				const customerUserId = updatedOrder.customer.userId;
+				let notificationType:
+					| 'confirmed'
+					| 'picked_up'
+					| 'in_washing'
+					| 'payment_required'
+					| 'completed'
+					| 'cancelled';
+
+				switch (status) {
+					case 'CONFIRMED':
+						notificationType = 'confirmed';
+						break;
+					case 'PICKED_UP':
+						notificationType = 'picked_up';
+						break;
+					case 'IN_WASHING':
+						notificationType = 'in_washing';
+						break;
+					case 'PAYMENT_REQUIRED':
+						notificationType = 'payment_required';
+						break;
+					case 'COMPLETED':
+						notificationType = 'completed';
+						break;
+					case 'CANCELLED':
+						notificationType = 'cancelled';
+						break;
+					default:
+						notificationType = 'confirmed';
+				}
+
+				await createOrderNotification(
+					customerUserId,
+					updatedOrder.id,
+					notificationType,
+					{
+						amount: updatedOrder.servicePrice + updatedOrder.deliveryFee,
+						reason: notes || undefined,
+					},
+				);
+			} catch (notificationError) {
+				console.error(
+					'Error creating order status notification:',
+					notificationError,
+				);
+			}
+		}
 
 		return NextResponse.json({ order: updatedOrder });
 	} catch (error) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import { NotificationMessages, createNotification } from '@/lib/notifications';
 import { prisma } from '@/lib/prisma';
 
 interface OrderItem {
@@ -138,6 +139,27 @@ export async function POST(request: NextRequest) {
 				},
 			},
 		});
+
+		// Create notifications for both customer and vendor
+		try {
+			// Notification for vendor about new order
+			await createNotification({
+				userId: order.vendor.userId,
+				message: NotificationMessages.newOrder(
+					order.id,
+					order.customer.fullName,
+				),
+			});
+
+			// Notification for customer confirming order creation
+			await createNotification({
+				userId: session.user.id,
+				message: `Đơn hàng #${order.id} đã được tạo thành công và đang chờ xác nhận từ cửa hàng.`,
+			});
+		} catch (notificationError) {
+			// Log error but don't fail the order creation
+			console.error('Error creating notifications:', notificationError);
+		}
 
 		return NextResponse.json({
 			message: 'Tạo đơn hàng thành công',

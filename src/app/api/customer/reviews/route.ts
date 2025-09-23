@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { auth } from '@/lib/auth';
+import { NotificationMessages, createNotification } from '@/lib/notifications';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
@@ -37,7 +38,11 @@ export async function POST(request: NextRequest) {
 		const order = await prisma.order.findUnique({
 			where: { id: orderId },
 			include: {
-				vendor: true,
+				vendor: {
+					include: {
+						user: true,
+					},
+				},
 				review: true,
 			},
 		});
@@ -89,6 +94,19 @@ export async function POST(request: NextRequest) {
 
 			return review;
 		});
+
+		// Create notification for vendor about new review
+		try {
+			await createNotification({
+				userId: order.vendor.userId,
+				message: NotificationMessages.newReview(
+					rating,
+					user.customerProfile?.fullName || 'Khách hàng',
+				),
+			});
+		} catch (notificationError) {
+			console.error('Error creating review notification:', notificationError);
+		}
 
 		return NextResponse.json({
 			message: 'Đánh giá đã được tạo thành công',
