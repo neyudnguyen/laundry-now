@@ -108,10 +108,10 @@ export async function POST(
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
-		// Only allow adding items when order status is ACCEPTED
-		if (order.status !== 'ACCEPTED') {
+		// Only allow adding items when order status is PICKED_UP
+		if (order.status !== 'PICKED_UP') {
 			return NextResponse.json(
-				{ error: 'Can only add items when order status is ACCEPTED' },
+				{ error: 'Can only add items when order status is PICKED_UP' },
 				{ status: 400 },
 			);
 		}

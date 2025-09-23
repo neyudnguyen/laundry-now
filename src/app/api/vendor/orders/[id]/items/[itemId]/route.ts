@@ -54,10 +54,10 @@ export async function PUT(
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
-		// Only allow editing items when order status is ACCEPTED
-		if (order.status !== 'ACCEPTED') {
+		// Only allow editing items when order status is PICKED_UP
+		if (order.status !== 'PICKED_UP') {
 			return NextResponse.json(
-				{ error: 'Can only edit items when order status is ACCEPTED' },
+				{ error: 'Can only edit items when order status is PICKED_UP' },
 				{ status: 400 },
 			);
 		}
@@ -134,10 +134,10 @@ export async function DELETE(
 			return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 		}
 
-		// Only allow deleting items when order status is ACCEPTED
-		if (order.status !== 'ACCEPTED') {
+		// Only allow deleting items when order status is PICKED_UP
+		if (order.status !== 'PICKED_UP') {
 			return NextResponse.json(
-				{ error: 'Can only delete items when order status is ACCEPTED' },
+				{ error: 'Can only delete items when order status is PICKED_UP' },
 				{ status: 400 },
 			);
 		}
