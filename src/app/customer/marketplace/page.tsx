@@ -250,6 +250,9 @@ export default function VendorMarketplacePage() {
 			sortBy: 'rating',
 			sortOrder: 'desc',
 		});
+		// Reset API codes
+		setSelectedProvinceCode(null);
+		setSelectedDistrictCode(null);
 	};
 
 	const loadVendorDetail = async (vendorId: string) => {
@@ -364,9 +367,9 @@ export default function VendorMarketplacePage() {
 				</div>
 
 				{/* Address Filter and Sort Bar */}
-				<div className="flex flex-col gap-4">
-					{/* Address Filters */}
-					<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+				<div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+					{/* Address Filters - Left Side */}
+					<div className="flex gap-2 flex-1">
 						{/* Province Filter */}
 						<Select
 							value={filters.selectedProvince || 'all'}
@@ -456,8 +459,10 @@ export default function VendorMarketplacePage() {
 								))}
 							</SelectContent>
 						</Select>
+					</div>
 
-						{/* Sort Filter */}
+					{/* Sort Filter - Right Side */}
+					<div className="w-full md:w-auto md:min-w-[200px]">
 						<Select
 							value={`${filters.sortBy}-${filters.sortOrder}`}
 							onValueChange={(value) => {
@@ -495,45 +500,18 @@ export default function VendorMarketplacePage() {
 					filters.priceRange[1] < 100000) && (
 					<div className="flex flex-wrap gap-2">
 						{filters.selectedProvince && (
-							<Badge variant="secondary" className="gap-1">
+							<Badge variant="secondary">
 								Tỉnh: {filters.selectedProvince}
-								<X
-									className="h-3 w-3 cursor-pointer"
-									onClick={() =>
-										setFilters((prev) => ({
-											...prev,
-											selectedProvince: '',
-											selectedDistrict: '',
-											selectedWard: '',
-										}))
-									}
-								/>
 							</Badge>
 						)}
 						{filters.selectedDistrict && (
-							<Badge variant="secondary" className="gap-1">
+							<Badge variant="secondary">
 								Quận/Huyện: {filters.selectedDistrict}
-								<X
-									className="h-3 w-3 cursor-pointer"
-									onClick={() =>
-										setFilters((prev) => ({
-											...prev,
-											selectedDistrict: '',
-											selectedWard: '',
-										}))
-									}
-								/>
 							</Badge>
 						)}
 						{filters.selectedWard && (
-							<Badge variant="secondary" className="gap-1">
+							<Badge variant="secondary">
 								Phường/Xã: {filters.selectedWard}
-								<X
-									className="h-3 w-3 cursor-pointer"
-									onClick={() =>
-										setFilters((prev) => ({ ...prev, selectedWard: '' }))
-									}
-								/>
 							</Badge>
 						)}
 						{filters.minRating > 0 && (
