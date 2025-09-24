@@ -424,11 +424,19 @@ export default function VendorMarketplacePage() {
 											</div>
 										)}
 
-										{vendor.address && (
-											<div className="flex items-start gap-1 mt-1">
-												<MapPin className="h-3 w-3 text-muted-foreground mt-0.5 flex-shrink-0" />
-												<p className="text-xs text-muted-foreground line-clamp-2">
+										{/* Address */}
+										{vendor.address ? (
+											<div className="flex items-start gap-1 mt-2">
+												<MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+												<p className="text-sm text-muted-foreground line-clamp-2">
 													{vendor.address.fullAddress}
+												</p>
+											</div>
+										) : (
+											<div className="flex items-start gap-1 mt-2">
+												<MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+												<p className="text-sm text-muted-foreground">
+													Chưa có thông tin địa chỉ
 												</p>
 											</div>
 										)}
@@ -519,12 +527,26 @@ export default function VendorMarketplacePage() {
 																			<span>{selectedVendor.email}</span>
 																		</div>
 																	)}
-																	{selectedVendor.address && (
+																	{/* Address */}
+																	{selectedVendor.address ? (
 																		<div className="flex items-start gap-2 text-sm">
 																			<MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-																			<span>
-																				{selectedVendor.address.fullAddress}
-																			</span>
+																			<div>
+																				<p className="font-medium">Địa chỉ:</p>
+																				<p className="text-muted-foreground">
+																					{selectedVendor.address.fullAddress}
+																				</p>
+																			</div>
+																		</div>
+																	) : (
+																		<div className="flex items-start gap-2 text-sm">
+																			<MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+																			<div>
+																				<p className="font-medium">Địa chỉ:</p>
+																				<p className="text-muted-foreground">
+																					Chưa có thông tin địa chỉ
+																				</p>
+																			</div>
 																		</div>
 																	)}
 																</div>
