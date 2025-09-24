@@ -16,7 +16,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import {
 	Select,
 	SelectContent,
@@ -63,8 +62,34 @@ interface VendorDetail extends Vendor {
 	}[];
 }
 
+interface Province {
+	code: number;
+	name: string;
+	codename: string;
+	division_type: string;
+	phone_code: number;
+}
+
+interface District {
+	code: number;
+	name: string;
+	codename: string;
+	division_type: string;
+	province_code: number;
+}
+
+interface Ward {
+	code: number;
+	name: string;
+	codename: string;
+	division_type: string;
+	district_code: number;
+}
+
 interface FilterState {
-	searchText: string;
+	selectedProvince: string;
+	selectedDistrict: string;
+	selectedWard: string;
 	minRating: number;
 	selectedProvinces: string[];
 	selectedServices: string[];
@@ -72,6 +97,8 @@ interface FilterState {
 	sortBy: 'rating' | 'name' | 'reviews';
 	sortOrder: 'asc' | 'desc';
 }
+
+const API_BASE_URL = 'https://provinces.open-api.vn/api/v1';
 
 export default function VendorMarketplacePage() {
 	const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -82,7 +109,9 @@ export default function VendorMarketplacePage() {
 	);
 	const [loadingDetail, setLoadingDetail] = useState(false);
 	const [filters, setFilters] = useState<FilterState>({
-		searchText: '',
+		selectedProvince: '',
+		selectedDistrict: '',
+		selectedWard: '',
 		minRating: 0,
 		selectedProvinces: [],
 		selectedServices: [],
@@ -90,6 +119,18 @@ export default function VendorMarketplacePage() {
 		sortBy: 'rating',
 		sortOrder: 'desc',
 	});
+
+	// Address API data
+	const [provinces, setProvinces] = useState<Province[]>([]);
+	const [districts, setDistricts] = useState<District[]>([]);
+	const [wards, setWards] = useState<Ward[]>([]);
+	const [selectedProvinceCode, setSelectedProvinceCode] = useState<
+		number | null
+	>(null);
+	const [selectedDistrictCode, setSelectedDistrictCode] = useState<
+		number | null
+	>(null);
+
 	const router = useRouter();
 
 	const loadVendors = async () => {
@@ -112,12 +153,22 @@ export default function VendorMarketplacePage() {
 	// Filter and sort vendors
 	const applyFilters = useMemo(() => {
 		let filtered = vendors.filter((vendor) => {
-			// Search text filter
+			// Address filter
 			if (
-				filters.searchText &&
-				!vendor.shopName
-					.toLowerCase()
-					.includes(filters.searchText.toLowerCase())
+				filters.selectedProvince &&
+				vendor.address?.province !== filters.selectedProvince
+			) {
+				return false;
+			}
+			if (
+				filters.selectedDistrict &&
+				vendor.address?.district !== filters.selectedDistrict
+			) {
+				return false;
+			}
+			if (
+				filters.selectedWard &&
+				vendor.address?.ward !== filters.selectedWard
 			) {
 				return false;
 			}
@@ -127,7 +178,7 @@ export default function VendorMarketplacePage() {
 				return false;
 			}
 
-			// Province filter
+			// Province filter (legacy - for active filters display)
 			if (
 				filters.selectedProvinces.length > 0 &&
 				(!vendor.address ||
@@ -149,13 +200,15 @@ export default function VendorMarketplacePage() {
 			}
 
 			// Price range filter
-			const minPrice = Math.min(...vendor.services.map((s) => s.fee));
-			const maxPrice = Math.max(...vendor.services.map((s) => s.fee));
-			if (
-				minPrice > filters.priceRange[1] ||
-				maxPrice < filters.priceRange[0]
-			) {
-				return false;
+			if (vendor.services.length > 0) {
+				const minPrice = Math.min(...vendor.services.map((s) => s.fee));
+				const maxPrice = Math.max(...vendor.services.map((s) => s.fee));
+				if (
+					minPrice > filters.priceRange[1] ||
+					maxPrice < filters.priceRange[0]
+				) {
+					return false;
+				}
 			}
 
 			return true;
@@ -187,7 +240,9 @@ export default function VendorMarketplacePage() {
 
 	const resetFilters = () => {
 		setFilters({
-			searchText: '',
+			selectedProvince: '',
+			selectedDistrict: '',
+			selectedWard: '',
 			minRating: 0,
 			selectedProvinces: [],
 			selectedServices: [],
@@ -213,6 +268,68 @@ export default function VendorMarketplacePage() {
 			setLoadingDetail(false);
 		}
 	};
+
+	// Load provinces on component mount
+	useEffect(() => {
+		const fetchProvinces = async () => {
+			try {
+				const response = await fetch(`${API_BASE_URL}/p/`);
+				const data = await response.json();
+				setProvinces(data || []);
+			} catch (error) {
+				console.error('Error fetching provinces:', error);
+			}
+		};
+
+		fetchProvinces();
+	}, []);
+
+	// Load districts when province changes
+	useEffect(() => {
+		const fetchDistricts = async () => {
+			if (!selectedProvinceCode) {
+				setDistricts([]);
+				setWards([]);
+				return;
+			}
+
+			try {
+				const response = await fetch(
+					`${API_BASE_URL}/p/${selectedProvinceCode}?depth=2`,
+				);
+				const data = await response.json();
+				setDistricts(data.districts || []);
+				setWards([]); // Reset wards when province changes
+				setSelectedDistrictCode(null); // Reset selected district
+			} catch (error) {
+				console.error('Error fetching districts:', error);
+			}
+		};
+
+		fetchDistricts();
+	}, [selectedProvinceCode]);
+
+	// Load wards when district changes
+	useEffect(() => {
+		const fetchWards = async () => {
+			if (!selectedDistrictCode) {
+				setWards([]);
+				return;
+			}
+
+			try {
+				const response = await fetch(
+					`${API_BASE_URL}/d/${selectedDistrictCode}?depth=2`,
+				);
+				const data = await response.json();
+				setWards(data.wards || []);
+			} catch (error) {
+				console.error('Error fetching wards:', error);
+			}
+		};
+
+		fetchWards();
+	}, [selectedDistrictCode]);
 
 	useEffect(() => {
 		loadVendors();
@@ -246,18 +363,101 @@ export default function VendorMarketplacePage() {
 					</p>
 				</div>
 
-				{/* Search and Filter Bar */}
-				<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-					<div className="flex-1 max-w-md">
-						<Input
-							placeholder="Tìm kiếm cửa hàng..."
-							value={filters.searchText}
-							onChange={(e) =>
-								setFilters((prev) => ({ ...prev, searchText: e.target.value }))
-							}
-						/>
-					</div>
-					<div className="flex items-center gap-2">
+				{/* Address Filter and Sort Bar */}
+				<div className="flex flex-col gap-4">
+					{/* Address Filters */}
+					<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+						{/* Province Filter */}
+						<Select
+							value={filters.selectedProvince || 'all'}
+							onValueChange={(value) => {
+								const province = value === 'all' ? '' : value;
+								setFilters((prev) => ({
+									...prev,
+									selectedProvince: province,
+									selectedDistrict: '', // Reset district when province changes
+									selectedWard: '', // Reset ward when province changes
+								}));
+
+								// Update selected province code for API calls
+								if (value === 'all') {
+									setSelectedProvinceCode(null);
+								} else {
+									const provinceObj = provinces.find((p) => p.name === value);
+									setSelectedProvinceCode(provinceObj?.code || null);
+								}
+							}}
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="Chọn tỉnh/thành phố" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">Tất cả tỉnh/thành phố</SelectItem>
+								{provinces.map((province) => (
+									<SelectItem key={province.code} value={province.name}>
+										{province.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+
+						{/* District Filter */}
+						<Select
+							value={filters.selectedDistrict || 'all'}
+							onValueChange={(value) => {
+								const district = value === 'all' ? '' : value;
+								setFilters((prev) => ({
+									...prev,
+									selectedDistrict: district,
+									selectedWard: '', // Reset ward when district changes
+								}));
+
+								// Update selected district code for API calls
+								if (value === 'all') {
+									setSelectedDistrictCode(null);
+								} else {
+									const districtObj = districts.find((d) => d.name === value);
+									setSelectedDistrictCode(districtObj?.code || null);
+								}
+							}}
+							disabled={!filters.selectedProvince}
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="Chọn quận/huyện" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">Tất cả quận/huyện</SelectItem>
+								{districts.map((district) => (
+									<SelectItem key={district.code} value={district.name}>
+										{district.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+
+						{/* Ward Filter */}
+						<Select
+							value={filters.selectedWard || 'all'}
+							onValueChange={(value) => {
+								const ward = value === 'all' ? '' : value;
+								setFilters((prev) => ({ ...prev, selectedWard: ward }));
+							}}
+							disabled={!filters.selectedDistrict}
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="Chọn phường/xã" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">Tất cả phường/xã</SelectItem>
+								{wards.map((ward) => (
+									<SelectItem key={ward.code} value={ward.name}>
+										{ward.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+
+						{/* Sort Filter */}
 						<Select
 							value={`${filters.sortBy}-${filters.sortOrder}`}
 							onValueChange={(value) => {
@@ -268,7 +468,7 @@ export default function VendorMarketplacePage() {
 								setFilters((prev) => ({ ...prev, sortBy, sortOrder }));
 							}}
 						>
-							<SelectTrigger className="w-[200px]">
+							<SelectTrigger>
 								<SelectValue placeholder="Sắp xếp theo" />
 							</SelectTrigger>
 							<SelectContent>
@@ -285,20 +485,53 @@ export default function VendorMarketplacePage() {
 				</div>
 
 				{/* Active Filters */}
-				{(filters.searchText ||
+				{(filters.selectedProvince ||
+					filters.selectedDistrict ||
+					filters.selectedWard ||
 					filters.minRating > 0 ||
 					filters.selectedProvinces.length > 0 ||
 					filters.selectedServices.length > 0 ||
 					filters.priceRange[0] > 0 ||
 					filters.priceRange[1] < 100000) && (
 					<div className="flex flex-wrap gap-2">
-						{filters.searchText && (
+						{filters.selectedProvince && (
 							<Badge variant="secondary" className="gap-1">
-								Tìm kiếm: {filters.searchText}
+								Tỉnh: {filters.selectedProvince}
 								<X
 									className="h-3 w-3 cursor-pointer"
 									onClick={() =>
-										setFilters((prev) => ({ ...prev, searchText: '' }))
+										setFilters((prev) => ({
+											...prev,
+											selectedProvince: '',
+											selectedDistrict: '',
+											selectedWard: '',
+										}))
+									}
+								/>
+							</Badge>
+						)}
+						{filters.selectedDistrict && (
+							<Badge variant="secondary" className="gap-1">
+								Quận/Huyện: {filters.selectedDistrict}
+								<X
+									className="h-3 w-3 cursor-pointer"
+									onClick={() =>
+										setFilters((prev) => ({
+											...prev,
+											selectedDistrict: '',
+											selectedWard: '',
+										}))
+									}
+								/>
+							</Badge>
+						)}
+						{filters.selectedWard && (
+							<Badge variant="secondary" className="gap-1">
+								Phường/Xã: {filters.selectedWard}
+								<X
+									className="h-3 w-3 cursor-pointer"
+									onClick={() =>
+										setFilters((prev) => ({ ...prev, selectedWard: '' }))
 									}
 								/>
 							</Badge>
