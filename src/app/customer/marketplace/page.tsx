@@ -1,14 +1,6 @@
 'use client';
 
-import {
-	Filter,
-	Mail,
-	MapPin,
-	Phone,
-	ShoppingCart,
-	Store,
-	X,
-} from 'lucide-react';
+import { Mail, MapPin, Phone, ShoppingCart, Store, X } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -17,7 +9,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
 	Dialog,
 	DialogContent,
@@ -26,7 +17,6 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
@@ -34,15 +24,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import {
-	Sheet,
-	SheetContent,
-	SheetHeader,
-	SheetTitle,
-	SheetTrigger,
-} from '@/components/ui/sheet';
-import { Slider } from '@/components/ui/slider';
 import { StarRating } from '@/components/ui/star-rating';
 
 interface VendorService {
@@ -100,7 +81,6 @@ export default function VendorMarketplacePage() {
 		null,
 	);
 	const [loadingDetail, setLoadingDetail] = useState(false);
-	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [filters, setFilters] = useState<FilterState>({
 		searchText: '',
 		minRating: 0,
@@ -128,21 +108,6 @@ export default function VendorMarketplacePage() {
 			setLoading(false);
 		}
 	};
-
-	// Get unique provinces and services for filter options
-	const uniqueProvinces = useMemo(() => {
-		const provinces = vendors
-			.map((vendor) => vendor.address?.province)
-			.filter(Boolean) as string[];
-		return [...new Set(provinces)].sort();
-	}, [vendors]);
-
-	const uniqueServices = useMemo(() => {
-		const services = vendors.flatMap((vendor) =>
-			vendor.services.map((service) => service.name),
-		);
-		return [...new Set(services)].sort();
-	}, [vendors]);
 
 	// Filter and sort vendors
 	const applyFilters = useMemo(() => {
@@ -316,181 +281,6 @@ export default function VendorMarketplacePage() {
 								<SelectItem value="name-desc">Tên Z-A</SelectItem>
 							</SelectContent>
 						</Select>
-						<Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-							<SheetTrigger asChild>
-								<Button variant="outline" size="icon">
-									<Filter className="h-4 w-4" />
-								</Button>
-							</SheetTrigger>
-							<SheetContent>
-								<SheetHeader>
-									<SheetTitle>Bộ lọc tìm kiếm</SheetTitle>
-								</SheetHeader>
-								<div className="mt-6 space-y-6">
-									{/* Rating Filter */}
-									<div className="space-y-3">
-										<Label className="text-sm font-medium">
-											Đánh giá tối thiểu
-										</Label>
-										<div className="space-y-2">
-											<Slider
-												value={[filters.minRating]}
-												onValueChange={([value]) =>
-													setFilters((prev) => ({ ...prev, minRating: value }))
-												}
-												max={5}
-												min={0}
-												step={0.5}
-											/>
-											<div className="flex items-center justify-between text-sm text-muted-foreground">
-												<span>0 sao</span>
-												<span className="font-medium">
-													{filters.minRating} sao trở lên
-												</span>
-												<span>5 sao</span>
-											</div>
-										</div>
-									</div>
-
-									<Separator />
-
-									{/* Province Filter */}
-									{uniqueProvinces.length > 0 && (
-										<div className="space-y-3">
-											<Label className="text-sm font-medium">
-												Tỉnh/Thành phố
-											</Label>
-											<div className="space-y-2 max-h-40 overflow-y-auto">
-												{uniqueProvinces.map((province) => (
-													<div
-														key={province}
-														className="flex items-center space-x-2"
-													>
-														<Checkbox
-															id={`province-${province}`}
-															checked={filters.selectedProvinces.includes(
-																province,
-															)}
-															onCheckedChange={(checked) => {
-																if (checked) {
-																	setFilters((prev) => ({
-																		...prev,
-																		selectedProvinces: [
-																			...prev.selectedProvinces,
-																			province,
-																		],
-																	}));
-																} else {
-																	setFilters((prev) => ({
-																		...prev,
-																		selectedProvinces:
-																			prev.selectedProvinces.filter(
-																				(p) => p !== province,
-																			),
-																	}));
-																}
-															}}
-														/>
-														<Label
-															htmlFor={`province-${province}`}
-															className="text-sm"
-														>
-															{province}
-														</Label>
-													</div>
-												))}
-											</div>
-										</div>
-									)}
-
-									<Separator />
-
-									{/* Service Filter */}
-									{uniqueServices.length > 0 && (
-										<div className="space-y-3">
-											<Label className="text-sm font-medium">Dịch vụ</Label>
-											<div className="space-y-2 max-h-40 overflow-y-auto">
-												{uniqueServices.map((service) => (
-													<div
-														key={service}
-														className="flex items-center space-x-2"
-													>
-														<Checkbox
-															id={`service-${service}`}
-															checked={filters.selectedServices.includes(
-																service,
-															)}
-															onCheckedChange={(checked) => {
-																if (checked) {
-																	setFilters((prev) => ({
-																		...prev,
-																		selectedServices: [
-																			...prev.selectedServices,
-																			service,
-																		],
-																	}));
-																} else {
-																	setFilters((prev) => ({
-																		...prev,
-																		selectedServices:
-																			prev.selectedServices.filter(
-																				(s) => s !== service,
-																			),
-																	}));
-																}
-															}}
-														/>
-														<Label
-															htmlFor={`service-${service}`}
-															className="text-sm"
-														>
-															{service}
-														</Label>
-													</div>
-												))}
-											</div>
-										</div>
-									)}
-
-									<Separator />
-
-									{/* Price Range Filter */}
-									<div className="space-y-3">
-										<Label className="text-sm font-medium">Khoảng giá</Label>
-										<div className="space-y-2">
-											<Slider
-												value={filters.priceRange}
-												onValueChange={(value) =>
-													setFilters((prev) => ({
-														...prev,
-														priceRange: value as [number, number],
-													}))
-												}
-												max={100000}
-												min={0}
-												step={1000}
-											/>
-											<div className="flex items-center justify-between text-sm text-muted-foreground">
-												<span>{formatCurrency(filters.priceRange[0])}</span>
-												<span>{formatCurrency(filters.priceRange[1])}</span>
-											</div>
-										</div>
-									</div>
-
-									<Separator />
-
-									{/* Reset Button */}
-									<Button
-										variant="outline"
-										className="w-full"
-										onClick={resetFilters}
-									>
-										<X className="h-4 w-4 mr-2" />
-										Xóa bộ lọc
-									</Button>
-								</div>
-							</SheetContent>
-						</Sheet>
 					</div>
 				</div>
 
