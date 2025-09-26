@@ -59,6 +59,15 @@ enum PickupType {
   @@map("pickup_types")
 }
 
+enum ComplaintStatus {
+  PENDING   @map("pending") // Khách gửi khiếu nại
+  IN_REVIEW @map("in_review") // Admin/Vendor đang xem xét
+  RESOLVED  @map("resolved") // Khiếu nại đã được giải quyết
+  REJECTED  @map("rejected") // Khiếu nại bị từ chối
+
+  @@map("complaint_statuses")
+}
+
 // ============================
 // MODELS
 // ============================
@@ -117,9 +126,10 @@ model CustomerProfile {
 
   userId String @unique @map("user_id")
 
-  user      User      @relation(fields: [userId], references: [id])
-  addresses Address[]
-  orders    Order[]
+  user       User        @relation(fields: [userId], references: [id])
+  addresses  Address[]
+  orders     Order[]
+  complaints Complaint[]
 
   @@map("customer_profiles")
 }
@@ -137,6 +147,7 @@ model VendorProfile {
   vendorServiceFees VendorServiceFee[]
   orders            Order[]
   reviews           Review[]
+  complaints        Complaint[]
 
   @@map("vendor_profiles")
 }
@@ -185,9 +196,10 @@ model Order {
   vendor   VendorProfile   @relation(fields: [vendorId], references: [id])
   items    OrderItem[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  review    Review?  @relation(fields: [reviewId], references: [id])
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  review    Review?    @relation(fields: [reviewId], references: [id])
+  complaint Complaint?
 
   @@map("orders")
 }
@@ -196,7 +208,7 @@ model OrderItem {
   id        String @id @default(cuid()) @map("id")
   name      String @map("name")
   quantity  Float  @map("quantity") // in kg
-  unitPrice Int    @map("unit_price") // price per kg
+  unitPrice Int    @map("unit_price") // price per kg`
 
   orderId String @map("order_id")
 
@@ -237,4 +249,25 @@ model Notification {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("notifications")
+}
+
+model Complaint {
+  id          String          @id @default(cuid()) @map("id")
+  status      ComplaintStatus @default(PENDING) @map("status")
+  title       String          @map("title")
+  description String          @map("description")
+  resolution  String?         @map("resolution") // Mô tả về cách giải quyết khiếu nại
+
+  orderId    String @unique @map("order_id")
+  customerId String @map("customer_id")
+  vendorId   String @map("vendor_id")
+
+  order    Order           @relation(fields: [orderId], references: [id])
+  customer CustomerProfile @relation(fields: [customerId], references: [id])
+  vendor   VendorProfile   @relation(fields: [vendorId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("complaints")
 }
