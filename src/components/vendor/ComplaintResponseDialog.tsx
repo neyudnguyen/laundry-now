@@ -14,13 +14,6 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
@@ -102,9 +95,6 @@ export function ComplaintResponseDialog({
 	onClose,
 	onComplaintUpdated,
 }: ComplaintResponseDialogProps) {
-	const [selectedStatus, setSelectedStatus] = useState<
-		'IN_REVIEW' | 'RESOLVED' | 'REJECTED'
-	>('IN_REVIEW');
 	const [resolution, setResolution] = useState(complaint.resolution || '');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { toast } = useToast();
@@ -112,9 +102,9 @@ export function ComplaintResponseDialog({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (selectedStatus === 'RESOLVED' && !resolution.trim()) {
+		if (!resolution.trim()) {
 			toast.error('Lỗi', {
-				description: 'Vui lòng nhập phản hồi khi giải quyết khiếu nại',
+				description: 'Vui lòng nhập phản hồi cho khiếu nại',
 			});
 			return;
 		}
@@ -129,19 +119,16 @@ export function ComplaintResponseDialog({
 				},
 				body: JSON.stringify({
 					complaintId: complaint.id,
-					status: selectedStatus,
-					resolution: resolution.trim() || undefined,
+					resolution: resolution.trim(),
 				}),
 			});
 
 			if (!response.ok) {
 				const error = await response.json();
-				throw new Error(error.error || 'Có lỗi xảy ra khi cập nhật khiếu nại');
+				throw new Error(error.error || 'Có lỗi xảy ra khi gửi phản hồi');
 			}
 
-			toast.success('Thành công', {
-				description: 'Cập nhật khiếu nại thành công',
-			});
+			toast.success('Thành công');
 
 			onComplaintUpdated();
 			onClose();
@@ -155,7 +142,6 @@ export function ComplaintResponseDialog({
 	};
 
 	const handleClose = () => {
-		setSelectedStatus('IN_REVIEW');
 		setResolution(complaint.resolution || '');
 		onClose();
 	};
@@ -183,7 +169,7 @@ export function ComplaintResponseDialog({
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
 						<MessageSquare className="h-5 w-5 text-orange-500" />
-						Xử lý khiếu nại
+						Phản hồi khiếu nại
 					</DialogTitle>
 					<DialogDescription>
 						Từ khách hàng {complaint.customer.fullName} • Đơn hàng #
@@ -247,102 +233,60 @@ export function ComplaintResponseDialog({
 						</div>
 					</div>
 
-					{/* Form xử lý */}
-					{complaint.status !== 'RESOLVED' &&
-						complaint.status !== 'REJECTED' && (
-							<form onSubmit={handleSubmit} className="space-y-4 border-t pt-4">
-								<div className="space-y-3">
-									<Label className="text-sm font-medium">
-										Trạng thái xử lý
-									</Label>
-									<Select
-										value={selectedStatus}
-										onValueChange={(
-											value: 'IN_REVIEW' | 'RESOLVED' | 'REJECTED',
-										) => setSelectedStatus(value)}
-										disabled={isSubmitting}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="IN_REVIEW">
-												<div className="flex items-center gap-2">
-													<Eye className="h-4 w-4" />
-													Đang xem xét
-												</div>
-											</SelectItem>
-											<SelectItem value="RESOLVED">
-												<div className="flex items-center gap-2">
-													<CheckCircle className="h-4 w-4" />
-													Giải quyết
-												</div>
-											</SelectItem>
-											<SelectItem value="REJECTED">
-												<div className="flex items-center gap-2">
-													<XCircle className="h-4 w-4" />
-													Từ chối
-												</div>
-											</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
+					{/* Form phản hồi */}
+					{(complaint.status === 'PENDING' ||
+						complaint.status === 'IN_REVIEW') && (
+						<form onSubmit={handleSubmit} className="space-y-4 border-t pt-4">
+							<div className="space-y-2">
+								<Label htmlFor="resolution">
+									Phản hồi của bạn <span className="text-destructive">*</span>
+								</Label>
+								<Textarea
+									id="resolution"
+									value={resolution}
+									onChange={(e) => setResolution(e.target.value)}
+									placeholder="Nhập phản hồi của bạn về khiếu nại này. Admin sẽ xem xét và đưa ra quyết định cuối cùng..."
+									rows={4}
+									disabled={isSubmitting}
+									required
+								/>
+								<p className="text-xs text-muted-foreground">
+									Sau khi gửi phản hồi, khiếu nại sẽ chuyển sang trạng thái
+									"Đang xem xét" và Admin sẽ quyết định giải quyết cuối cùng.
+								</p>
+							</div>
 
-								<div className="space-y-2">
-									<Label htmlFor="resolution">
-										Phản hồi{' '}
-										{selectedStatus === 'RESOLVED' && (
-											<span className="text-destructive">*</span>
-										)}
-									</Label>
-									<Textarea
-										id="resolution"
-										value={resolution}
-										onChange={(e) => setResolution(e.target.value)}
-										placeholder={
-											selectedStatus === 'RESOLVED'
-												? 'Mô tả cách bạn đã giải quyết khiếu nại này...'
-												: selectedStatus === 'REJECTED'
-													? 'Lý do từ chối khiếu nại...'
-													: 'Ghi chú về quá trình xem xét...'
-										}
-										rows={4}
-										disabled={isSubmitting}
-										required={selectedStatus === 'RESOLVED'}
-									/>
-								</div>
-
-								<DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:space-x-2">
-									<Button
-										type="button"
-										variant="outline"
-										onClick={handleClose}
-										disabled={isSubmitting}
-										className="w-full sm:w-auto"
-									>
-										Hủy
-									</Button>
-									<Button
-										type="submit"
-										disabled={isSubmitting}
-										className="gap-2 w-full sm:w-auto"
-									>
-										{isSubmitting ? (
-											<div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-										) : (
-											<CheckCircle className="h-4 w-4" />
-										)}
-										{isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
-									</Button>
-								</DialogFooter>
-							</form>
-						)}
+							<DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:space-x-2">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={handleClose}
+									disabled={isSubmitting}
+									className="w-full sm:w-auto"
+								>
+									Hủy
+								</Button>
+								<Button
+									type="submit"
+									disabled={isSubmitting}
+									className="gap-2 w-full sm:w-auto"
+								>
+									{isSubmitting ? (
+										<div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+									) : (
+										<MessageSquare className="h-4 w-4" />
+									)}
+									{isSubmitting ? 'Đang gửi...' : 'Gửi phản hồi'}
+								</Button>
+							</DialogFooter>
+						</form>
+					)}
 
 					{/* Hiển thị phản hồi đã có */}
 					{complaint.resolution && (
 						<div className="border-t pt-4">
 							<Label className="text-sm font-medium">Phản hồi của bạn</Label>
-							<div className="bg-green-50 dark:bg-green-950 p-3 rounded-lg border border-green-200 dark:border-green-800 mt-2">
+							<div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg border border-blue-200 dark:border-blue-800 mt-2">
 								<p className="text-sm whitespace-pre-wrap">
 									{complaint.resolution}
 								</p>
@@ -350,6 +294,12 @@ export function ComplaintResponseDialog({
 							{complaint.updatedAt !== complaint.createdAt && (
 								<div className="text-xs text-muted-foreground mt-2">
 									Cập nhật: {formatDate(complaint.updatedAt)}
+								</div>
+							)}
+							{(complaint.status === 'RESOLVED' ||
+								complaint.status === 'REJECTED') && (
+								<div className="mt-2 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
+									Admin đã xử lý khiếu nại này. Bạn không thể thay đổi phản hồi.
 								</div>
 							)}
 						</div>

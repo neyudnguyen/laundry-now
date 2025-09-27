@@ -166,12 +166,6 @@ export default function VendorComplaints() {
 		fetchComplaints(); // Refresh the list
 	};
 
-	const pendingComplaints = complaints.filter((c) => c.status === 'PENDING');
-	const inReviewComplaints = complaints.filter((c) => c.status === 'IN_REVIEW');
-	const resolvedComplaints = complaints.filter(
-		(c) => c.status === 'RESOLVED' || c.status === 'REJECTED',
-	);
-
 	if (isLoading) {
 		return (
 			<div className="space-y-6">
@@ -215,54 +209,6 @@ export default function VendorComplaints() {
 				<p className="text-muted-foreground">
 					Xem và xử lý các khiếu nại từ khách hàng về chất lượng dịch vụ.
 				</p>
-			</div>
-
-			{/* Statistics Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-				<Card>
-					<CardContent className="p-4">
-						<div className="flex items-center gap-2">
-							<Clock className="h-4 w-4 text-orange-500" />
-							<div>
-								<p className="text-sm text-muted-foreground">Chờ xử lý</p>
-								<p className="text-xl font-bold">{pendingComplaints.length}</p>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardContent className="p-4">
-						<div className="flex items-center gap-2">
-							<Eye className="h-4 w-4 text-blue-500" />
-							<div>
-								<p className="text-sm text-muted-foreground">Đang xem xét</p>
-								<p className="text-xl font-bold">{inReviewComplaints.length}</p>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardContent className="p-4">
-						<div className="flex items-center gap-2">
-							<CheckCircle className="h-4 w-4 text-green-500" />
-							<div>
-								<p className="text-sm text-muted-foreground">Đã xử lý</p>
-								<p className="text-xl font-bold">{resolvedComplaints.length}</p>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardContent className="p-4">
-						<div className="flex items-center gap-2">
-							<MessageSquare className="h-4 w-4 text-gray-500" />
-							<div>
-								<p className="text-sm text-muted-foreground">Tổng cộng</p>
-								<p className="text-xl font-bold">{complaints.length}</p>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
 			</div>
 
 			{complaints.length === 0 ? (
@@ -356,7 +302,7 @@ export default function VendorComplaints() {
 													size="sm"
 													onClick={() => setSelectedComplaint(complaint)}
 												>
-													Xem & Xử lý
+													Xem & Phản hồi
 												</Button>
 											</TableCell>
 										</TableRow>

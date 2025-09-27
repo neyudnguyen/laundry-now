@@ -91,8 +91,7 @@ export async function GET() {
 
 interface UpdateComplaintRequest {
 	complaintId: string;
-	status: 'IN_REVIEW' | 'RESOLVED' | 'REJECTED';
-	resolution?: string;
+	resolution: string;
 }
 
 export async function PATCH(request: NextRequest) {
@@ -107,12 +106,12 @@ export async function PATCH(request: NextRequest) {
 		}
 
 		const body: UpdateComplaintRequest = await request.json();
-		const { complaintId, status, resolution } = body;
+		const { complaintId, resolution } = body;
 
 		// Validate required fields
-		if (!complaintId || !status) {
+		if (!complaintId || !resolution?.trim()) {
 			return NextResponse.json(
-				{ error: 'ID khiếu nại và trạng thái là bắt buộc' },
+				{ error: 'ID khiếu nại và phản hồi là bắt buộc' },
 				{ status: 400 },
 			);
 		}
@@ -152,36 +151,17 @@ export async function PATCH(request: NextRequest) {
 			);
 		}
 
-		// Validate resolution is required for RESOLVED status
-		if (status === 'RESOLVED' && !resolution?.trim()) {
-			return NextResponse.json(
-				{ error: 'Vui lòng nhập phản hồi khi giải quyết khiếu nại' },
-				{ status: 400 },
-			);
-		}
-
-		// Update complaint
+		// Update complaint - vendor can only update resolution and status becomes IN_REVIEW
 		const updatedComplaint = await prisma.complaint.update({
 			where: { id: complaintId },
 			data: {
-				status,
-				...(resolution && { resolution: resolution.trim() }),
+				status: 'IN_REVIEW',
+				resolution: resolution.trim(),
 			},
 		});
 
 		// Send notification to customer
-		let notificationMessage = '';
-		switch (status) {
-			case 'IN_REVIEW':
-				notificationMessage = `Khiếu nại của bạn cho đơn hàng #${existingComplaint.order.id.slice(-8)} đang được xem xét.`;
-				break;
-			case 'RESOLVED':
-				notificationMessage = `Khiếu nại của bạn cho đơn hàng #${existingComplaint.order.id.slice(-8)} đã được giải quyết.`;
-				break;
-			case 'REJECTED':
-				notificationMessage = `Khiếu nại của bạn cho đơn hàng #${existingComplaint.order.id.slice(-8)} đã bị từ chối.`;
-				break;
-		}
+		const notificationMessage = `Vendor đã phản hồi khiếu nại của bạn cho đơn hàng #${existingComplaint.order.id.slice(-8)}. Admin sẽ xem xét và giải quyết.`;
 
 		await createNotification({
 			userId: existingComplaint.customer.user.id,
@@ -189,7 +169,7 @@ export async function PATCH(request: NextRequest) {
 		});
 
 		return NextResponse.json({
-			message: 'Cập nhật khiếu nại thành công',
+			message: 'Phản hồi khiếu nại thành công',
 			complaint: {
 				id: updatedComplaint.id,
 				status: updatedComplaint.status,
