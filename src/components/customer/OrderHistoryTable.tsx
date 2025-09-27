@@ -14,6 +14,7 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 
+import { ComplaintDialog } from './ComplaintDialog';
 import { OrderDetailDialog } from './OrderDetailDialog';
 import { ReviewDialog } from './ReviewDialog';
 
@@ -58,6 +59,12 @@ export interface Order {
 		id: string;
 		rating: number;
 		comment: string | null;
+		createdAt: string;
+	} | null;
+	complaint?: {
+		id: string;
+		title: string;
+		status: 'PENDING' | 'IN_REVIEW' | 'RESOLVED' | 'REJECTED';
 		createdAt: string;
 	} | null;
 }
@@ -152,6 +159,7 @@ const formatDate = (dateString: string) => {
 export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 	const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 	const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
+	const [complaintOrder, setComplaintOrder] = useState<Order | null>(null);
 	const [orderList, setOrderList] = useState<Order[]>(orders);
 
 	useEffect(() => {
@@ -160,6 +168,11 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 
 	const handleReviewSubmitted = () => {
 		// Refresh orders to update review status
+		window.location.reload();
+	};
+
+	const handleComplaintSubmitted = () => {
+		// Refresh orders to update complaint status
 		window.location.reload();
 	};
 
@@ -226,7 +239,7 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 									</TableCell>
 									<TableCell>{formatDate(order.createdAt)}</TableCell>
 									<TableCell>
-										<div className="flex gap-2">
+										<div className="flex flex-wrap gap-2">
 											<Button
 												variant="outline"
 												size="sm"
@@ -241,6 +254,15 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 													onClick={() => setReviewOrder(order)}
 												>
 													Đánh giá
+												</Button>
+											)}
+											{order.status === 'COMPLETED' && !order.complaint && (
+												<Button
+													variant="destructive"
+													size="sm"
+													onClick={() => setComplaintOrder(order)}
+												>
+													Khiếu nại
 												</Button>
 											)}
 										</div>
@@ -267,6 +289,16 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 					isOpen={!!reviewOrder}
 					onClose={() => setReviewOrder(null)}
 					onReviewSubmitted={handleReviewSubmitted}
+				/>
+			)}
+
+			{complaintOrder && (
+				<ComplaintDialog
+					orderId={complaintOrder.id}
+					vendorName={complaintOrder.vendor.shopName}
+					isOpen={!!complaintOrder}
+					onClose={() => setComplaintOrder(null)}
+					onComplaintSubmitted={handleComplaintSubmitted}
 				/>
 			)}
 		</>

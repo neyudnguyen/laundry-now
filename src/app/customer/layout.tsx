@@ -1,7 +1,15 @@
 'use client';
 
 import { UserRole } from '@prisma/client';
-import { Bell, History, LogOut, Search, ShoppingBag, User } from 'lucide-react';
+import {
+	AlertTriangle,
+	Bell,
+	History,
+	LogOut,
+	Search,
+	ShoppingBag,
+	User,
+} from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -54,6 +62,11 @@ const menuItems = [
 		title: 'Lịch sử đơn hàng',
 		icon: History,
 		href: '/customer/order-history',
+	},
+	{
+		title: 'Khiếu nại',
+		icon: AlertTriangle,
+		href: '/customer/complaints',
 	},
 ];
 

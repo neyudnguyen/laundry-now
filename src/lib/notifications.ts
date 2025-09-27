@@ -57,6 +57,8 @@ export const NotificationMessages = {
 		`Bạn nhận được đánh giá ${rating} sao từ khách hàng ${customerName}.`,
 	customerMessage: (customerName: string, message: string) =>
 		`Tin nhắn từ ${customerName}: ${message}`,
+	newComplaint: (customerName: string, orderNumber: string) =>
+		`Khách hàng ${customerName} đã gửi khiếu nại cho đơn hàng #${orderNumber}.`,
 };
 
 // Helper function to create order-related notifications

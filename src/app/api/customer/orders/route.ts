@@ -231,6 +231,14 @@ export async function GET() {
 					},
 				},
 				review: true,
+				complaint: {
+					select: {
+						id: true,
+						title: true,
+						status: true,
+						createdAt: true,
+					},
+				},
 			},
 			orderBy: {
 				createdAt: 'desc',
