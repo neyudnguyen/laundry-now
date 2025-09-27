@@ -252,7 +252,8 @@ export function ComplaintResponseDialog({
 								/>
 								<p className="text-xs text-muted-foreground">
 									Sau khi gửi phản hồi, khiếu nại sẽ chuyển sang trạng thái
-									"Đang xem xét" và Admin sẽ quyết định giải quyết cuối cùng.
+									&ldquo;Đang xem xét&rdquo; và Admin sẽ quyết định giải quyết
+									cuối cùng.
 								</p>
 							</div>
 

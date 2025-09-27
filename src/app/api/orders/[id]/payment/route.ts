@@ -16,6 +16,7 @@ export async function POST(
 		}
 
 		const { id: orderId } = await params;
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { paymentMethod, amount } = await request.json();
 
 		// Get order to verify ownership and status
