@@ -130,16 +130,21 @@ export function ComplaintDialog({
 						/>
 					</div>
 
-					<DialogFooter className="gap-2 sm:gap-0">
+					<DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:space-x-2">
 						<Button
 							type="button"
 							variant="outline"
 							onClick={handleClose}
 							disabled={isSubmitting}
+							className="w-full sm:w-auto"
 						>
 							Hủy
 						</Button>
-						<Button type="submit" disabled={isSubmitting} className="gap-2">
+						<Button
+							type="submit"
+							disabled={isSubmitting}
+							className="gap-2 w-full sm:w-auto"
+						>
 							{isSubmitting ? (
 								<div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
 							) : (
