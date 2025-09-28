@@ -151,6 +151,7 @@ model VendorProfile {
   orders            Order[]
   reviews           Review[]
   complaints        Complaint[]
+  bills             Bill[]
 
   @@map("vendor_profiles")
 }
@@ -274,4 +275,20 @@ model Complaint {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("complaints")
+}
+
+model Bill {
+  id                   String   @id @default(cuid()) @map("id")
+  totalCOD             Int      @map("total_cod")
+  totalQRCODE          Int      @map("total_qrcode")
+  totalCODCompleted    Int      @map("total_cod_completed")
+  totalQRCODECompleted Int      @map("total_qrcode_completed")
+  startDate            DateTime @map("start_date")
+  endDate              DateTime @map("end_date")
+
+  vendorId String @unique @map("vendor_id")
+
+  vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("bills")
 }
