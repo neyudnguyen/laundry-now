@@ -4,11 +4,9 @@ import { UserRole } from '@prisma/client';
 import {
 	BarChart3,
 	Bell,
-	FileText,
 	Home,
 	LogOut,
 	MessageSquare,
-	Settings,
 	ShoppingBag,
 	Store,
 	User,
@@ -77,11 +75,6 @@ const menuItems = [
 		title: 'Quản lý khiếu nại',
 		icon: MessageSquare,
 		href: '/vendor/complaints',
-	},
-	{
-		title: 'Cập nhật nội dung',
-		icon: FileText,
-		href: '/vendor/content',
 	},
 ];
 
@@ -197,25 +190,6 @@ export default function VendorLayout({
 										</SidebarMenuButton>
 									</SidebarMenuItem>
 								))}
-							</SidebarMenu>
-						</SidebarGroupContent>
-					</SidebarGroup>
-
-					<SidebarGroup>
-						<SidebarGroupLabel>Cài đặt</SidebarGroupLabel>
-						<SidebarGroupContent>
-							<SidebarMenu>
-								<SidebarMenuItem>
-									<SidebarMenuButton asChild>
-										<Link
-											href="/vendor/settings"
-											className="flex items-center gap-3"
-										>
-											<Settings className="h-4 w-4" />
-											<span>Cài đặt cửa hàng</span>
-										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
 							</SidebarMenu>
 						</SidebarGroupContent>
 					</SidebarGroup>
