@@ -1,6 +1,6 @@
 'use client';
 
-import { QrCode } from 'lucide-react';
+import { QrCode, RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -46,6 +46,7 @@ export interface Order {
 	createdAt: string;
 	items: OrderItem[];
 	vendor: {
+		id: string;
 		shopName: string;
 		user: {
 			phone: string;
@@ -184,6 +185,11 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 		window.location.reload();
 	};
 
+	const handleReorder = (order: Order) => {
+		// Redirect tới trang orders với vendorId để tạo đơn mới
+		window.location.href = `/customer/orders?vendorId=${order.vendor.id}`;
+	};
+
 	if (orderList.length === 0) {
 		return (
 			<Card>
@@ -283,6 +289,16 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 													onClick={() => setComplaintOrder(order)}
 												>
 													Khiếu nại
+												</Button>
+											)}
+											{order.status === 'COMPLETED' && (
+												<Button
+													variant="secondary"
+													size="sm"
+													onClick={() => handleReorder(order)}
+												>
+													<RotateCcw className="h-4 w-4 mr-1" />
+													Đặt lại
 												</Button>
 											)}
 										</div>

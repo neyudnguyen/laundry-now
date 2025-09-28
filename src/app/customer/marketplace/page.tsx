@@ -2,7 +2,7 @@
 
 import { Mail, MapPin, Phone, ShoppingCart, Store, X } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -132,6 +132,9 @@ export default function VendorMarketplacePage() {
 	>(null);
 
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const vendorIdFromQuery = searchParams.get('vendorId');
+	const isReorder = searchParams.get('reorder') === 'true';
 
 	const loadVendors = async () => {
 		try {
@@ -286,6 +289,28 @@ export default function VendorMarketplacePage() {
 
 		fetchProvinces();
 	}, []);
+
+	// Handle reorder - auto open vendor dialog
+	useEffect(() => {
+		if (vendorIdFromQuery && isReorder && vendors.length > 0) {
+			// Find vendor in the list
+			const vendor = vendors.find((v) => v.id === vendorIdFromQuery);
+			if (vendor) {
+				// Load vendor detail and open dialog
+				loadVendorDetail(vendorIdFromQuery);
+
+				// Scroll to vendor card if it exists
+				setTimeout(() => {
+					const vendorCard = document.getElementById(
+						`vendor-${vendorIdFromQuery}`,
+					);
+					if (vendorCard) {
+						vendorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					}
+				}, 500);
+			}
+		}
+	}, [vendorIdFromQuery, isReorder, vendors]);
 
 	// Load districts when province changes
 	useEffect(() => {
@@ -589,7 +614,11 @@ export default function VendorMarketplacePage() {
 			) : (
 				<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 					{filteredVendors.map((vendor) => (
-						<Card key={vendor.id} className="hover:shadow-md transition-shadow">
+						<Card
+							key={vendor.id}
+							id={`vendor-${vendor.id}`}
+							className="hover:shadow-md transition-shadow"
+						>
 							<CardHeader className="pb-3">
 								<div className="flex items-start gap-3">
 									{vendor.image ? (

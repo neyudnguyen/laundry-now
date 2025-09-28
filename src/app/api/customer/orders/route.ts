@@ -245,7 +245,18 @@ export async function GET() {
 			},
 		});
 
-		return NextResponse.json({ orders });
+		// Transform orders to include vendor.id
+		const transformedOrders = orders.map((order) => ({
+			...order,
+			vendor: {
+				id: order.vendor.id,
+				shopName: order.vendor.shopName,
+				user: order.vendor.user,
+				address: order.vendor.address,
+			},
+		}));
+
+		return NextResponse.json({ orders: transformedOrders });
 	} catch (error) {
 		console.error('Error fetching customer orders:', error);
 		return NextResponse.json(
