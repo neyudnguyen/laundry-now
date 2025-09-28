@@ -3,7 +3,6 @@
 import { ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,49 +11,17 @@ export default function PaymentResultPage() {
 	const searchParams = useSearchParams();
 	const payment = searchParams.get('payment');
 	const orderId = searchParams.get('orderId');
+	const code = searchParams.get('code');
+	const status = searchParams.get('status');
+	const cancel = searchParams.get('cancel');
 
-	const [loading, setLoading] = useState(true);
-	const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (orderId && payment === 'success') {
-			// Kiểm tra trạng thái thanh toán từ server
-			const checkPaymentStatus = async () => {
-				try {
-					const response = await fetch(`/api/payments/status/${orderId}`);
-					const result = await response.json();
-
-					if (result.success) {
-						setPaymentStatus(result.data.paymentStatus);
-					}
-				} catch (error) {
-					console.error('Error checking payment status:', error);
-				} finally {
-					setLoading(false);
-				}
-			};
-
-			checkPaymentStatus();
-		} else {
-			setLoading(false);
-		}
-	}, [orderId, payment]);
-
-	if (loading) {
-		return (
-			<div className="min-h-screen flex items-center justify-center">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-					<p className="mt-2 text-sm text-muted-foreground">
-						Đang kiểm tra trạng thái thanh toán...
-					</p>
-				</div>
-			</div>
-		);
-	}
-
-	const isSuccess = payment === 'success' && paymentStatus === 'COMPLETED';
-	const isCancelled = payment === 'cancelled';
+	// Xác định trạng thái thanh toán từ query parameters
+	const isSuccess =
+		payment === 'success' &&
+		code === '00' &&
+		status === 'PAID' &&
+		cancel === 'false';
+	const isCancelled = payment === 'cancelled' || cancel === 'true';
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -80,13 +47,13 @@ export default function PaymentResultPage() {
 						</>
 					)}
 
-					{payment === 'success' && paymentStatus !== 'COMPLETED' && (
+					{payment === 'success' && !isSuccess && (
 						<>
 							<div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
 								<XCircle className="w-8 h-8 text-yellow-600" />
 							</div>
 							<CardTitle className="text-yellow-600">
-								Chưa hoàn tất thanh toán
+								Thanh toán chưa hoàn tất
 							</CardTitle>
 						</>
 					)}
@@ -118,7 +85,7 @@ export default function PaymentResultPage() {
 						</div>
 					)}
 
-					{payment === 'success' && paymentStatus !== 'COMPLETED' && (
+					{payment === 'success' && !isSuccess && (
 						<div>
 							<p className="text-muted-foreground mb-4">
 								Thanh toán chưa được xác nhận. Vui lòng kiểm tra lại hoặc liên
