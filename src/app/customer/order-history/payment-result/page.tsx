@@ -131,15 +131,15 @@ export default function PaymentResultPage() {
 						</div>
 					)}
 
-					<div className="space-y-2 pt-4">
-						<Link href="/customer/order-history">
+					<div className="pt-4">
+						<Link href="/customer/order-history" className="block mb-4">
 							<Button className="w-full">
 								<ArrowLeft className="w-4 h-4 mr-2" />
 								Quay lại lịch sử đơn hàng
 							</Button>
 						</Link>
 
-						<Link href="/customer/marketplace">
+						<Link href="/customer/marketplace" className="block">
 							<Button variant="outline" className="w-full">
 								Tiếp tục mua sắm
 							</Button>
