@@ -86,24 +86,49 @@ export async function POST(request: NextRequest) {
 			buyerEmail: order.customer.user.email || undefined,
 		};
 
-		// Tạo link thanh toán với payOS
-		const paymentLinkResponse = await payOS.paymentRequests.create(paymentData);
-
-		// Lưu thông tin payment link vào database
-		await prisma.paymentLink.create({
-			data: {
-				paymentLinkId: paymentLinkResponse.paymentLinkId,
-				orderCode: orderCode,
-				checkoutUrl: paymentLinkResponse.checkoutUrl,
-				qrCode: paymentLinkResponse.qrCode,
-				accountNumber: paymentLinkResponse.accountNumber,
-				accountName: paymentLinkResponse.accountName,
-				amount: paymentLinkResponse.amount,
-				description: paymentLinkResponse.description,
-				status: 'PENDING',
-				orderId: orderId,
-			},
+		// Kiểm tra xem đã có payment link chưa
+		const existingPaymentLink = await prisma.paymentLink.findUnique({
+			where: { orderId: orderId },
 		});
+
+		let paymentLinkResponse;
+
+		if (existingPaymentLink) {
+			// Nếu đã có payment link, trả về thông tin đó
+			paymentLinkResponse = {
+				paymentLinkId: existingPaymentLink.paymentLinkId,
+				orderCode: existingPaymentLink.orderCode,
+				checkoutUrl: existingPaymentLink.checkoutUrl,
+				qrCode: existingPaymentLink.qrCode,
+				accountNumber: existingPaymentLink.accountNumber,
+				accountName: existingPaymentLink.accountName,
+				amount: existingPaymentLink.amount,
+				description: existingPaymentLink.description,
+				status: existingPaymentLink.status,
+			};
+		} else {
+			// Tạo link thanh toán mới với payOS
+			const newPaymentLinkResponse =
+				await payOS.paymentRequests.create(paymentData);
+
+			// Lưu thông tin payment link vào database
+			await prisma.paymentLink.create({
+				data: {
+					paymentLinkId: newPaymentLinkResponse.paymentLinkId,
+					orderCode: orderCode,
+					checkoutUrl: newPaymentLinkResponse.checkoutUrl,
+					qrCode: newPaymentLinkResponse.qrCode,
+					accountNumber: newPaymentLinkResponse.accountNumber,
+					accountName: newPaymentLinkResponse.accountName,
+					amount: newPaymentLinkResponse.amount,
+					description: newPaymentLinkResponse.description,
+					status: 'PENDING',
+					orderId: orderId,
+				},
+			});
+
+			paymentLinkResponse = newPaymentLinkResponse;
+		}
 
 		return NextResponse.json({
 			success: true,
