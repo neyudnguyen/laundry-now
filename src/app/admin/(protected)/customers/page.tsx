@@ -137,6 +137,7 @@ export default function CustomersPage() {
 								<Table>
 									<TableHeader>
 										<TableRow>
+											<TableHead className="px-6 py-4 w-16">#</TableHead>
 											<TableHead className="px-6 py-4">Họ tên</TableHead>
 											<TableHead className="px-6 py-4">Số điện thoại</TableHead>
 											<TableHead className="hidden md:table-cell px-6 py-4">
@@ -148,8 +149,11 @@ export default function CustomersPage() {
 										</TableRow>
 									</TableHeader>
 									<TableBody>
-										{customers.map((customer) => (
+										{customers.map((customer, index) => (
 											<TableRow key={customer.id} className="hover:bg-muted/50">
+												<TableCell className="px-6 py-4 text-muted-foreground">
+													{index + 1}
+												</TableCell>
 												<TableCell className="font-medium px-6 py-4">
 													{customer.fullName}
 												</TableCell>

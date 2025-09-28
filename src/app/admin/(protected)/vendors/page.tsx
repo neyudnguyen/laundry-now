@@ -148,6 +148,7 @@ export default function VendorsPage() {
 								<Table>
 									<TableHeader>
 										<TableRow>
+											<TableHead className="px-6 py-4 w-16">#</TableHead>
 											<TableHead className="px-6 py-4">Tên cửa hàng</TableHead>
 											<TableHead className="px-6 py-4">Số điện thoại</TableHead>
 											<TableHead className="hidden md:table-cell px-6 py-4">
@@ -162,8 +163,11 @@ export default function VendorsPage() {
 										</TableRow>
 									</TableHeader>
 									<TableBody>
-										{vendors.map((vendor) => (
+										{vendors.map((vendor, index) => (
 											<TableRow key={vendor.id} className="hover:bg-muted/50">
+												<TableCell className="px-6 py-4 text-muted-foreground">
+													{index + 1}
+												</TableCell>
 												<TableCell className="font-medium px-6 py-4">
 													{vendor.shopName}
 												</TableCell>
