@@ -15,7 +15,7 @@ export async function GET(
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const { orderId } = params;
+		const { orderId } = await params;
 
 		// Tìm đơn hàng
 		const order = await prisma.order.findUnique({

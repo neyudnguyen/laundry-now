@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 		const paymentData: PaymentData = {
 			orderCode,
 			amount: totalAmount,
-			description: `Thanh toan don hang ${order.id}`,
+			description: `Don hang ${order.id.slice(-8)}`,
 			items: order.items.map((item) => ({
 				name: item.name,
 				quantity: item.quantity,
