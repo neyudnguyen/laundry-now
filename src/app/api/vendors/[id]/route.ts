@@ -10,12 +10,18 @@ export async function GET(
 		const { id } = await params;
 
 		const vendor = await prisma.vendorProfile.findUnique({
-			where: { id },
+			where: {
+				id,
+				user: {
+					role: 'VENDOR', // Chỉ lấy vendor đang có role là VENDOR
+				},
+			},
 			include: {
 				user: {
 					select: {
 						phone: true,
 						email: true,
+						role: true, // Thêm role để debug nếu cần
 					},
 				},
 				address: true,

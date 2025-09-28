@@ -5,11 +5,17 @@ import { prisma } from '@/lib/prisma';
 export async function GET() {
 	try {
 		const vendors = await prisma.vendorProfile.findMany({
+			where: {
+				user: {
+					role: 'VENDOR', // Chỉ lấy những user đang có role là VENDOR
+				},
+			},
 			include: {
 				user: {
 					select: {
 						phone: true,
 						email: true,
+						role: true, // Thêm role để debug nếu cần
 					},
 				},
 				address: true,
