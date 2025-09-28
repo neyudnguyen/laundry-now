@@ -18,11 +18,13 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		const { orderCode, code, desc } = webhookData;
+		// Lấy thông tin từ webhook payload
+		const { code, desc, data } = body;
+		const { orderCode } = data;
 
 		// Tìm order theo orderCode
 		const order = await prisma.order.findUnique({
-			where: { orderCode: orderCode },
+			where: { orderCode: parseInt(orderCode.toString()) },
 			include: {
 				customer: {
 					include: {
@@ -43,7 +45,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Chỉ xử lý khi thanh toán thành công
-		if (code === '00' && desc === 'Thành công') {
+		if (code === '00' && desc === 'success') {
 			// Cập nhật order thành COMPLETED
 			await prisma.$transaction([
 				prisma.order.update({
