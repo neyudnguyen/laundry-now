@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { Separator } from '@/components/ui/separator';
 import { VendorAddressManager } from '@/components/vendor/VendorAddressManager';
+import { VendorBankingInfo } from '@/components/vendor/VendorBankingInfo';
 import { VendorBasicInfo } from '@/components/vendor/VendorBasicInfo';
 import { VendorImageManager } from '@/components/vendor/VendorImageManager';
 import { useToast } from '@/hooks/use-toast';
@@ -18,6 +19,9 @@ interface VendorData {
 		vendorProfile?: {
 			id: string;
 			shopName: string;
+			bankName?: string;
+			bankNumber?: string;
+			bankHolder?: string;
 			address?: {
 				id: string;
 				province: string;
@@ -124,7 +128,7 @@ const VendorProfilePage = () => {
 					<Separator />
 				</div>
 
-				{/* Content Layout - 3 sections */}
+				{/* Content Layout - 4 sections */}
 				<div className="space-y-8">
 					{/* Thông tin cơ bản */}
 					<section>
@@ -133,6 +137,18 @@ const VendorProfilePage = () => {
 								shopName: vendorData?.user?.vendorProfile?.shopName || '',
 								phone: vendorData?.user?.phone || '',
 								email: vendorData?.user?.email || '',
+							}}
+							onSuccess={handleProfileUpdate}
+						/>
+					</section>
+
+					{/* Thông tin ngân hàng */}
+					<section>
+						<VendorBankingInfo
+							initialData={{
+								bankName: vendorData?.user?.vendorProfile?.bankName || '',
+								bankNumber: vendorData?.user?.vendorProfile?.bankNumber || '',
+								bankHolder: vendorData?.user?.vendorProfile?.bankHolder || '',
 							}}
 							onSuccess={handleProfileUpdate}
 						/>
