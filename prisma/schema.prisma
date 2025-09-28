@@ -135,8 +135,11 @@ model CustomerProfile {
 }
 
 model VendorProfile {
-  id       String @id @default(cuid()) @map("id")
-  shopName String @map("shop_name")
+  id         String  @id @default(cuid()) @map("id")
+  shopName   String  @map("shop_name")
+  bankName   String? @map("bank_name")
+  bankNumber String? @map("bank_number")
+  bankHolder String? @map("bank_holder")
 
   userId    String  @unique @map("user_id")
   addressId String? @unique @map("address_id")
