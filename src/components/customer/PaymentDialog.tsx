@@ -1,7 +1,6 @@
 'use client';
 
-import { CheckCircle, Copy, ExternalLink, QrCode } from 'lucide-react';
-import Image from 'next/image';
+import { QrCode } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -13,7 +12,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
 
 interface PaymentDialogProps {
 	isOpen: boolean;
@@ -44,6 +42,33 @@ export default function PaymentDialog({
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
+	const handleCancelPayment = useCallback(async () => {
+		try {
+			await fetch('/api/payments/cancel', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ orderId }),
+			});
+		} catch (error) {
+			console.error('Error cancelling payment:', error);
+		}
+	}, [orderId]);
+
+	const handleClose = useCallback(
+		(preventCancel?: boolean) => {
+			// Cancel payment if user closes dialog while payment is pending (unless prevented)
+			if (paymentData && !preventCancel) {
+				handleCancelPayment();
+			}
+			setPaymentData(null);
+			setError(null);
+			onClose();
+		},
+		[paymentData, handleCancelPayment, onClose],
+	);
+
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('vi-VN', {
 			style: 'currency',
@@ -61,7 +86,7 @@ export default function PaymentDialog({
 					clearInterval(checkInterval);
 					toast.success('Thanh toán thành công!');
 					onPaymentSuccess?.();
-					onClose();
+					handleClose(true); // Prevent cancellation when payment is successful
 				}
 			} catch (error) {
 				console.error('Error checking payment status:', error);
@@ -72,7 +97,7 @@ export default function PaymentDialog({
 		setTimeout(() => {
 			clearInterval(checkInterval);
 		}, 300000);
-	}, [orderId, onPaymentSuccess, onClose]);
+	}, [orderId, onPaymentSuccess, handleClose]);
 
 	const checkExistingPayment = useCallback(async () => {
 		try {
@@ -116,6 +141,12 @@ export default function PaymentDialog({
 				setPaymentData(result.data);
 				toast.success('Tạo link thanh toán thành công!');
 
+				// Redirect sang checkout URL
+				setTimeout(() => {
+					window.open(result.data.checkoutUrl, '_blank');
+					handleClose(true);
+				}, 1000);
+
 				// Bắt đầu kiểm tra trạng thái thanh toán định kỳ
 				startPaymentStatusCheck();
 			} else {
@@ -130,17 +161,6 @@ export default function PaymentDialog({
 		}
 	};
 
-	const copyToClipboard = (text: string) => {
-		navigator.clipboard.writeText(text);
-		toast.success('Đã sao chép vào clipboard!');
-	};
-
-	const openPaymentPage = () => {
-		if (paymentData?.checkoutUrl) {
-			window.open(paymentData.checkoutUrl, '_blank');
-		}
-	};
-
 	// Kiểm tra payment link đã tồn tại khi dialog mở
 	useEffect(() => {
 		if (isOpen && !paymentData) {
@@ -149,7 +169,7 @@ export default function PaymentDialog({
 	}, [isOpen, paymentData, checkExistingPayment]);
 
 	return (
-		<Dialog open={isOpen} onOpenChange={onClose}>
+		<Dialog open={isOpen} onOpenChange={handleClose}>
 			<DialogContent className="max-w-md">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
@@ -171,8 +191,6 @@ export default function PaymentDialog({
 							{formatCurrency(orderAmount)}
 						</p>
 					</div>
-
-					<Separator />
 
 					{/* Payment Content */}
 					{!paymentData && !loading && !error && (
@@ -210,85 +228,11 @@ export default function PaymentDialog({
 					)}
 
 					{paymentData && (
-						<div className="space-y-4">
-							{/* QR Code */}
-							<div className="text-center">
-								<div className="relative mx-auto w-48 h-48 bg-white p-2 rounded-lg border">
-									<Image
-										src={paymentData.qrCode}
-										alt="QR Code thanh toán"
-										fill
-										className="object-contain"
-										unoptimized
-									/>
-								</div>
-								<p className="text-xs text-muted-foreground mt-2">
-									Quét mã QR bằng ứng dụng ngân hàng
-								</p>
-							</div>
-
-							{/* Payment Info */}
-							<div className="space-y-3 text-sm">
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">Tên tài khoản:</span>
-									<span className="font-medium">{paymentData.accountName}</span>
-								</div>
-								<div className="flex justify-between items-center">
-									<span className="text-muted-foreground">Số tài khoản:</span>
-									<div className="flex items-center gap-2">
-										<span className="font-medium">
-											{paymentData.accountNumber}
-										</span>
-										<Button
-											size="sm"
-											variant="ghost"
-											onClick={() => copyToClipboard(paymentData.accountNumber)}
-										>
-											<Copy className="h-3 w-3" />
-										</Button>
-									</div>
-								</div>
-								<div className="flex justify-between items-center">
-									<span className="text-muted-foreground">Nội dung:</span>
-									<div className="flex items-center gap-2">
-										<span className="font-medium text-right max-w-32 truncate">
-											{paymentData.description}
-										</span>
-										<Button
-											size="sm"
-											variant="ghost"
-											onClick={() => copyToClipboard(paymentData.description)}
-										>
-											<Copy className="h-3 w-3" />
-										</Button>
-									</div>
-								</div>
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">Số tiền:</span>
-									<span className="font-bold text-primary">
-										{formatCurrency(paymentData.amount)}
-									</span>
-								</div>
-							</div>
-
-							<Separator />
-
-							{/* Action Buttons */}
-							<div className="space-y-2">
-								<Button
-									onClick={openPaymentPage}
-									className="w-full"
-									variant="default"
-								>
-									<ExternalLink className="h-4 w-4 mr-2" />
-									Mở trang thanh toán
-								</Button>
-
-								<div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-									<CheckCircle className="h-3 w-3" />
-									Hệ thống sẽ tự động cập nhật khi thanh toán thành công
-								</div>
-							</div>
+						<div className="text-center space-y-4">
+							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+							<p className="text-sm text-muted-foreground">
+								Đang chuyển hướng tới trang thanh toán...
+							</p>
 						</div>
 					)}
 				</div>

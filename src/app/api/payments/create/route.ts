@@ -93,8 +93,8 @@ export async function POST(request: NextRequest) {
 
 		let paymentLinkResponse;
 
-		if (existingPaymentLink) {
-			// Nếu đã có payment link, trả về thông tin đó
+		if (existingPaymentLink && existingPaymentLink.status === 'PENDING') {
+			// Nếu đã có payment link và đang PENDING, trả về thông tin đó
 			paymentLinkResponse = {
 				paymentLinkId: existingPaymentLink.paymentLinkId,
 				orderCode: existingPaymentLink.orderCode,
@@ -107,6 +107,12 @@ export async function POST(request: NextRequest) {
 				status: existingPaymentLink.status,
 			};
 		} else {
+			// Nếu có payment link cũ nhưng đã CANCELLED/FAILED, xóa nó đi
+			if (existingPaymentLink) {
+				await prisma.paymentLink.delete({
+					where: { id: existingPaymentLink.id },
+				});
+			}
 			// Tạo link thanh toán mới với payOS
 			const newPaymentLinkResponse =
 				await payOS.paymentRequests.create(paymentData);
