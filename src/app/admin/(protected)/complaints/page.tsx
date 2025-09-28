@@ -38,7 +38,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
 
 interface AdminComplaint {
 	id: string;
@@ -56,12 +55,14 @@ interface AdminComplaint {
 		status: string;
 	};
 	customer: {
+		id: string;
 		fullName: string;
 		user: {
 			phone: string;
 		};
 	};
 	vendor: {
+		id: string;
 		shopName: string;
 		user: {
 			id: string;
@@ -180,7 +181,6 @@ export default function AdminComplaintsPage() {
 	const [selectedComplaint, setSelectedComplaint] =
 		useState<AdminComplaint | null>(null);
 	const [isProcessing, setIsProcessing] = useState(false);
-	const [adminDecision, setAdminDecision] = useState('');
 
 	// Filters
 	const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -189,15 +189,30 @@ export default function AdminComplaintsPage() {
 	const fetchComplaints = async () => {
 		try {
 			setIsLoading(true);
+			setError(null);
+
 			const response = await fetch('/api/admin/complaints');
 
 			if (!response.ok) {
-				throw new Error('Không thể tải danh sách khiếu nại');
+				const errorData = await response.json().catch(() => ({}));
+				throw new Error(
+					errorData.error || `HTTP ${response.status}: ${response.statusText}`,
+				);
 			}
 
 			const data = await response.json();
-			setComplaints(data.complaints || []);
+			console.log('API Response:', data); // Debug log
+			console.log('Is array?', Array.isArray(data)); // Debug log
+			console.log('Data length:', data?.length); // Debug log
+
+			if (Array.isArray(data)) {
+				setComplaints(data);
+			} else {
+				console.error('API returned non-array data:', data);
+				setError('Dữ liệu trả về không đúng định dạng');
+			}
 		} catch (err) {
+			console.error('Fetch error:', err); // Debug log
 			setError(err instanceof Error ? err.message : 'Có lỗi xảy ra');
 		} finally {
 			setIsLoading(false);
@@ -212,11 +227,6 @@ export default function AdminComplaintsPage() {
 		complaintId: string,
 		decision: 'RESOLVED' | 'REJECTED',
 	) => {
-		if (!adminDecision.trim()) {
-			toast.error('Vui lòng nhập lý do quyết định');
-			return;
-		}
-
 		setIsProcessing(true);
 		try {
 			const response = await fetch(`/api/admin/complaints/${complaintId}`, {
@@ -226,7 +236,6 @@ export default function AdminComplaintsPage() {
 				},
 				body: JSON.stringify({
 					status: decision,
-					adminDecision: adminDecision.trim(),
 				}),
 			});
 
@@ -241,7 +250,6 @@ export default function AdminComplaintsPage() {
 			);
 
 			setSelectedComplaint(null);
-			setAdminDecision('');
 			fetchComplaints();
 		} catch (err) {
 			toast.error(err instanceof Error ? err.message : 'Có lỗi xảy ra');
@@ -267,6 +275,12 @@ export default function AdminComplaintsPage() {
 		return matchesStatus && matchesSearch;
 	});
 
+	// Debug logs
+	console.log('Total complaints:', complaints.length);
+	console.log('Filtered complaints:', filteredComplaints.length);
+	console.log('Status filter:', statusFilter);
+	console.log('Search term:', searchTerm);
+
 	// Statistics
 	const stats = {
 		total: complaints.length,
@@ -289,7 +303,9 @@ export default function AdminComplaintsPage() {
 					<CardContent className="flex items-center justify-center py-12">
 						<div className="text-center">
 							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-							<p className="mt-2 text-sm text-muted-foreground">Đang tải...</p>
+							<p className="mt-2 text-sm text-muted-foreground">
+								Đang tải danh sách khiếu nại...
+							</p>
 						</div>
 					</CardContent>
 				</Card>
@@ -441,81 +457,103 @@ export default function AdminComplaintsPage() {
 									</TableRow>
 								</TableHeader>
 								<TableBody>
-									{filteredComplaints.map((complaint) => (
-										<TableRow key={complaint.id}>
-											<TableCell className="max-w-xs">
-												<div className="space-y-1">
-													<div
-														className="font-medium truncate"
-														title={complaint.title}
+									{filteredComplaints.map((complaint) => {
+										try {
+											return (
+												<TableRow key={complaint.id}>
+													<TableCell className="max-w-xs">
+														<div className="space-y-1">
+															<div
+																className="font-medium truncate"
+																title={complaint.title || 'N/A'}
+															>
+																{complaint.title || 'Không có tiêu đề'}
+															</div>
+															<div
+																className="text-xs text-muted-foreground truncate"
+																title={complaint.description || 'N/A'}
+															>
+																{complaint.description || 'Không có mô tả'}
+															</div>
+														</div>
+													</TableCell>
+													<TableCell>
+														<div className="space-y-1">
+															<div className="font-medium">
+																{complaint.customer?.fullName || 'N/A'}
+															</div>
+															<div className="text-xs text-muted-foreground">
+																{complaint.customer?.user?.phone || 'N/A'}
+															</div>
+														</div>
+													</TableCell>
+													<TableCell>
+														<div className="font-medium">
+															{complaint.vendor?.shopName || 'N/A'}
+														</div>
+													</TableCell>
+													<TableCell>
+														<div className="space-y-1">
+															<div className="font-medium">
+																#{complaint.order?.id?.slice(-8) || 'N/A'}
+															</div>
+															<div className="text-xs text-muted-foreground">
+																{formatCurrency(
+																	(complaint.order?.servicePrice || 0) +
+																		(complaint.order?.deliveryFee || 0),
+																)}
+															</div>
+														</div>
+													</TableCell>
+													<TableCell>
+														<div className="flex items-center">
+															<Badge
+																variant={getStatusVariant(complaint.status)}
+																className="gap-1"
+															>
+																{getStatusIcon(complaint.status)}
+																{getStatusText(complaint.status)}
+															</Badge>
+															{getPriorityBadge(
+																complaint.status,
+																complaint.createdAt,
+															)}
+														</div>
+													</TableCell>
+													<TableCell>
+														{formatDate(complaint.createdAt)}
+													</TableCell>
+													<TableCell>
+														<Button
+															variant="outline"
+															size="sm"
+															onClick={() => setSelectedComplaint(complaint)}
+														>
+															{complaint.status === 'IN_REVIEW'
+																? 'Xử lý'
+																: 'Xem chi tiết'}
+														</Button>
+													</TableCell>
+												</TableRow>
+											);
+										} catch (err) {
+											console.error(
+												'Error rendering complaint row:',
+												err,
+												complaint,
+											);
+											return (
+												<TableRow key={complaint.id || 'error'}>
+													<TableCell
+														colSpan={7}
+														className="text-center text-destructive"
 													>
-														{complaint.title}
-													</div>
-													<div
-														className="text-xs text-muted-foreground truncate"
-														title={complaint.description}
-													>
-														{complaint.description}
-													</div>
-												</div>
-											</TableCell>
-											<TableCell>
-												<div className="space-y-1">
-													<div className="font-medium">
-														{complaint.customer.fullName}
-													</div>
-													<div className="text-xs text-muted-foreground">
-														{complaint.customer.user.phone}
-													</div>
-												</div>
-											</TableCell>
-											<TableCell>
-												<div className="font-medium">
-													{complaint.vendor.shopName}
-												</div>
-											</TableCell>
-											<TableCell>
-												<div className="space-y-1">
-													<div className="font-medium">
-														#{complaint.order.id.slice(-8)}
-													</div>
-													<div className="text-xs text-muted-foreground">
-														{formatCurrency(
-															complaint.order.servicePrice +
-																complaint.order.deliveryFee,
-														)}
-													</div>
-												</div>
-											</TableCell>
-											<TableCell>
-												<div className="flex items-center">
-													<Badge
-														variant={getStatusVariant(complaint.status)}
-														className="gap-1"
-													>
-														{getStatusIcon(complaint.status)}
-														{getStatusText(complaint.status)}
-													</Badge>
-													{getPriorityBadge(
-														complaint.status,
-														complaint.createdAt,
-													)}
-												</div>
-											</TableCell>
-											<TableCell>{formatDate(complaint.createdAt)}</TableCell>
-											<TableCell>
-												<Button
-													variant="outline"
-													size="sm"
-													onClick={() => setSelectedComplaint(complaint)}
-												>
-													{complaint.status === 'IN_REVIEW'
-														? 'Xử lý'
-														: 'Xem chi tiết'}
-												</Button>
-											</TableCell>
-										</TableRow>
-									))}
+														Lỗi hiển thị khiếu nại này
+													</TableCell>
+												</TableRow>
+											);
+										}
+									})}
 								</TableBody>
 							</Table>
 						</div>
@@ -530,7 +568,6 @@ export default function AdminComplaintsPage() {
 					onOpenChange={(open) => {
 						if (!open) {
 							setSelectedComplaint(null);
-							setAdminDecision('');
 						}
 					}}
 				>
@@ -610,12 +647,9 @@ export default function AdminComplaintsPage() {
 								<div className="border-t pt-6">
 									<h4 className="font-medium text-sm mb-2">Quyết định xử lý</h4>
 									<div className="space-y-4">
-										<Textarea
-											placeholder="Nhập lý do quyết định của bạn..."
-											value={adminDecision}
-											onChange={(e) => setAdminDecision(e.target.value)}
-											rows={3}
-										/>
+										<p className="text-sm text-muted-foreground">
+											Xác nhận quyết định xử lý khiếu nại này:
+										</p>
 										<div className="flex gap-3">
 											<Button
 												onClick={() =>
@@ -624,7 +658,7 @@ export default function AdminComplaintsPage() {
 														'RESOLVED',
 													)
 												}
-												disabled={isProcessing || !adminDecision.trim()}
+												disabled={isProcessing}
 												className="bg-green-600 hover:bg-green-700"
 											>
 												{isProcessing ? 'Đang xử lý...' : 'Chấp nhận khiếu nại'}
@@ -637,7 +671,7 @@ export default function AdminComplaintsPage() {
 														'REJECTED',
 													)
 												}
-												disabled={isProcessing || !adminDecision.trim()}
+												disabled={isProcessing}
 											>
 												{isProcessing ? 'Đang xử lý...' : 'Từ chối khiếu nại'}
 											</Button>

@@ -20,7 +20,7 @@ export async function GET() {
 						fullName: true,
 						user: {
 							select: {
-								email: true,
+								phone: true,
 							},
 						},
 					},
@@ -31,7 +31,8 @@ export async function GET() {
 						shopName: true,
 						user: {
 							select: {
-								email: true,
+								id: true,
+								phone: true,
 							},
 						},
 					},
@@ -41,6 +42,8 @@ export async function GET() {
 						id: true,
 						servicePrice: true,
 						deliveryFee: true,
+						createdAt: true,
+						status: true,
 					},
 				},
 			},
