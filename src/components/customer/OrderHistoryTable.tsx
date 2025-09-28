@@ -1,5 +1,6 @@
 'use client';
 
+import { QrCode } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +17,7 @@ import {
 
 import { ComplaintDialog } from './ComplaintDialog';
 import { OrderDetailDialog } from './OrderDetailDialog';
+import PaymentDialog from './PaymentDialog';
 import { ReviewDialog } from './ReviewDialog';
 
 export interface OrderItem {
@@ -160,6 +162,7 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 	const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 	const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
 	const [complaintOrder, setComplaintOrder] = useState<Order | null>(null);
+	const [paymentOrder, setPaymentOrder] = useState<Order | null>(null);
 	const [orderList, setOrderList] = useState<Order[]>(orders);
 
 	useEffect(() => {
@@ -173,6 +176,11 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 
 	const handleComplaintSubmitted = () => {
 		// Refresh orders to update complaint status
+		window.location.reload();
+	};
+
+	const handlePaymentSuccess = () => {
+		// Refresh orders to update payment status
 		window.location.reload();
 	};
 
@@ -247,6 +255,18 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 											>
 												Xem chi tiết
 											</Button>
+											{order.status === 'PAYMENT_REQUIRED' &&
+												order.paymentMethod === 'QRCODE' &&
+												order.paymentStatus === 'PENDING' && (
+													<Button
+														variant="default"
+														size="sm"
+														onClick={() => setPaymentOrder(order)}
+													>
+														<QrCode className="h-4 w-4 mr-1" />
+														Thanh toán
+													</Button>
+												)}
 											{order.status === 'COMPLETED' && !order.review && (
 												<Button
 													variant="default"
@@ -299,6 +319,16 @@ export function OrderHistoryTable({ orders }: OrderHistoryTableProps) {
 					isOpen={!!complaintOrder}
 					onClose={() => setComplaintOrder(null)}
 					onComplaintSubmitted={handleComplaintSubmitted}
+				/>
+			)}
+
+			{paymentOrder && (
+				<PaymentDialog
+					isOpen={!!paymentOrder}
+					onClose={() => setPaymentOrder(null)}
+					orderId={paymentOrder.id}
+					orderAmount={paymentOrder.servicePrice + paymentOrder.deliveryFee}
+					onPaymentSuccess={handlePaymentSuccess}
 				/>
 			)}
 		</>
