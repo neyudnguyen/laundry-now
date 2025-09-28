@@ -20,76 +20,57 @@ export async function POST(request: NextRequest) {
 
 		const { orderCode, code, desc } = webhookData;
 
-		// Tìm payment link theo orderCode
-		const paymentLink = await prisma.paymentLink.findUnique({
-			where: {
-				orderCode: orderCode,
-			},
+		// Tìm order theo orderCode
+		const order = await prisma.order.findUnique({
+			where: { orderCode: orderCode },
 			include: {
-				order: true,
+				customer: {
+					include: {
+						user: true,
+					},
+				},
+				vendor: {
+					include: {
+						user: true,
+					},
+				},
 			},
 		});
 
-		if (!paymentLink) {
-			console.error(`Payment link not found for orderCode: ${orderCode}`);
-			return NextResponse.json(
-				{ error: 'Payment link not found' },
-				{ status: 404 },
-			);
+		if (!order) {
+			console.error(`Order not found for orderCode: ${orderCode}`);
+			return NextResponse.json({ error: 'Order not found' }, { status: 404 });
 		}
 
-		const order = paymentLink.order;
-
-		// Kiểm tra trạng thái thanh toán
+		// Chỉ xử lý khi thanh toán thành công
 		if (code === '00' && desc === 'Thành công') {
-			// Thanh toán thành công - cập nhật cả PaymentLink và Order
+			// Cập nhật order thành COMPLETED
 			await prisma.$transaction([
-				prisma.paymentLink.update({
-					where: { id: paymentLink.id },
-					data: { status: 'PAID' },
-				}),
 				prisma.order.update({
 					where: { id: order.id },
 					data: {
 						paymentStatus: 'COMPLETED',
-						status: 'COMPLETED', // Hoặc trạng thái khác tùy theo business logic
+						status: 'COMPLETED',
 					},
 				}),
 				prisma.notification.create({
 					data: {
 						message: `Đơn hàng ${order.id} đã được thanh toán thành công!`,
-						userId: order.customerId,
+						userId: order.customer.userId,
 					},
 				}),
 				prisma.notification.create({
 					data: {
 						message: `Đơn hàng ${order.id} đã được khách hàng thanh toán thành công!`,
-						userId: order.vendorId,
+						userId: order.vendor.userId,
 					},
 				}),
 			]);
 
 			console.log(`Payment successful for order ${order.id}`);
 		} else {
-			// Thanh toán thất bại
-			await prisma.$transaction([
-				prisma.paymentLink.update({
-					where: { id: paymentLink.id },
-					data: { status: 'FAILED' },
-				}),
-				prisma.order.update({
-					where: { id: order.id },
-					data: { paymentStatus: 'FAILED' },
-				}),
-				prisma.notification.create({
-					data: {
-						message: `Thanh toán đơn hàng ${order.id} thất bại. Vui lòng thử lại!`,
-						userId: order.customerId,
-					},
-				}),
-			]);
-
-			console.log(`Payment failed for order ${order.id}: ${desc}`);
+			// Không làm gì khi thanh toán thất bại/hủy - giữ nguyên trạng thái order
+			console.log(`Payment failed/cancelled for order ${order.id}: ${desc}`);
 		}
 
 		return NextResponse.json({ success: true });

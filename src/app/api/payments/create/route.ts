@@ -86,59 +86,22 @@ export async function POST(request: NextRequest) {
 			buyerEmail: order.customer.user.email || undefined,
 		};
 
-		// Kiểm tra xem đã có payment link chưa
-		const existingPaymentLink = await prisma.paymentLink.findUnique({
-			where: { orderId: orderId },
+		// Tạo link thanh toán với payOS
+		const paymentLinkResponse = await payOS.paymentRequests.create(paymentData);
+
+		// Lưu orderCode vào order để dùng trong webhook
+		await prisma.order.update({
+			where: { id: orderId },
+			data: { orderCode: orderCode },
 		});
 
-		let paymentLinkResponse;
-
-		if (existingPaymentLink && existingPaymentLink.status === 'PENDING') {
-			// Nếu đã có payment link và đang PENDING, trả về thông tin đó
-			paymentLinkResponse = {
-				paymentLinkId: existingPaymentLink.paymentLinkId,
-				orderCode: existingPaymentLink.orderCode,
-				checkoutUrl: existingPaymentLink.checkoutUrl,
-				qrCode: existingPaymentLink.qrCode,
-				accountNumber: existingPaymentLink.accountNumber,
-				accountName: existingPaymentLink.accountName,
-				amount: existingPaymentLink.amount,
-				description: existingPaymentLink.description,
-				status: existingPaymentLink.status,
-			};
-		} else {
-			// Nếu có payment link cũ nhưng đã CANCELLED/FAILED, xóa nó đi
-			if (existingPaymentLink) {
-				await prisma.paymentLink.delete({
-					where: { id: existingPaymentLink.id },
-				});
-			}
-			// Tạo link thanh toán mới với payOS
-			const newPaymentLinkResponse =
-				await payOS.paymentRequests.create(paymentData);
-
-			// Lưu thông tin payment link vào database
-			await prisma.paymentLink.create({
-				data: {
-					paymentLinkId: newPaymentLinkResponse.paymentLinkId,
-					orderCode: orderCode,
-					checkoutUrl: newPaymentLinkResponse.checkoutUrl,
-					qrCode: newPaymentLinkResponse.qrCode,
-					accountNumber: newPaymentLinkResponse.accountNumber,
-					accountName: newPaymentLinkResponse.accountName,
-					amount: newPaymentLinkResponse.amount,
-					description: newPaymentLinkResponse.description,
-					status: 'PENDING',
-					orderId: orderId,
-				},
-			});
-
-			paymentLinkResponse = newPaymentLinkResponse;
-		}
-
+		// Trả về checkout URL để redirect
 		return NextResponse.json({
 			success: true,
-			data: paymentLinkResponse,
+			data: {
+				checkoutUrl: paymentLinkResponse.checkoutUrl,
+				orderCode: orderCode,
+			},
 		});
 	} catch (error) {
 		console.error('PayOS payment creation error:', error);

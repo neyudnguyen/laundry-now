@@ -187,15 +187,15 @@ model Order {
   servicePrice  Int           @default(0) @map("service_price")
   deliveryFee   Int           @default(0) @map("delivery_fee")
   notes         String?       @map("notes")
+  orderCode     Int?          @unique @map("order_code") // PayOS orderCode
 
   customerId String  @map("customer_id")
   vendorId   String  @map("vendor_id")
   reviewId   String? @unique @map("review_id")
 
-  customer    CustomerProfile @relation(fields: [customerId], references: [id])
-  vendor      VendorProfile   @relation(fields: [vendorId], references: [id])
-  items       OrderItem[]
-  paymentLink PaymentLink?
+  customer CustomerProfile @relation(fields: [customerId], references: [id])
+  vendor   VendorProfile   @relation(fields: [vendorId], references: [id])
+  items    OrderItem[]
 
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
@@ -271,26 +271,4 @@ model Complaint {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("complaints")
-}
-
-model PaymentLink {
-  id            String @id @default(cuid()) @map("id")
-  paymentLinkId String @unique @map("payment_link_id") // ID từ payOS
-  orderCode     Int    @unique @map("order_code") // orderCode từ payOS
-  checkoutUrl   String @map("checkout_url")
-  qrCode        String @map("qr_code")
-  accountNumber String @map("account_number")
-  accountName   String @map("account_name")
-  amount        Int    @map("amount")
-  description   String @map("description")
-  status        String @default("PENDING") @map("status") // PENDING, PAID, CANCELLED, EXPIRED
-
-  orderId String @unique @map("order_id")
-
-  order Order @relation(fields: [orderId], references: [id])
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("payment_links")
 }
