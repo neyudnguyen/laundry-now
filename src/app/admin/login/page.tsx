@@ -45,19 +45,13 @@ export default function AdminLoginPage() {
 			});
 
 			if (result?.error) {
-				toast.error('Lỗi đăng nhập', {
-					description: 'Email hoặc mật khẩu không chính xác',
-				});
+				toast.error('Email hoặc mật khẩu không chính xác');
 			} else if (result?.ok) {
-				toast.success('Thành công', {
-					description: 'Đăng nhập thành công',
-				});
+				toast.success('Đăng nhập thành công');
 				router.push('/admin/dashboard');
 			}
 		} catch {
-			toast.error('Lỗi', {
-				description: 'Có lỗi xảy ra khi đăng nhập',
-			});
+			toast.error('Có lỗi xảy ra khi đăng nhập');
 		} finally {
 			setIsSubmitting(false);
 		}

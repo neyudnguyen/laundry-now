@@ -4,8 +4,6 @@ import {
 	AlertTriangle,
 	LayoutDashboard,
 	LogOut,
-	MessageSquare,
-	Settings,
 	Shield,
 	Store,
 	Users,
@@ -55,16 +53,6 @@ const menuItems = [
 		title: 'Khiếu nại',
 		icon: AlertTriangle,
 		href: '/admin/complaints',
-	},
-	{
-		title: 'Tin nhắn',
-		icon: MessageSquare,
-		href: '/admin/messages',
-	},
-	{
-		title: 'Cài đặt',
-		icon: Settings,
-		href: '/admin/settings',
 	},
 ];
 
