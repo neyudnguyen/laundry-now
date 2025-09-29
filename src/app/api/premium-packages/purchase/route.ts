@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
 		// Tạo orderCode unique cho premium package
 		// Sử dụng timestamp + random để tránh trùng với customer orders
-		const orderCode =
+		const orderCodeNumber =
 			Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 1000);
 
 		// Tạo VendorPremiumPackage với status PENDING
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
 				vendorId,
 				packageId,
 				status: 'PENDING',
-				orderCode,
+				orderCode: orderCodeNumber.toString(),
 			},
 		});
 
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 				: 'Gói Premium 1 năm';
 
 		const paymentData = {
-			orderCode,
+			orderCode: orderCodeNumber,
 			amount: premiumPackage.price,
 			description: shortDescription.substring(0, 25), // Đảm bảo <= 25 ký tự
 			returnUrl: `${process.env.NEXT_PUBLIC_URL}/vendor/dashboard?payment=success&type=premium`,
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
 			success: true,
 			data: {
 				paymentLink: paymentLinkResponse.checkoutUrl,
-				orderCode,
+				orderCode: orderCodeNumber,
 				vendorPremiumPackageId: vendorPremiumPackage.id,
 			},
 		});
