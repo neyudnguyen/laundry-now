@@ -32,8 +32,9 @@ export async function GET(request: NextRequest) {
 		const endDate = new Date(year, month, 0, 23, 59, 59, 999);
 
 		// Base query conditions
+		// Use updatedAt to calculate revenue based on payment completion time, not order creation time
 		const baseConditions = {
-			createdAt: {
+			updatedAt: {
 				gte: startDate,
 				lte: endDate,
 			},

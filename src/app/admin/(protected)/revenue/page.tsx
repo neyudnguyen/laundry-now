@@ -556,8 +556,14 @@ export default function AdminRevenue() {
 										<span>{revenueStats.ordersCount.total} đơn</span>
 									</div>
 								</div>
-								<div className="text-xs text-muted-foreground mt-2">
-									Chỉ tính các đơn hàng đã thanh toán thành công
+								<div className="text-xs text-muted-foreground mt-2 bg-blue-50 p-2 rounded border border-blue-200">
+									<strong className="text-blue-700">📊 Lưu ý tính toán:</strong>
+									<br />
+									• Chỉ tính đơn hàng đã thanh toán thành công
+									<br />•{' '}
+									<strong>Doanh thu tính theo thời điểm thanh toán</strong>,
+									không phải thời điểm tạo đơn
+									<br />• Đảm bảo tính chính xác dòng tiền theo tháng
 								</div>
 							</CardContent>
 						</Card>

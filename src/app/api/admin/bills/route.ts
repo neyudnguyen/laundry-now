@@ -95,11 +95,12 @@ export async function POST(request: NextRequest) {
 		const endDate = new Date(year, month, 0, 23, 59, 59, 999);
 
 		// Get all completed orders for this vendor in the month
+		// Use updatedAt to calculate revenue based on payment completion time, not order creation time
 		// Additional safety check to ensure vendor still has VENDOR role
 		const orders = await prisma.order.findMany({
 			where: {
 				vendorId,
-				createdAt: {
+				updatedAt: {
 					gte: startDate,
 					lte: endDate,
 				},
