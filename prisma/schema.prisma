@@ -1,0 +1,348 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================
+// ENUMS
+// ============================
+
+enum UserRole {
+  CUSTOMER @map("customer")
+  VENDOR   @map("vendor")
+
+  @@map("user_roles")
+}
+
+enum PaymentMethod {
+  COD    @map("cod")
+  QRCODE @map("qrcode")
+
+  @@map("payment_methods")
+}
+
+enum PaymentStatus {
+  PENDING   @map("pending")
+  COMPLETED @map("completed")
+  FAILED    @map("failed")
+
+  @@map("payment_statuses")
+}
+
+enum OrderStatus {
+  PENDING_CONFIRMATION @map("pending_confirmation") // Chờ xác nhận
+  CONFIRMED            @map("confirmed") // Đã xác nhận
+  PICKED_UP            @map("picked_up") // Đã lấy đồ
+  IN_WASHING           @map("in_washing") // Đang giặt
+  PAYMENT_REQUIRED     @map("payment_required") // Cần thanh toán
+  COMPLETED            @map("completed") // Hoàn tất
+  CANCELLED            @map("cancelled") // Đã hủy
+
+  @@map("order_statuses")
+}
+
+enum PickupType {
+  HOME  @map("home") // Giao tại nhà
+  STORE @map("store") // Giao tại cửa hàng
+
+  @@map("pickup_types")
+}
+
+enum ComplaintStatus {
+  PENDING   @map("pending") // Khách gửi khiếu nại
+  IN_REVIEW @map("in_review") // Admin/Vendor đang xem xét
+  RESOLVED  @map("resolved") // Khiếu nại đã được giải quyết
+  REJECTED  @map("rejected") // Khiếu nại bị từ chối
+
+  @@map("complaint_statuses")
+}
+
+enum PremiumPackageType {
+  MONTHLY @map("monthly") // Gói 1 tháng - 100k
+  YEARLY  @map("yearly") // Gói 1 năm - 600k
+
+  @@map("premium_package_types")
+}
+
+enum PremiumStatus {
+  ACTIVE  @map("active") // Đang hoạt động
+  EXPIRED @map("expired") // Đã hết hạn
+  PENDING @map("pending") // Chờ thanh toán
+
+  @@map("premium_statuses")
+}
+
+// ============================
+// MODELS
+// ============================
+
+model Admin {
+  id       String @id @default(cuid()) @map("id")
+  email    String @unique @map("email")
+  password String @map("password")
+  name     String @map("name")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("admins")
+}
+
+model User {
+  id       String   @id @default(cuid()) @map("id")
+  phone    String   @unique @map("phone")
+  password String   @map("password")
+  email    String?  @unique @map("email")
+  role     UserRole @default(CUSTOMER) @map("role")
+
+  customerProfile CustomerProfile?
+  vendorProfile   VendorProfile?
+
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  reviews       Review[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Address {
+  id       String @id @default(cuid()) @map("id")
+  province String @map("province")
+  district String @map("district")
+  ward     String @map("ward")
+  street   String @map("street")
+
+  customerProfileId String?
+
+  customerProfile CustomerProfile? @relation(fields: [customerProfileId], references: [id])
+  vendorProfile   VendorProfile?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("addresses")
+}
+
+model CustomerProfile {
+  id       String @id @default(cuid()) @map("id")
+  fullName String @map("full_name")
+
+  userId String @unique @map("user_id")
+
+  user       User        @relation(fields: [userId], references: [id])
+  addresses  Address[]
+  orders     Order[]
+  complaints Complaint[]
+
+  @@map("customer_profiles")
+}
+
+model VendorProfile {
+  id         String  @id @default(cuid()) @map("id")
+  shopName   String  @map("shop_name")
+  bankName   String? @map("bank_name")
+  bankNumber String? @map("bank_number")
+  bankHolder String? @map("bank_holder")
+  isPremium  Boolean @default(false) @map("is_premium") // Trạng thái premium hiện tại
+
+  userId    String  @unique @map("user_id")
+  addressId String? @unique @map("address_id")
+
+  user              User                   @relation(fields: [userId], references: [id])
+  address           Address?               @relation(fields: [addressId], references: [id])
+  images            VendorImage[]
+  vendorServiceFees VendorServiceFee[]
+  orders            Order[]
+  reviews           Review[]
+  complaints        Complaint[]
+  bills             Bill[]
+  premiumPackages   VendorPremiumPackage[] // Lịch sử các gói premium
+
+  @@map("vendor_profiles")
+}
+
+model VendorImage {
+  id  String @id @default(cuid()) @map("id")
+  url String @map("url")
+
+  vendorId String @map("vendor_id")
+
+  vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_images")
+}
+
+model VendorServiceFee {
+  id   String @id @default(cuid()) @map("id")
+  name String @map("name")
+  fee  Int    @map("fee") // fee per kg
+
+  vendorId String @map("vendor_id")
+
+  vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("vendor_service_fees")
+}
+
+model Order {
+  id            String        @id @default(cuid()) @map("id")
+  status        OrderStatus   @default(PENDING_CONFIRMATION) @map("status")
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+  paymentMethod PaymentMethod @default(COD) @map("payment_method")
+  pickupType    PickupType    @default(STORE) @map("pickup_type")
+  servicePrice  Int           @default(0) @map("service_price")
+  deliveryFee   Int           @default(0) @map("delivery_fee")
+  notes         String?       @map("notes")
+  orderCode     Int?          @unique @map("order_code") // PayOS orderCode
+
+  customerId String  @map("customer_id")
+  vendorId   String  @map("vendor_id")
+  reviewId   String? @unique @map("review_id")
+
+  customer CustomerProfile @relation(fields: [customerId], references: [id])
+  vendor   VendorProfile   @relation(fields: [vendorId], references: [id])
+  items    OrderItem[]
+
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  review    Review?    @relation(fields: [reviewId], references: [id])
+  complaint Complaint?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(cuid()) @map("id")
+  name      String @map("name")
+  quantity  Float  @map("quantity") // in kg
+  unitPrice Int    @map("unit_price") // price per kg`
+
+  orderId String @map("order_id")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("order_items")
+}
+
+model Review {
+  id      String  @id @default(cuid()) @map("id")
+  rating  Int     @map("rating") // Điểm số (số sao hoặc điểm số, ví dụ 1-5)
+  comment String? @map("comment") // Nhận xét của khách hàng hoặc nhà cung cấp
+
+  customerId String @map("customer_id")
+  vendorId   String @map("vendor_id")
+
+  customer User          @relation(fields: [customerId], references: [id])
+  vendor   VendorProfile @relation(fields: [vendorId], references: [id])
+  order    Order?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("reviews")
+}
+
+model Notification {
+  id      String  @id @default(cuid()) @map("id") // ID thông báo
+  message String  @map("message") // Nội dung thông báo
+  isRead  Boolean @default(false) @map("is_read") // Trạng thái đã đọc hay chưa
+  userId  String  @map("user_id") // Người nhận thông báo
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("notifications")
+}
+
+model Complaint {
+  id          String          @id @default(cuid()) @map("id")
+  status      ComplaintStatus @default(PENDING) @map("status")
+  title       String          @map("title")
+  description String          @map("description")
+  resolution  String?         @map("resolution") // Mô tả về cách giải quyết khiếu nại
+
+  orderId    String @unique @map("order_id")
+  customerId String @map("customer_id")
+  vendorId   String @map("vendor_id")
+
+  order    Order           @relation(fields: [orderId], references: [id])
+  customer CustomerProfile @relation(fields: [customerId], references: [id])
+  vendor   VendorProfile   @relation(fields: [vendorId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("complaints")
+}
+
+model Bill {
+  id                     String   @id @default(cuid()) @map("id")
+  totalCOD               Int      @map("total_cod")
+  totalQRCODE            Int      @map("total_qrcode")
+  totalCODCompleted      Int      @map("total_cod_completed")
+  totalQRCODECompleted   Int      @map("total_qrcode_completed")
+  totalQRCODEDeliveryFee Int      @map("total_qrcode_delivery_fee")
+  startDate              DateTime @map("start_date")
+  endDate                DateTime @map("end_date")
+
+  vendorId String @unique @map("vendor_id")
+
+  vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("bills")
+}
+
+model PremiumPackage {
+  id          String             @id @default(cuid()) @map("id")
+  name        String             @map("name") // "Gói Premium 1 tháng", "Gói Premium 1 năm"
+  type        PremiumPackageType @map("type")
+  price       Int                @map("price") // 100000 (1 tháng), 600000 (1 năm)
+  duration    Int                @map("duration") // Số ngày: 30, 365
+  description String?            @map("description") // Mô tả lợi ích
+  isActive    Boolean            @default(true) @map("is_active")
+
+  vendorPackages VendorPremiumPackage[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("premium_packages")
+}
+
+model VendorPremiumPackage {
+  id        String        @id @default(cuid()) @map("id")
+  status    PremiumStatus @default(PENDING) @map("status")
+  startDate DateTime?     @map("start_date") // Ngày bắt đầu (khi thanh toán thành công)
+  endDate   DateTime?     @map("end_date") // Ngày kết thúc
+  orderCode Int?          @unique @map("order_code") // PayOS orderCode cho thanh toán
+
+  vendorId  String @map("vendor_id")
+  packageId String @map("package_id")
+
+  vendor  VendorProfile  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  package PremiumPackage @relation(fields: [packageId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("vendor_premium_packages")
+}

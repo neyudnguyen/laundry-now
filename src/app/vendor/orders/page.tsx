@@ -1,0 +1,283 @@
+'use client';
+
+import { Eye, RefreshCw, Star } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
+import OrderDetailDialog from '@/components/vendor/OrderDetailDialog';
+import { useToast } from '@/hooks';
+
+interface OrderItem {
+	id: string;
+	name: string;
+	quantity: number;
+	unitPrice: number;
+}
+
+interface Order {
+	id: string;
+	status: string;
+	paymentStatus: string;
+	paymentMethod: string;
+	pickupType: string;
+	servicePrice: number;
+	deliveryFee: number;
+	notes?: string;
+	createdAt: string;
+	customer: {
+		fullName: string;
+		user: {
+			phone: string;
+		};
+	};
+	items: OrderItem[];
+	review?: {
+		id: string;
+		rating: number;
+		comment: string | null;
+		createdAt: string;
+	} | null;
+}
+
+const statusLabels = {
+	PENDING_CONFIRMATION: 'Chờ xác nhận',
+	CONFIRMED: 'Đã xác nhận',
+	PICKED_UP: 'Đã lấy đồ',
+	IN_WASHING: 'Đang giặt',
+	PAYMENT_REQUIRED: 'Cần thanh toán',
+	COMPLETED: 'Hoàn tất',
+	CANCELLED: 'Đã hủy',
+};
+
+const statusVariants = {
+	PENDING_CONFIRMATION: 'secondary',
+	CONFIRMED: 'default',
+	PICKED_UP: 'default',
+	IN_WASHING: 'outline',
+	PAYMENT_REQUIRED: 'destructive',
+	COMPLETED: 'default',
+	CANCELLED: 'secondary',
+} as const;
+
+const paymentMethodLabels = {
+	COD: 'Tiền mặt',
+	QRCODE: 'Quét mã QR',
+};
+
+const pickupTypeLabels = {
+	HOME: 'Giao tại nhà',
+	STORE: 'Giao tại cửa hàng',
+};
+
+export default function VendorOrders() {
+	const [orders, setOrders] = useState<Order[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+	const [showOrderDetail, setShowOrderDetail] = useState(false);
+	const { toast } = useToast();
+
+	const fetchOrders = useCallback(async () => {
+		try {
+			setLoading(true);
+			const response = await fetch('/api/vendor/orders');
+
+			if (!response.ok) {
+				throw new Error('Failed to fetch orders');
+			}
+
+			const data = await response.json();
+			setOrders(data.orders);
+		} catch (error) {
+			console.error('Error fetching orders:', error);
+			toast.error('Không thể tải danh sách đơn hàng');
+		} finally {
+			setLoading(false);
+		}
+	}, [toast]);
+
+	useEffect(() => {
+		fetchOrders();
+	}, [fetchOrders]);
+
+	const getTotalAmount = (order: Order) => {
+		return order.servicePrice + order.deliveryFee;
+	};
+
+	const formatCurrency = (amount: number) => {
+		return new Intl.NumberFormat('vi-VN', {
+			style: 'currency',
+			currency: 'VND',
+		}).format(amount);
+	};
+
+	const formatDateTime = (dateString: string) => {
+		const date = new Date(dateString);
+		return date.toLocaleString('vi-VN', {
+			day: '2-digit',
+			month: '2-digit',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	};
+
+	if (loading) {
+		return (
+			<div className="space-y-6">
+				<div>
+					<h1 className="text-2xl font-bold">Đơn hàng</h1>
+					<p className="text-muted-foreground">
+						Đang tải danh sách đơn hàng...
+					</p>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className="space-y-6">
+			<div className="flex items-center justify-between">
+				<div>
+					<h1 className="text-2xl font-bold">Đơn hàng</h1>
+					<p className="text-muted-foreground">
+						Quản lý và theo dõi tất cả đơn hàng từ khách hàng
+					</p>
+				</div>
+				<Button onClick={fetchOrders} variant="outline" size="sm">
+					<RefreshCw className="w-4 h-4 mr-2" />
+					Làm mới
+				</Button>
+			</div>
+
+			{orders.length === 0 ? (
+				<Card>
+					<CardContent className="py-12">
+						<div className="text-center">
+							<p className="text-muted-foreground">Chưa có đơn hàng nào</p>
+						</div>
+					</CardContent>
+				</Card>
+			) : (
+				<Card>
+					<CardHeader>
+						<CardTitle>Danh sách đơn hàng ({orders.length})</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Thời gian</TableHead>
+									<TableHead>Khách hàng</TableHead>
+									<TableHead>Trạng thái</TableHead>
+									<TableHead>Loại thanh toán</TableHead>
+									<TableHead>Giao hàng</TableHead>
+									<TableHead>Đánh giá</TableHead>
+									<TableHead>Tổng tiền</TableHead>
+									<TableHead>Thao tác</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{orders.map((order) => (
+									<TableRow key={order.id}>
+										<TableCell>{formatDateTime(order.createdAt)}</TableCell>
+										<TableCell>
+											<div>
+												<div className="font-medium">
+													{order.customer.fullName}
+												</div>
+												<div className="text-sm text-muted-foreground">
+													{order.customer.user.phone}
+												</div>
+											</div>
+										</TableCell>
+										<TableCell>
+											<Badge
+												variant={
+													statusVariants[
+														order.status as keyof typeof statusVariants
+													]
+												}
+											>
+												{
+													statusLabels[
+														order.status as keyof typeof statusLabels
+													]
+												}
+											</Badge>
+										</TableCell>
+										<TableCell>
+											{
+												paymentMethodLabels[
+													order.paymentMethod as keyof typeof paymentMethodLabels
+												]
+											}
+										</TableCell>
+										<TableCell>
+											{
+												pickupTypeLabels[
+													order.pickupType as keyof typeof pickupTypeLabels
+												]
+											}
+										</TableCell>
+										<TableCell>
+											{order.review ? (
+												<div className="flex items-center gap-2">
+													<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+													<span className="text-sm">
+														{order.review.rating}/5
+													</span>
+												</div>
+											) : order.status === 'COMPLETED' ? (
+												<span className="text-xs text-muted-foreground">
+													Chưa đánh giá
+												</span>
+											) : (
+												<span className="text-xs text-muted-foreground">-</span>
+											)}
+										</TableCell>
+										<TableCell className="font-medium">
+											{formatCurrency(getTotalAmount(order))}
+										</TableCell>
+										<TableCell>
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => {
+													setSelectedOrder(order);
+													setShowOrderDetail(true);
+												}}
+											>
+												<Eye className="w-4 h-4 mr-2" />
+												Xem chi tiết
+											</Button>
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					</CardContent>
+				</Card>
+			)}
+
+			<OrderDetailDialog
+				order={selectedOrder}
+				isOpen={showOrderDetail}
+				onClose={() => {
+					setShowOrderDetail(false);
+					setSelectedOrder(null);
+				}}
+				onOrderUpdate={fetchOrders}
+			/>
+		</div>
+	);
+}
