@@ -208,7 +208,7 @@ model Order {
   servicePrice  Int           @default(0) @map("service_price")
   deliveryFee   Int           @default(0) @map("delivery_fee")
   notes         String?       @map("notes")
-  orderCode     Int?          @unique @map("order_code") // PayOS orderCode
+  orderCode     String?       @unique @map("order_code") // PayOS orderCode
 
   customerId String  @map("customer_id")
   vendorId   String  @map("vendor_id")
@@ -333,7 +333,7 @@ model VendorPremiumPackage {
   status    PremiumStatus @default(PENDING) @map("status")
   startDate DateTime?     @map("start_date") // Ngày bắt đầu (khi thanh toán thành công)
   endDate   DateTime?     @map("end_date") // Ngày kết thúc
-  orderCode Int?          @unique @map("order_code") // PayOS orderCode cho thanh toán
+  orderCode String?       @unique @map("order_code") // PayOS orderCode cho thanh toán
 
   vendorId  String @map("vendor_id")
   packageId String @map("package_id")
