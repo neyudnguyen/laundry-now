@@ -20,12 +20,30 @@ interface PremiumPackage {
 	popular: boolean;
 }
 
+interface CurrentPremium {
+	id: string;
+	status: string;
+	startDate: string;
+	endDate: string;
+	package: {
+		id: string;
+		name: string;
+		type: string;
+		price: number;
+		duration: number;
+	};
+}
+
 export default function VendorDashboard() {
 	const { data: session } = useSession();
 	const [premiumPackages, setPremiumPackages] = useState<PremiumPackage[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [vendorId, setVendorId] = useState<string | null>(null);
+	const [isPremium, setIsPremium] = useState(false);
+	const [currentPremium, setCurrentPremium] = useState<CurrentPremium | null>(
+		null,
+	);
 
 	// Fetch vendor profile và premium packages
 	useEffect(() => {
@@ -33,13 +51,26 @@ export default function VendorDashboard() {
 			try {
 				setLoading(true);
 
-				// Fetch vendor profile để lấy vendorId
+				// Fetch vendor profile để lấy vendorId và trạng thái premium
 				const vendorResponse = await fetch('/api/vendor/profile');
 				if (vendorResponse.ok) {
 					const vendorData = await vendorResponse.json();
-					const vendorProfileId = vendorData?.user?.vendorProfile?.id;
-					if (vendorProfileId) {
-						setVendorId(vendorProfileId);
+					const vendorProfile = vendorData?.user?.vendorProfile;
+
+					if (vendorProfile?.id) {
+						setVendorId(vendorProfile.id);
+						setIsPremium(vendorProfile.isPremium || false);
+
+						// Nếu vendor đã có premium, lấy thông tin gói premium hiện tại
+						if (vendorProfile.isPremium) {
+							const premiumResponse = await fetch(
+								`/api/vendor/premium/${vendorProfile.id}`,
+							);
+							if (premiumResponse.ok) {
+								const premiumData = await premiumResponse.json();
+								setCurrentPremium(premiumData.currentPremium);
+							}
+						}
 					} else {
 						setError('Không tìm thấy thông tin vendor profile');
 						return;
@@ -182,6 +213,116 @@ export default function VendorDashboard() {
 		);
 	}
 
+	// Nếu vendor đã có premium, hiển thị dashboard premium
+	if (isPremium && currentPremium) {
+		return (
+			<div className="container mx-auto px-4 py-4 space-y-5">
+				{/* Premium Status Header */}
+				<Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+					<CardHeader className="text-center space-y-3">
+						<div className="flex justify-center">
+							<Crown className="h-12 w-12 text-primary" />
+						</div>
+						<div className="space-y-2">
+							<h1 className="text-2xl font-bold text-primary">
+								🎉 Chúc mừng! Bạn đã là Vendor Premium
+							</h1>
+							<p className="text-sm text-muted-foreground">
+								Cửa hàng của bạn được ưu tiên hiển thị và nhận được nhiều lợi
+								ích đặc biệt
+							</p>
+						</div>
+					</CardHeader>
+				</Card>
+
+				{/* Current Premium Package Info */}
+				<Card>
+					<CardHeader>
+						<CardTitle className="flex items-center gap-2">
+							<Star className="h-5 w-5 text-primary" />
+							Gói Premium hiện tại
+						</CardTitle>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<p className="text-sm text-muted-foreground">Tên gói</p>
+								<p className="font-semibold">{currentPremium.package.name}</p>
+							</div>
+							<div>
+								<p className="text-sm text-muted-foreground">Trạng thái</p>
+								<Badge
+									variant="secondary"
+									className="bg-green-100 text-green-800"
+								>
+									Đang hoạt động
+								</Badge>
+							</div>
+							<div>
+								<p className="text-sm text-muted-foreground">Ngày bắt đầu</p>
+								<p className="font-medium">
+									{new Date(currentPremium.startDate).toLocaleDateString(
+										'vi-VN',
+									)}
+								</p>
+							</div>
+							<div>
+								<p className="text-sm text-muted-foreground">Ngày hết hạn</p>
+								<p className="font-medium">
+									{new Date(currentPremium.endDate).toLocaleDateString('vi-VN')}
+								</p>
+							</div>
+						</div>
+
+						{/* Premium Benefits */}
+						<div className="pt-4 border-t">
+							<h4 className="font-medium mb-3">Lợi ích bạn đang nhận được:</h4>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+								<div className="flex items-center gap-2">
+									<Check className="h-4 w-4 text-green-600" />
+									<span className="text-sm">Ưu tiên hiển thị trong top 10</span>
+								</div>
+								<div className="flex items-center gap-2">
+									<Check className="h-4 w-4 text-green-600" />
+									<span className="text-sm">
+										Tăng khả năng tiếp cận khách hàng
+									</span>
+								</div>
+								<div className="flex items-center gap-2">
+									<Check className="h-4 w-4 text-green-600" />
+									<span className="text-sm">Hỗ trợ khách hàng ưu tiên</span>
+								</div>
+								<div className="flex items-center gap-2">
+									<Check className="h-4 w-4 text-green-600" />
+									<span className="text-sm">Báo cáo doanh thu chi tiết</span>
+								</div>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+
+				{/* Renewal Options */}
+				<Card>
+					<CardHeader>
+						<CardTitle>Gia hạn Premium</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<p className="text-sm text-muted-foreground mb-4">
+							Gói Premium hiện tại sẽ hết hạn vào ngày{' '}
+							{new Date(currentPremium.endDate).toLocaleDateString('vi-VN')}.
+							Gia hạn ngay để không bị gián đoạn dịch vụ!
+						</p>
+						<Button variant="outline" className="w-full">
+							<Crown className="h-4 w-4 mr-2" />
+							Gia hạn Premium
+						</Button>
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
+
+	// Nếu vendor chưa có premium, hiển thị gói để mua
 	return (
 		<div className="container mx-auto px-4 py-4 space-y-5">
 			{/* Header Section */}
