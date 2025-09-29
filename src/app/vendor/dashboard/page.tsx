@@ -1,48 +1,52 @@
 'use client';
 
 import { Check, Crown, Star, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+// Types
+interface PremiumPackage {
+	id: string;
+	name: string;
+	type: string;
+	price: number;
+	duration: number;
+	description: string | null;
+	features: string[];
+	popular: boolean;
+}
+
 export default function VendorDashboard() {
-	// Mock data cho các gói premium (trong thực tế sẽ lấy từ API)
-	const premiumPackages = [
-		{
-			id: '1',
-			name: 'Gói Premium 1 tháng',
-			type: 'MONTHLY',
-			price: 100000,
-			duration: 30,
-			description: 'Gói premium 1 tháng với các lợi ích cơ bản',
-			features: [
-				'Ưu tiên hiển thị trong top 10 cửa hàng',
-				'Tăng khả năng tiếp cận khách hàng',
-				'Hỗ trợ khách hàng ưu tiên',
-				'Báo cáo doanh thu cơ bản',
-			],
-			popular: false,
-		},
-		{
-			id: '2',
-			name: 'Gói Premium 1 năm',
-			type: 'YEARLY',
-			price: 600000,
-			duration: 365,
-			description: 'Gói premium 1 năm với đầy đủ tính năng và tiết kiệm 40%',
-			features: [
-				'Ưu tiên hiển thị trong top 10 cửa hàng',
-				'Tăng khả năng tiếp cận khách hàng',
-				'Hỗ trợ khách hàng ưu tiên 24/7',
-				'Phân tích doanh thu chi tiết',
-				'Tiết kiệm 40% so với gói tháng',
-				'Công cụ marketing nâng cao',
-				'Tư vấn kinh doanh chuyên sâu',
-			],
-			popular: true,
-		},
-	];
+	const [premiumPackages, setPremiumPackages] = useState<PremiumPackage[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
+	// Fetch premium packages từ API
+	useEffect(() => {
+		const fetchPremiumPackages = async () => {
+			try {
+				setLoading(true);
+				const response = await fetch('/api/premium-packages');
+				const result = await response.json();
+
+				if (result.success) {
+					setPremiumPackages(result.data);
+				} else {
+					setError(result.error || 'Failed to fetch premium packages');
+				}
+			} catch (err) {
+				console.error('Error fetching premium packages:', err);
+				setError('Failed to fetch premium packages');
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchPremiumPackages();
+	}, []);
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('vi-VN', {
@@ -56,6 +60,38 @@ export default function VendorDashboard() {
 		console.log('Selected package:', packageId);
 		// Sẽ redirect đến trang thanh toán
 	};
+
+	// Loading state
+	if (loading) {
+		return (
+			<div className="container mx-auto px-4 py-4">
+				<div className="flex items-center justify-center min-h-[400px]">
+					<div className="text-center space-y-2">
+						<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+						<p className="text-sm text-muted-foreground">
+							Đang tải gói Premium...
+						</p>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	// Error state
+	if (error) {
+		return (
+			<div className="container mx-auto px-4 py-4">
+				<div className="flex items-center justify-center min-h-[400px]">
+					<div className="text-center space-y-2">
+						<p className="text-sm text-destructive">{error}</p>
+						<Button variant="outline" onClick={() => window.location.reload()}>
+							Thử lại
+						</Button>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="container mx-auto px-4 py-4 space-y-5">
@@ -71,93 +107,103 @@ export default function VendorDashboard() {
 			</div>
 
 			{/* Premium Packages Grid */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-4xl mx-auto">
-				{premiumPackages.map((pkg) => (
-					<Card
-						key={pkg.id}
-						className={`relative overflow-hidden transition-all duration-300 hover:shadow-md ${
-							pkg.popular ? 'ring-2 ring-primary' : ''
-						}`}
-					>
-						{pkg.popular && (
-							<div className="absolute top-0 right-0 bg-primary text-primary-foreground px-2 py-1 text-xs font-medium">
-								<Star className="inline h-3 w-3 mr-1" />
-								Phổ biến
-							</div>
-						)}
-
-						<CardHeader className="text-center space-y-3 pb-4">
-							<div className="flex justify-center">
-								{pkg.type === 'MONTHLY' ? (
-									<Zap className="h-6 w-6 text-primary" />
-								) : (
-									<Crown className="h-6 w-6 text-primary" />
-								)}
-							</div>
-							<CardTitle className="text-lg">{pkg.name}</CardTitle>
-							<div className="space-y-1">
-								<div className="text-2xl font-bold">
-									{formatCurrency(pkg.price)}
+			{premiumPackages.length === 0 ? (
+				<div className="text-center py-8">
+					<p className="text-muted-foreground">
+						Không có gói Premium nào khả dụng
+					</p>
+				</div>
+			) : (
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-4xl mx-auto">
+					{premiumPackages.map((pkg) => (
+						<Card
+							key={pkg.id}
+							className={`relative overflow-hidden transition-all duration-300 hover:shadow-md ${
+								pkg.popular ? 'ring-2 ring-primary' : ''
+							}`}
+						>
+							{pkg.popular && (
+								<div className="absolute top-0 right-0 bg-primary text-primary-foreground px-2 py-1 text-xs font-medium">
+									<Star className="inline h-3 w-3 mr-1" />
+									Phổ biến
 								</div>
-								<p className="text-xs text-muted-foreground">
-									{pkg.type === 'MONTHLY' ? 'mỗi tháng' : 'mỗi năm'}
-								</p>
-								{pkg.type === 'YEARLY' && (
-									<Badge variant="secondary" className="text-xs">
-										Tiết kiệm 40%
-									</Badge>
-								)}
-							</div>
-						</CardHeader>
+							)}
 
-						<CardContent className="space-y-4 pt-0">
-							{/* Features List */}
-							<div className="space-y-2">
-								<h4 className="font-medium text-xs uppercase tracking-wide text-muted-foreground">
-									Tính năng:
-								</h4>
-								<ul className="space-y-2">
-									{pkg.features.slice(0, 4).map((feature, index) => (
-										<li key={index} className="flex items-start gap-2">
-											<Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-											<span className="text-xs leading-relaxed">{feature}</span>
-										</li>
-									))}
-									{pkg.features.length > 4 && (
-										<li className="text-xs text-muted-foreground ml-6">
-											+{pkg.features.length - 4} tính năng khác
-										</li>
+							<CardHeader className="text-center space-y-3 pb-4">
+								<div className="flex justify-center">
+									{pkg.type === 'MONTHLY' ? (
+										<Zap className="h-6 w-6 text-primary" />
+									) : (
+										<Crown className="h-6 w-6 text-primary" />
 									)}
-								</ul>
-							</div>
+								</div>
+								<CardTitle className="text-lg">{pkg.name}</CardTitle>
+								<div className="space-y-1">
+									<div className="text-2xl font-bold">
+										{formatCurrency(pkg.price)}
+									</div>
+									<p className="text-xs text-muted-foreground">
+										{pkg.type === 'MONTHLY' ? 'mỗi tháng' : 'mỗi năm'}
+									</p>
+									{pkg.type === 'YEARLY' && (
+										<Badge variant="secondary" className="text-xs">
+											Tiết kiệm 40%
+										</Badge>
+									)}
+								</div>
+							</CardHeader>
 
-							{/* Action Button */}
-							<Button
-								className="w-full h-10 text-sm font-medium"
-								variant={pkg.popular ? 'default' : 'outline'}
-								onClick={() => handleSelectPackage(pkg.id)}
-							>
-								{pkg.popular ? (
-									<>
-										<Crown className="h-4 w-4 mr-2" />
-										Chọn gói Premium
-									</>
-								) : (
-									<>
-										<Zap className="h-4 w-4 mr-2" />
-										Chọn gói này
-									</>
-								)}
-							</Button>
+							<CardContent className="space-y-4 pt-0">
+								{/* Features List */}
+								<div className="space-y-2">
+									<h4 className="font-medium text-xs uppercase tracking-wide text-muted-foreground">
+										Tính năng:
+									</h4>
+									<ul className="space-y-2">
+										{pkg.features.slice(0, 4).map((feature, index) => (
+											<li key={index} className="flex items-start gap-2">
+												<Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+												<span className="text-xs leading-relaxed">
+													{feature}
+												</span>
+											</li>
+										))}
+										{pkg.features.length > 4 && (
+											<li className="text-xs text-muted-foreground ml-6">
+												+{pkg.features.length - 4} tính năng khác
+											</li>
+										)}
+									</ul>
+								</div>
 
-							{/* Additional Info */}
-							<div className="text-center text-xs text-muted-foreground">
-								<p>{pkg.duration} ngày • PayOS</p>
-							</div>
-						</CardContent>
-					</Card>
-				))}
-			</div>
+								{/* Action Button */}
+								<Button
+									className="w-full h-10 text-sm font-medium"
+									variant={pkg.popular ? 'default' : 'outline'}
+									onClick={() => handleSelectPackage(pkg.id)}
+								>
+									{pkg.popular ? (
+										<>
+											<Crown className="h-4 w-4 mr-2" />
+											Chọn gói Premium
+										</>
+									) : (
+										<>
+											<Zap className="h-4 w-4 mr-2" />
+											Chọn gói này
+										</>
+									)}
+								</Button>
+
+								{/* Additional Info */}
+								<div className="text-center text-xs text-muted-foreground">
+									<p>{pkg.duration} ngày • PayOS</p>
+								</div>
+							</CardContent>
+						</Card>
+					))}
+				</div>
+			)}
 
 			{/* Benefits Section */}
 			<Card className="bg-muted/30">
