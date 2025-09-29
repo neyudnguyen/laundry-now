@@ -5,7 +5,33 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
 	try {
-		const { vendorId, packageId } = await request.json();
+		console.log('Premium purchase API called');
+
+		// Parse JSON với error handling
+		let body;
+		try {
+			const requestText = await request.text();
+			console.log('Request body text:', requestText);
+
+			if (!requestText.trim()) {
+				return NextResponse.json(
+					{ success: false, error: 'Empty request body' },
+					{ status: 400 },
+				);
+			}
+
+			body = JSON.parse(requestText);
+			console.log('Parsed body:', body);
+		} catch (parseError) {
+			console.error('JSON parse error:', parseError);
+			return NextResponse.json(
+				{ success: false, error: 'Invalid JSON body' },
+				{ status: 400 },
+			);
+		}
+
+		const { vendorId, packageId } = body;
+		console.log('vendorId:', vendorId, 'packageId:', packageId);
 
 		if (!vendorId || !packageId) {
 			return NextResponse.json(

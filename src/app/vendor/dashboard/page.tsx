@@ -119,15 +119,19 @@ export default function VendorDashboard() {
 			setLoading(true);
 			setError(null);
 
+			const requestBody = {
+				vendorId,
+				packageId,
+			};
+
+			console.log('Sending purchase request:', requestBody);
+
 			const response = await fetch('/api/premium-packages/purchase', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({
-					vendorId,
-					packageId,
-				}),
+				body: JSON.stringify(requestBody),
 			});
 
 			const result = await response.json();
@@ -265,6 +269,7 @@ export default function VendorDashboard() {
 								<Button
 									className="w-full h-10 text-sm font-medium"
 									variant={pkg.popular ? 'default' : 'outline'}
+									disabled={loading}
 									onClick={() => handleSelectPackage(pkg.id)}
 								>
 									{pkg.popular ? (
