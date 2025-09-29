@@ -1,11 +1,27 @@
 'use client';
 
-import { Eye, RefreshCw, Star } from 'lucide-react';
+import { Edit, Eye, RefreshCw, Star } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import {
 	Table,
 	TableBody,
@@ -97,7 +113,64 @@ export default function VendorOrders() {
 	const [loading, setLoading] = useState(true);
 	const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 	const [showOrderDetail, setShowOrderDetail] = useState(false);
+	const [showPaymentMethodDialog, setShowPaymentMethodDialog] = useState(false);
+	const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+	const [newPaymentMethod, setNewPaymentMethod] = useState<string>('');
+	const [updating, setUpdating] = useState(false);
 	const { toast } = useToast();
+
+	// Kiểm tra xem đơn hàng có thể chỉnh sửa phương thức thanh toán không
+	const canEditPaymentMethod = (status: string) => {
+		return status !== 'COMPLETED' && status !== 'CANCELLED';
+	};
+
+	// Mở dialog chỉnh sửa phương thức thanh toán
+	const openPaymentMethodDialog = (order: Order) => {
+		setEditingOrder(order);
+		setNewPaymentMethod(order.paymentMethod);
+		setShowPaymentMethodDialog(true);
+	};
+
+	// Xử lý cập nhật phương thức thanh toán
+	const handleUpdatePaymentMethod = async () => {
+		if (!editingOrder || !newPaymentMethod) return;
+
+		try {
+			setUpdating(true);
+			const response = await fetch(
+				`/api/vendor/orders/${editingOrder.id}/payment-method`,
+				{
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ paymentMethod: newPaymentMethod }),
+				},
+			);
+
+			if (!response.ok) {
+				throw new Error('Không thể cập nhật phương thức thanh toán');
+			}
+
+			// Cập nhật state local
+			setOrders((prevOrders) =>
+				prevOrders.map((order) =>
+					order.id === editingOrder.id
+						? { ...order, paymentMethod: newPaymentMethod }
+						: order,
+				),
+			);
+
+			toast.success('Đã cập nhật phương thức thanh toán');
+			setShowPaymentMethodDialog(false);
+			setEditingOrder(null);
+		} catch (error) {
+			console.error('Error updating payment method:', error);
+			toast.error('Không thể cập nhật phương thức thanh toán');
+		} finally {
+			setUpdating(false);
+		}
+	};
 
 	// Tính số lượng đơn hàng cho mỗi status
 	const tabsWithCount = useMemo(() => {
@@ -251,17 +324,33 @@ export default function VendorOrders() {
 										{formatCurrency(getTotalAmount(order))}
 									</TableCell>
 									<TableCell>
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => {
-												setSelectedOrder(order);
-												setShowOrderDetail(true);
-											}}
-										>
-											<Eye className="w-4 h-4 mr-2" />
-											Xem chi tiết
-										</Button>
+										<div className="flex items-center gap-2">
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => {
+													setSelectedOrder(order);
+													setShowOrderDetail(true);
+												}}
+											>
+												<Eye className="w-4 h-4 mr-2" />
+												Xem chi tiết
+											</Button>
+
+											{canEditPaymentMethod(order.status) && (
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={() => openPaymentMethodDialog(order)}
+													title="Chỉnh sửa phương thức thanh toán"
+												>
+													<Edit className="w-4 h-4 mr-1" />
+													<span className="hidden sm:inline">
+														Sửa thanh toán
+													</span>
+												</Button>
+											)}
+										</div>
 									</TableCell>
 								</TableRow>
 							))}
@@ -329,6 +418,71 @@ export default function VendorOrders() {
 					</TabsContent>
 				))}
 			</Tabs>
+
+			{/* Dialog chỉnh sửa phương thức thanh toán */}
+			<Dialog
+				open={showPaymentMethodDialog}
+				onOpenChange={setShowPaymentMethodDialog}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Chỉnh sửa phương thức thanh toán</DialogTitle>
+						<DialogDescription>
+							Chọn phương thức thanh toán mới cho đơn hàng này.
+						</DialogDescription>
+					</DialogHeader>
+
+					{editingOrder && (
+						<div className="space-y-4">
+							<div className="text-sm text-muted-foreground">
+								<p>
+									<strong>Khách hàng:</strong> {editingOrder.customer.fullName}
+								</p>
+								<p>
+									<strong>Số điện thoại:</strong>{' '}
+									{editingOrder.customer.user.phone}
+								</p>
+								<p>
+									<strong>Tổng tiền:</strong>{' '}
+									{formatCurrency(getTotalAmount(editingOrder))}
+								</p>
+							</div>
+
+							<div className="space-y-2">
+								<Label htmlFor="payment-method">Phương thức thanh toán</Label>
+								<Select
+									value={newPaymentMethod}
+									onValueChange={setNewPaymentMethod}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="Chọn phương thức thanh toán" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="COD">Tiền mặt (COD)</SelectItem>
+										<SelectItem value="QRCODE">Quét mã QR</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+						</div>
+					)}
+
+					<DialogFooter>
+						<Button
+							variant="outline"
+							onClick={() => setShowPaymentMethodDialog(false)}
+							disabled={updating}
+						>
+							Hủy
+						</Button>
+						<Button
+							onClick={handleUpdatePaymentMethod}
+							disabled={updating || !newPaymentMethod}
+						>
+							{updating ? 'Đang cập nhật...' : 'Cập nhật'}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 
 			<OrderDetailDialog
 				order={selectedOrder}
