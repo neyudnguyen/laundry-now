@@ -11,10 +11,10 @@ export default function MapSection() {
 				{/* Section Header */}
 				<div className="mx-auto max-w-2xl text-center">
 					<h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-						Liên hệ & Địa chỉ
+						Khu vực phục vụ
 					</h2>
 					<p className="mt-4 text-lg leading-8 text-muted-foreground">
-						Hãy liên hệ với chúng tôi để được tư vấn và hỗ trợ tốt nhất
+						Mạng lưới cửa hàng đối tác phủ sóng toàn thành phố
 					</p>
 				</div>
 
@@ -24,7 +24,7 @@ export default function MapSection() {
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2">
 								<MapPin className="h-5 w-5 text-primary" />
-								Vị trí của chúng tôi
+								Phạm vi hoạt động
 							</CardTitle>
 						</CardHeader>
 						<CardContent>
@@ -33,7 +33,9 @@ export default function MapSection() {
 								<div className="flex h-full items-center justify-center">
 									<div className="text-center">
 										<MapPin className="mx-auto h-12 w-12 text-primary/60 mb-4" />
-										<p className="text-muted-foreground">Bản đồ Google Maps</p>
+										<p className="text-muted-foreground">
+											Bản đồ cửa hàng đối tác
+										</p>
 										<p className="text-sm text-muted-foreground mt-1">
 											Nhấn để xem chi tiết
 										</p>
@@ -44,10 +46,11 @@ export default function MapSection() {
 							{/* Address */}
 							<div className="mt-4 space-y-2">
 								<h4 className="font-semibold text-foreground">
-									Trung tâm chính
+									Khu vực trung tâm TP.HCM
 								</h4>
 								<p className="text-sm text-muted-foreground">
-									123 Đường Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh
+									Quận 1, 3, 5, 7, 10, Tân Bình, Bình Thạnh và nhiều khu vực
+									khác
 								</p>
 							</div>
 						</CardContent>
@@ -56,17 +59,19 @@ export default function MapSection() {
 					{/* Contact Info Card */}
 					<Card className="h-full">
 						<CardHeader>
-							<CardTitle>Thông tin liên hệ</CardTitle>
+							<CardTitle>Hỗ trợ khách hàng</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-6">
 							{/* Phone */}
 							<div className="flex items-start gap-3">
 								<Phone className="h-5 w-5 text-primary mt-0.5" />
 								<div>
-									<h4 className="font-semibold text-foreground">Hotline</h4>
+									<h4 className="font-semibold text-foreground">
+										Hotline hỗ trợ
+									</h4>
 									<p className="text-muted-foreground">1900 1234</p>
 									<p className="text-sm text-muted-foreground">
-										Miễn phí từ 6:00 - 22:00
+										Hỗ trợ đặt hàng và giải đáp thắc mắc
 									</p>
 								</div>
 							</div>
@@ -78,11 +83,9 @@ export default function MapSection() {
 								<Mail className="h-5 w-5 text-primary mt-0.5" />
 								<div>
 									<h4 className="font-semibold text-foreground">Email</h4>
-									<p className="text-muted-foreground">
-										support@Laundry Now.vn
-									</p>
+									<p className="text-muted-foreground">support@laundrynow.vn</p>
 									<p className="text-sm text-muted-foreground">
-										Phản hồi trong 24h
+										Phản hồi khiếu nại và góp ý
 									</p>
 								</div>
 							</div>
@@ -94,35 +97,30 @@ export default function MapSection() {
 								<Clock className="h-5 w-5 text-primary mt-0.5" />
 								<div>
 									<h4 className="font-semibold text-foreground">
-										Giờ hoạt động
+										Thời gian hỗ trợ
 									</h4>
 									<div className="space-y-1 text-sm text-muted-foreground">
-										<p>Thứ 2 - Thứ 6: 6:00 - 22:00</p>
-										<p>Thứ 7 - Chủ nhật: 7:00 - 21:00</p>
+										<p>Thứ 2 - Chủ nhật: 6:00 - 22:00</p>
+										<p>Hỗ trợ trực tuyến 24/7</p>
 									</div>
 								</div>
 							</div>
 
 							<Separator />
 
-							{/* Locations */}
-							<div>
-								<h4 className="font-semibold text-foreground mb-3">
-									Các chi nhánh khác
+							{/* Quick Actions */}
+							<div className="space-y-3">
+								<h4 className="font-semibold text-foreground">
+									Hành động nhanh
 								</h4>
-								<div className="space-y-2 text-sm text-muted-foreground">
-									<p>📍 CN Quận 1: 456 Đường Lê Lợi, Quận 1</p>
-									<p>📍 CN Quận 3: 789 Đường Cách Mạng Tháng 8, Quận 3</p>
-									<p>📍 CN Bình Thạnh: 321 Đường Xô Viết Nghệ Tĩnh</p>
+								<div className="space-y-2">
+									<Button className="w-full" variant="outline">
+										Tìm cửa hàng gần nhất
+									</Button>
+									<Button className="w-full" variant="outline">
+										Đăng ký làm đối tác
+									</Button>
 								</div>
-							</div>
-
-							{/* CTA Buttons */}
-							<div className="space-y-3 pt-4">
-								<Button className="w-full">Gọi ngay</Button>
-								<Button variant="outline" className="w-full">
-									Gửi tin nhắn
-								</Button>
 							</div>
 						</CardContent>
 					</Card>
@@ -135,26 +133,26 @@ export default function MapSection() {
 							<div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
 								<div className="text-center">
 									<h4 className="font-semibold text-foreground">
-										Giao nhận miễn phí
+										Đa dạng lựa chọn
 									</h4>
 									<p className="text-sm text-muted-foreground mt-1">
-										Trong bán kính 5km từ trung tâm
+										Hơn 100+ cửa hàng với dịch vụ khác nhau
 									</p>
 								</div>
 								<div className="text-center">
 									<h4 className="font-semibold text-foreground">
-										Thanh toán linh hoạt
+										So sánh giá cả
 									</h4>
 									<p className="text-sm text-muted-foreground mt-1">
-										Tiền mặt, chuyển khoản, ví điện tử
+										Tìm ưu đãi tốt nhất cho nhu cầu của bạn
 									</p>
 								</div>
 								<div className="text-center">
 									<h4 className="font-semibold text-foreground">
-										Bảo hành chất lượng
+										Đánh giá thật
 									</h4>
 									<p className="text-sm text-muted-foreground mt-1">
-										Giặt lại miễn phí nếu không hài lòng
+										Phản hồi chân thực từ khách hàng khác
 									</p>
 								</div>
 							</div>

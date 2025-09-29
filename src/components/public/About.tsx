@@ -11,14 +11,13 @@ export default function About() {
 					{/* Left Content */}
 					<div className="flex flex-col justify-center">
 						<h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-							Chào mừng đến với{' '}
-							<span className="text-primary">Laundry Now</span>
+							Nền tảng kết nối{' '}
+							<span className="text-primary">Giặt ủi hàng đầu</span>
 						</h2>
 						<p className="mt-6 text-lg leading-8 text-muted-foreground">
-							Chúng tôi mang đến trải nghiệm giặt ủi nhanh chóng, chất lượng và
-							tiện lợi cho bạn. Với đội ngũ chuyên nghiệp và công nghệ hiện đại,
-							Laundry Now cam kết bảo vệ quần áo của bạn như chính quần áo của
-							chúng tôi.
+							Laundry Now là nền tảng kết nối khách hàng với mạng lưới các cửa
+							hàng giặt ủi uy tín. Chúng tôi tạo ra một thị trường minh bạch,
+							giúp bạn dễ dàng tìm kiếm, so sánh và lựa chọn dịch vụ tốt nhất.
 						</p>
 
 						{/* Features List */}
@@ -26,32 +25,32 @@ export default function About() {
 							<div className="flex items-center gap-3">
 								<CheckCircle className="h-5 w-5 text-primary" />
 								<span className="text-muted-foreground">
-									Giặt sạch 99.9% vi khuẩn và bụi bẩn
+									Mạng lưới cửa hàng được kiểm duyệt kỹ lưỡng
 								</span>
 							</div>
 							<div className="flex items-center gap-3">
 								<CheckCircle className="h-5 w-5 text-primary" />
 								<span className="text-muted-foreground">
-									Bảo vệ chất liệu vải và màu sắc tối ưu
+									Đánh giá và phản hồi thật từ khách hàng
 								</span>
 							</div>
 							<div className="flex items-center gap-3">
 								<CheckCircle className="h-5 w-5 text-primary" />
 								<span className="text-muted-foreground">
-									Giao nhận đúng hẹn 100%
+									So sánh giá cả và dịch vụ dễ dàng
 								</span>
 							</div>
 							<div className="flex items-center gap-3">
 								<CheckCircle className="h-5 w-5 text-primary" />
 								<span className="text-muted-foreground">
-									Hỗ trợ khách hàng 24/7
+									Đặt hàng và thanh toán an toàn
 								</span>
 							</div>
 						</div>
 
 						<div className="mt-8">
 							<Button size="lg" className="group">
-								Tìm hiểu thêm
+								Khám phá cửa hàng
 								<ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
 							</Button>
 						</div>
@@ -63,7 +62,7 @@ export default function About() {
 						<Card className="h-40">
 							<CardContent className="flex h-full flex-col items-center justify-center p-6 text-center">
 								<Clock className="h-8 w-8 text-primary mb-3" />
-								<h4 className="font-semibold text-foreground">Nhanh chóng</h4>
+								<h4 className="font-semibold text-foreground">Đa dạng</h4>
 							</CardContent>
 						</Card>
 
@@ -71,7 +70,7 @@ export default function About() {
 						<Card className="h-40">
 							<CardContent className="flex h-full flex-col items-center justify-center p-6 text-center">
 								<Shield className="h-8 w-8 text-primary mb-3" />
-								<h4 className="font-semibold text-foreground">An toàn</h4>
+								<h4 className="font-semibold text-foreground">Uy tín</h4>
 							</CardContent>
 						</Card>
 
@@ -80,10 +79,10 @@ export default function About() {
 							<CardContent className="flex h-full items-center justify-between p-6">
 								<div>
 									<h4 className="text-lg font-semibold text-foreground">
-										Chất lượng 5 sao
+										Đánh giá 5 sao
 									</h4>
 									<p className="text-sm text-muted-foreground mt-1">
-										Được tin tưởng bởi hơn 10,000+ khách hàng
+										Từ hàng nghìn khách hàng tin tưởng
 									</p>
 								</div>
 								<div className="flex">
@@ -101,18 +100,16 @@ export default function About() {
 						<Card className="col-span-2 h-24">
 							<CardContent className="flex h-full items-center justify-around p-6">
 								<div className="text-center">
-									<div className="text-2xl font-bold text-primary">10K+</div>
-									<div className="text-xs text-muted-foreground">
-										Khách hàng
-									</div>
+									<div className="text-2xl font-bold text-primary">100+</div>
+									<div className="text-xs text-muted-foreground">Cửa hàng</div>
 								</div>
 								<div className="text-center">
-									<div className="text-2xl font-bold text-primary">50K+</div>
+									<div className="text-2xl font-bold text-primary">5K+</div>
 									<div className="text-xs text-muted-foreground">Đơn hàng</div>
 								</div>
 								<div className="text-center">
-									<div className="text-2xl font-bold text-primary">99%</div>
-									<div className="text-xs text-muted-foreground">Hài lòng</div>
+									<div className="text-2xl font-bold text-primary">4.8★</div>
+									<div className="text-xs text-muted-foreground">Đánh giá</div>
 								</div>
 							</CardContent>
 						</Card>

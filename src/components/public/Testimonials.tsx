@@ -10,7 +10,7 @@ const testimonials = [
 		avatar: '',
 		rating: 5,
 		content:
-			'Dịch vụ tuyệt vời! Quần áo được giặt sạch sẽ và thơm tho. Đội ngũ giao nhận rất chuyên nghiệp và đúng giờ. Tôi rất hài lòng.',
+			'Nền tảng rất tiện lợi! Tôi dễ dàng tìm được cửa hàng giặt ủi gần nhà với giá tốt. Đánh giá từ khách hàng khác giúp tôi chọn được dịch vụ uy tín.',
 	},
 	{
 		name: 'Trần Minh Hoàng',
@@ -18,15 +18,15 @@ const testimonials = [
 		avatar: '',
 		rating: 5,
 		content:
-			'Laundry Now đã giúp tôi tiết kiệm rất nhiều thời gian. Chất lượng giặt ủi xuất sắc, giá cả hợp lý. Chắc chắn sẽ tiếp tục sử dụng.',
+			'Laundry Now giúp tôi so sánh nhiều cửa hàng một cách nhanh chóng. Không còn phải đi tìm kiếm khắp nơi. Đặt hàng online rất thuận tiện.',
 	},
 	{
 		name: 'Lê Thị Hương',
-		role: 'Mẹ bỉm sữa',
+		role: 'Chủ cửa hàng',
 		avatar: '',
 		rating: 5,
 		content:
-			'Với hai con nhỏ, tôi không có thời gian giặt giũ. Laundry Now đã cứu rỗi cuộc sống của tôi. Dịch vụ nhanh, sạch và an toàn cho trẻ em.',
+			'Từ khi tham gia Laundry Now, cửa hàng của tôi có nhiều khách hàng hơn. Nền tảng giúp kết nối hiệu quả và tăng doanh thu đáng kể.',
 	},
 	{
 		name: 'Phạm Văn Đức',
@@ -34,7 +34,7 @@ const testimonials = [
 		avatar: '',
 		rating: 4,
 		content:
-			'Dịch vụ tốt, giá cả phù hợp với sinh viên. Ứng dụng đặt hàng dễ sử dụng. Chỉ mong có thêm nhiều ưu đãi cho học sinh, sinh viên.',
+			'Ứng dụng rất hữu ích cho sinh viên! Tôi có thể tìm được cửa hàng giá rẻ gần ký túc xá. Giao diện đơn giản, dễ sử dụng.',
 	},
 	{
 		name: 'Võ Thị Lan',
@@ -76,10 +76,11 @@ export default function Testimonials() {
 				{/* Section Header */}
 				<div className="mx-auto max-w-2xl text-center">
 					<h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-						Khách hàng nói gì về chúng tôi
+						Cộng đồng tin tưởng Laundry Now
 					</h2>
 					<p className="mt-4 text-lg leading-8 text-muted-foreground">
-						Hơn 10,000+ khách hàng tin tưởng và sử dụng dịch vụ của Laundry Now
+						Phản hồi từ khách hàng và đối tác về trải nghiệm sử dụng nền tảng
+						của chúng tôi
 					</p>
 				</div>
 

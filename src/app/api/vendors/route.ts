@@ -67,11 +67,22 @@ export async function GET() {
 				})),
 				averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
 				reviewCount,
+				isPremium: vendor.isPremium, // Lấy từ field isPremium có sẵn
 			};
 		});
 
+		// Sort vendors: Premium vendors first, then by rating
+		const sortedVendors = formattedVendors.sort((a, b) => {
+			// Premium vendors always go first
+			if (a.isPremium && !b.isPremium) return -1;
+			if (!a.isPremium && b.isPremium) return 1;
+
+			// If both are premium or both are non-premium, sort by rating (high to low)
+			return b.averageRating - a.averageRating;
+		});
+
 		return NextResponse.json({
-			vendors: formattedVendors,
+			vendors: sortedVendors,
 			total: vendors.length,
 		});
 	} catch (error) {
