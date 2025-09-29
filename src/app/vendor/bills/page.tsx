@@ -412,6 +412,60 @@ export default function VendorBills() {
 									</Card>
 								</div>
 
+								{/* Calculation Formula */}
+								<Card className="mt-6">
+									<CardHeader>
+										<CardTitle className="flex items-center gap-2">
+											<DollarSign className="h-5 w-5" />
+											Công thức tính toán (Góc nhìn Vendor)
+										</CardTitle>
+									</CardHeader>
+									<CardContent className="space-y-3 text-sm">
+										<div>
+											<strong>Hoa hồng COD (2%):</strong>{' '}
+											{formatCurrency(bill.totalCOD)} × 2% ={' '}
+											{formatCurrency(bill.totalCODCompleted)}
+										</div>
+										<div>
+											<strong>Hoa hồng QR Code (2%):</strong>{' '}
+											{formatCurrency(bill.totalQRCODE)} × 2% ={' '}
+											{formatCurrency(bill.totalQRCODECompleted)}
+										</div>
+										<div>
+											<strong>Tổng hoa hồng phải trả:</strong>{' '}
+											{formatCurrency(bill.totalCODCompleted)} +{' '}
+											{formatCurrency(bill.totalQRCODECompleted)} ={' '}
+											{formatCurrency(bill.totalCommission)}
+										</div>
+										<div className="border-t pt-3">
+											<strong>Số tiền vendor sẽ nhận từ admin:</strong>
+											<div className="ml-4 space-y-1 text-muted-foreground">
+												<div>
+													= Doanh thu QR Code - Hoa hồng COD - Hoa hồng QR Code
+													+ Phí giao hàng QR
+												</div>
+												<div>
+													= {formatCurrency(bill.totalQRCODE)} -{' '}
+													{formatCurrency(bill.totalCODCompleted)} -{' '}
+													{formatCurrency(bill.totalQRCODECompleted)} +{' '}
+													{formatCurrency(bill.totalQRCODEDeliveryFee)}
+												</div>
+												<div className="font-medium text-primary">
+													= {formatCurrency(bill.totalAmountToReceive)}
+												</div>
+											</div>
+										</div>
+										<div className="text-xs text-muted-foreground bg-muted p-3 rounded-md">
+											<strong>Giải thích:</strong> Với đơn COD, bạn đã nhận tiền
+											mặt trực tiếp từ khách nên chỉ cần trả hoa hồng 2% cho
+											admin. Với đơn QR Code, khách đã thanh toán qua hệ thống,
+											admin sẽ chuyển khoản cho bạn số tiền còn lại sau khi trừ
+											hoa hồng. Phí giao hàng QR được cộng thêm vì đã tính vào
+											giá khách thanh toán.
+										</div>
+									</CardContent>
+								</Card>
+
 								{/* Period Info */}
 								<div className="mt-6 p-4 bg-muted/30 rounded-lg">
 									<div className="flex items-center gap-2 mb-2">
