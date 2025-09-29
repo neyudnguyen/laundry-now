@@ -68,6 +68,21 @@ enum ComplaintStatus {
   @@map("complaint_statuses")
 }
 
+enum PremiumPackageType {
+  MONTHLY @map("monthly") // Gói 1 tháng - 100k
+  YEARLY  @map("yearly") // Gói 1 năm - 600k
+
+  @@map("premium_package_types")
+}
+
+enum PremiumStatus {
+  ACTIVE  @map("active") // Đang hoạt động
+  EXPIRED @map("expired") // Đã hết hạn
+  PENDING @map("pending") // Chờ thanh toán
+
+  @@map("premium_statuses")
+}
+
 // ============================
 // MODELS
 // ============================
@@ -140,18 +155,20 @@ model VendorProfile {
   bankName   String? @map("bank_name")
   bankNumber String? @map("bank_number")
   bankHolder String? @map("bank_holder")
+  isPremium  Boolean @default(false) @map("is_premium") // Trạng thái premium hiện tại
 
   userId    String  @unique @map("user_id")
   addressId String? @unique @map("address_id")
 
-  user              User               @relation(fields: [userId], references: [id])
-  address           Address?           @relation(fields: [addressId], references: [id])
+  user              User                   @relation(fields: [userId], references: [id])
+  address           Address?               @relation(fields: [addressId], references: [id])
   images            VendorImage[]
   vendorServiceFees VendorServiceFee[]
   orders            Order[]
   reviews           Review[]
   complaints        Complaint[]
   bills             Bill[]
+  premiumPackages   VendorPremiumPackage[] // Lịch sử các gói premium
 
   @@map("vendor_profiles")
 }
@@ -292,4 +309,40 @@ model Bill {
   vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 
   @@map("bills")
+}
+
+model PremiumPackage {
+  id          String             @id @default(cuid()) @map("id")
+  name        String             @map("name") // "Gói Premium 1 tháng", "Gói Premium 1 năm"
+  type        PremiumPackageType @map("type")
+  price       Int                @map("price") // 100000 (1 tháng), 600000 (1 năm)
+  duration    Int                @map("duration") // Số ngày: 30, 365
+  description String?            @map("description") // Mô tả lợi ích
+  isActive    Boolean            @default(true) @map("is_active")
+
+  vendorPackages VendorPremiumPackage[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("premium_packages")
+}
+
+model VendorPremiumPackage {
+  id        String        @id @default(cuid()) @map("id")
+  status    PremiumStatus @default(PENDING) @map("status")
+  startDate DateTime?     @map("start_date") // Ngày bắt đầu (khi thanh toán thành công)
+  endDate   DateTime?     @map("end_date") // Ngày kết thúc
+  orderCode Int?          @unique @map("order_code") // PayOS orderCode cho thanh toán
+
+  vendorId  String @map("vendor_id")
+  packageId String @map("package_id")
+
+  vendor  VendorProfile  @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  package PremiumPackage @relation(fields: [packageId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("vendor_premium_packages")
 }
