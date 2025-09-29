@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 // PUT - Cập nhật địa chỉ
 export async function PUT(
 	request: NextRequest,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const session = await auth();
@@ -17,6 +17,7 @@ export async function PUT(
 
 		const body = await request.json();
 		const { province, district, ward, street } = body;
+		const { id } = await params;
 
 		if (!province || !district || !ward || !street) {
 			return NextResponse.json(
@@ -30,7 +31,7 @@ export async function PUT(
 			where: { userId: session.user.id },
 			include: {
 				addresses: {
-					where: { id: params.id },
+					where: { id: id },
 				},
 			},
 		});
@@ -40,7 +41,7 @@ export async function PUT(
 		}
 
 		const updatedAddress = await prisma.address.update({
-			where: { id: params.id },
+			where: { id: id },
 			data: {
 				province,
 				district,
@@ -62,7 +63,7 @@ export async function PUT(
 // DELETE - Xóa địa chỉ
 export async function DELETE(
 	request: NextRequest,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const session = await auth();
@@ -71,12 +72,14 @@ export async function DELETE(
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
+		const { id } = await params;
+
 		// Kiểm tra địa chỉ có thuộc về customer này không
 		const customerProfile = await prisma.customerProfile.findUnique({
 			where: { userId: session.user.id },
 			include: {
 				addresses: {
-					where: { id: params.id },
+					where: { id: id },
 				},
 			},
 		});
@@ -86,7 +89,7 @@ export async function DELETE(
 		}
 
 		await prisma.address.delete({
-			where: { id: params.id },
+			where: { id: id },
 		});
 
 		return NextResponse.json({ message: 'Address deleted successfully' });
