@@ -30,10 +30,19 @@ export async function POST(request: NextRequest) {
 		const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999); // Last day of the month at 23:59:59
 
 		if (today <= endOfMonth) {
+			// Calculate the first day of the next month when bills can be created
+			let nextMonth = month + 1;
+			let nextYear = year;
+			if (nextMonth > 12) {
+				nextMonth = 1;
+				nextYear = year + 1;
+			}
+			const nextAvailableDate = new Date(nextYear, nextMonth - 1, 1);
+
 			return NextResponse.json(
 				{
-					error: `Chỉ có thể tạo bill sau khi tháng ${month}/${year} đã hoàn thành. Vui lòng thử lại từ ngày ${new Date(year, month, 1).toLocaleDateString('vi-VN')}.`,
-					canCreateAfter: new Date(year, month, 1).toISOString(),
+					error: `Chỉ có thể tạo bill sau khi tháng ${month}/${year} đã hoàn thành. Vui lòng thử lại từ ngày ${nextAvailableDate.toLocaleDateString('vi-VN')}.`,
+					canCreateAfter: nextAvailableDate.toISOString(),
 				},
 				{ status: 400 },
 			);

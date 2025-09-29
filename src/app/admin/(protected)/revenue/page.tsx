@@ -199,8 +199,20 @@ export default function AdminRevenue() {
 		}
 
 		if (!revenueStats.canCreateBill) {
-			const nextDate = new Date(revenueStats.nextAvailableDate);
-			return `Chỉ có thể tạo bill sau khi tháng ${revenueStats.month}/${revenueStats.year} hoàn thành (từ ${nextDate.toLocaleDateString('vi-VN')})`;
+			let nextDateStr = '';
+			if (revenueStats.nextAvailableDate) {
+				const nextDate = new Date(revenueStats.nextAvailableDate);
+				if (!isNaN(nextDate.getTime())) {
+					nextDateStr = nextDate.toLocaleDateString('vi-VN');
+				} else {
+					// Fallback if date is invalid
+					nextDateStr = `1/${revenueStats.month + 1}/${revenueStats.year}`;
+				}
+			} else {
+				// Fallback if nextAvailableDate is not provided
+				nextDateStr = `1/${revenueStats.month + 1}/${revenueStats.year}`;
+			}
+			return `Chỉ có thể tạo bill sau khi tháng ${revenueStats.month}/${revenueStats.year} hoàn thành (từ ${nextDateStr})`;
 		}
 
 		return 'Sẵn sàng tạo bill cho vendor này';
@@ -345,9 +357,11 @@ export default function AdminRevenue() {
 								Bills chỉ có thể được tạo sau khi tháng hoàn thành
 							</strong>{' '}
 							(từ ngày{' '}
-							{new Date(revenueStats.nextAvailableDate).toLocaleDateString(
-								'vi-VN',
-							)}
+							{revenueStats.nextAvailableDate
+								? new Date(revenueStats.nextAvailableDate).toLocaleDateString(
+										'vi-VN',
+									)
+								: '1/' + (revenueStats.month + 1) + '/' + revenueStats.year}
 							). Điều này đảm bảo tính chính xác của dữ liệu doanh thu và tránh
 							việc phải cập nhật bill nhiều lần.
 						</p>

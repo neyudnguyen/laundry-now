@@ -151,7 +151,15 @@ export async function GET(request: NextRequest) {
 		// Check if the month has completed (can only create bill after month ends)
 		const today = new Date();
 		const canCreateBill = today > endDate;
-		const nextAvailableDate = new Date(year, month, 1); // First day of next month
+
+		// Calculate the first day of the next month when bills can be created
+		let nextMonth = month + 1;
+		let nextYear = year;
+		if (nextMonth > 12) {
+			nextMonth = 1;
+			nextYear = year + 1;
+		}
+		const nextAvailableDate = new Date(nextYear, nextMonth - 1, 1); // month-1 because Date constructor uses 0-indexed months
 
 		return NextResponse.json({
 			month,
