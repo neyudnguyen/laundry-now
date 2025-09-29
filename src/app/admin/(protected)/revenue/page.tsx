@@ -55,6 +55,7 @@ interface RevenueStats {
 		total: number;
 	};
 	vendorsList: VendorOption[];
+	billExists: boolean;
 }
 
 export default function AdminRevenue() {
@@ -254,15 +255,24 @@ export default function AdminRevenue() {
 						<Button
 							onClick={handleCreateBill}
 							disabled={
-								!selectedVendor || selectedVendor === 'all' || isCreatingBill
+								!selectedVendor ||
+								selectedVendor === 'all' ||
+								isCreatingBill ||
+								(revenueStats?.billExists && selectedVendor !== 'all')
 							}
 							className="w-full"
 						>
-							{isCreatingBill ? 'Đang tạo...' : 'Tạo Bill'}
+							{isCreatingBill
+								? 'Đang tạo...'
+								: revenueStats?.billExists && selectedVendor !== 'all'
+									? 'Bill đã tồn tại'
+									: 'Tạo Bill'}
 						</Button>
 						{/* TODO: Add check to only enable button at end of month */}
 						<p className="text-xs text-muted-foreground mt-2">
-							Chỉ vendor cụ thể mới có thể tạo bill
+							{revenueStats?.billExists && selectedVendor !== 'all'
+								? 'Bill cho vendor và tháng này đã được tạo'
+								: 'Chỉ vendor cụ thể mới có thể tạo bill'}
 						</p>
 					</CardContent>
 				</Card>

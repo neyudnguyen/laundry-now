@@ -131,6 +131,23 @@ export async function GET(request: NextRequest) {
 			phone: vendor.user.phone,
 		}));
 
+		// Check if bill already exists for the selected vendor and month
+		let billExists = false;
+		if (vendorId) {
+			const existingBill = await prisma.bill.findFirst({
+				where: {
+					vendorId,
+					startDate: {
+						gte: startDate,
+					},
+					endDate: {
+						lte: endDate,
+					},
+				},
+			});
+			billExists = !!existingBill;
+		}
+
 		return NextResponse.json({
 			month,
 			year,
@@ -148,6 +165,7 @@ export async function GET(request: NextRequest) {
 				total: orders.length,
 			},
 			vendorsList,
+			billExists,
 		});
 	} catch (error) {
 		console.error('Admin revenue API error:', error);
