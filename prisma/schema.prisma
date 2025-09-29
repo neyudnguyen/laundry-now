@@ -278,13 +278,14 @@ model Complaint {
 }
 
 model Bill {
-  id                   String   @id @default(cuid()) @map("id")
-  totalCOD             Int      @map("total_cod")
-  totalQRCODE          Int      @map("total_qrcode")
-  totalCODCompleted    Int      @map("total_cod_completed")
-  totalQRCODECompleted Int      @map("total_qrcode_completed")
-  startDate            DateTime @map("start_date")
-  endDate              DateTime @map("end_date")
+  id                     String   @id @default(cuid()) @map("id")
+  totalCOD               Int      @map("total_cod")
+  totalQRCODE            Int      @map("total_qrcode")
+  totalCODCompleted      Int      @map("total_cod_completed")
+  totalQRCODECompleted   Int      @map("total_qrcode_completed")
+  totalQRCODEDeliveryFee Int      @map("total_qrcode_delivery_fee")
+  startDate              DateTime @map("start_date")
+  endDate                DateTime @map("end_date")
 
   vendorId String @unique @map("vendor_id")
 
