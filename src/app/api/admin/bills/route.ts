@@ -3,6 +3,140 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+export async function GET(request: NextRequest) {
+	try {
+		const session = await auth();
+
+		if (!session || session.user.role !== 'ADMIN') {
+			return NextResponse.json(
+				{ error: 'Không có quyền truy cập' },
+				{ status: 403 },
+			);
+		}
+
+		const { searchParams } = new URL(request.url);
+		const page = parseInt(searchParams.get('page') || '1');
+		const limit = parseInt(searchParams.get('limit') || '10');
+		const year = searchParams.get('year');
+		const month = searchParams.get('month');
+		const vendorId = searchParams.get('vendorId');
+		const status = searchParams.get('status');
+
+		const skip = (page - 1) * limit;
+
+		// Build filter conditions
+		const where: any = {};
+
+		// Filter by year and month (calculate from startDate)
+		if (year && year !== 'all' && month && month !== 'all') {
+			const yearNum = parseInt(year);
+			const monthNum = parseInt(month);
+			const startOfMonth = new Date(yearNum, monthNum - 1, 1);
+			const endOfMonth = new Date(yearNum, monthNum, 0, 23, 59, 59, 999);
+			where.startDate = {
+				gte: startOfMonth,
+				lte: endOfMonth,
+			};
+		}
+
+		// Filter by vendor
+		if (vendorId && vendorId !== 'all') {
+			where.vendorId = vendorId;
+		}
+
+		// Filter by status
+		if (status && status !== 'all') {
+			where.status = status;
+		}
+
+		// Get bills with pagination
+		const [bills, totalCount] = await Promise.all([
+			prisma.bill.findMany({
+				where,
+				include: {
+					vendor: {
+						select: {
+							id: true,
+							shopName: true,
+							user: {
+								select: {
+									id: true,
+									email: true,
+								},
+							},
+						},
+					},
+				},
+				orderBy: [{ startDate: 'desc' }],
+				skip,
+				take: limit,
+			}),
+			prisma.bill.count({ where }),
+		]);
+
+		// Format bills data
+		const formattedBills = bills.map((bill) => {
+			const month = bill.startDate.getMonth() + 1;
+			const year = bill.startDate.getFullYear();
+
+			// Calculate derived fields
+			const totalCommission =
+				bill.totalCODCompleted + bill.totalQRCODECompleted;
+			const totalAmountToReceive =
+				bill.totalQRCODE -
+				bill.totalCODCompleted -
+				bill.totalQRCODECompleted +
+				bill.totalQRCODEDeliveryFee;
+
+			return {
+				id: bill.id,
+				month: month,
+				year: year,
+				monthLabel: `Tháng ${month}/${year}`,
+				totalCOD: Number(bill.totalCOD),
+				totalQRCODE: Number(bill.totalQRCODE),
+				totalCODCompleted: Number(bill.totalCODCompleted),
+				totalQRCODECompleted: Number(bill.totalQRCODECompleted),
+				totalQRCODEDeliveryFee: Number(bill.totalQRCODEDeliveryFee),
+				totalCommission: Number(totalCommission),
+				totalAmountToReceive: Number(totalAmountToReceive),
+				status: bill.status,
+				createdAt: bill.startDate.toISOString(),
+				updatedAt: bill.endDate.toISOString(),
+				vendor: {
+					id: bill.vendor.id,
+					name: bill.vendor.shopName,
+					email: bill.vendor.user.email,
+				},
+				period: {
+					startDate: bill.startDate.toISOString(),
+					endDate: bill.endDate.toISOString(),
+				},
+			};
+		});
+
+		const totalPages = Math.ceil(totalCount / limit);
+
+		return NextResponse.json({
+			bills: formattedBills,
+			pagination: {
+				page,
+				limit,
+				totalCount,
+				totalPages,
+				hasNextPage: page < totalPages,
+				hasPrevPage: page > 1,
+			},
+		});
+	} catch (error) {
+		console.error('Error fetching admin bills:', error);
+		return NextResponse.json(
+			{ error: 'Có lỗi xảy ra khi tải danh sách hóa đơn' },
+			{ status: 500 },
+		);
+	}
+}
+
 export async function POST(request: NextRequest) {
 	try {
 		const session = await auth();

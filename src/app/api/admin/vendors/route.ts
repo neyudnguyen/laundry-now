@@ -38,9 +38,10 @@ export async function GET() {
 				if (!profile) return null;
 
 				return {
-					id: user.id,
-					phone: user.phone,
+					id: profile.id, // Use vendor profile ID for bills
+					name: profile.shopName,
 					email: user.email,
+					phone: user.phone,
 					shopName: profile.shopName,
 					address: profile.address
 						? {
@@ -55,7 +56,7 @@ export async function GET() {
 			})
 			.filter(Boolean);
 
-		return NextResponse.json(formattedVendors);
+		return NextResponse.json({ vendors: formattedVendors });
 	} catch (error) {
 		console.error('Error fetching vendors:', error);
 		return NextResponse.json(

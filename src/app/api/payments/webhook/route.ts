@@ -23,12 +23,11 @@ export async function POST(request: NextRequest) {
 		// Lấy thông tin từ webhook payload
 		const { code, desc, data } = body;
 		const { orderCode } = data;
-		const orderCodeNumber = parseInt(orderCode.toString());
 
 		// Kiểm tra xem đây là thanh toán cho order hay premium package
 		// Cách 1: Tìm trong orders trước
 		const order = await prisma.order.findUnique({
-			where: { orderCode: orderCodeNumber },
+			where: { orderCode: orderCode.toString() },
 			include: {
 				customer: {
 					include: {
@@ -50,7 +49,7 @@ export async function POST(request: NextRequest) {
 
 		// Cách 2: Tìm trong vendor premium packages
 		const vendorPremiumPackage = await prisma.vendorPremiumPackage.findUnique({
-			where: { orderCode: orderCodeNumber },
+			where: { orderCode: orderCode.toString() },
 			include: {
 				vendor: {
 					include: {

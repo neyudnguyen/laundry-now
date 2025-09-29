@@ -18,7 +18,7 @@ const testimonials = [
 		avatar: '',
 		rating: 5,
 		content:
-			'Laundry Now giúp tôi so sánh nhiều cửa hàng một cách nhanh chóng. Không còn phải đi tìm kiếm khắp nơi. Đặt hàng online rất thuận tiện.',
+			'Giặt ủi nhanh giúp tôi so sánh nhiều cửa hàng một cách nhanh chóng. Không còn phải đi tìm kiếm khắp nơi. Đặt hàng online rất thuận tiện.',
 	},
 	{
 		name: 'Lê Thị Hương',
@@ -26,7 +26,7 @@ const testimonials = [
 		avatar: '',
 		rating: 5,
 		content:
-			'Từ khi tham gia Laundry Now, cửa hàng của tôi có nhiều khách hàng hơn. Nền tảng giúp kết nối hiệu quả và tăng doanh thu đáng kể.',
+			'Từ khi tham gia Giặt ủi nhanh, cửa hàng của tôi có nhiều khách hàng hơn. Nền tảng giúp kết nối hiệu quả và tăng doanh thu đáng kể.',
 	},
 	{
 		name: 'Phạm Văn Đức',
@@ -42,7 +42,7 @@ const testimonials = [
 		avatar: '',
 		rating: 5,
 		content:
-			'Chúng tôi đã hợp tác với Laundry Now để giặt đồ khách sạn. Chất lượng ổn định, giao hàng đúng hẹn. Đối tác đáng tin cậy.',
+			'Chúng tôi đã hợp tác với Giặt ủi nhanh để giặt đồ khách sạn. Chất lượng ổn định, giao hàng đúng hẹn. Đối tác đáng tin cậy.',
 	},
 	{
 		name: 'Ngô Minh Tuấn',
@@ -76,7 +76,7 @@ export default function Testimonials() {
 				{/* Section Header */}
 				<div className="mx-auto max-w-2xl text-center">
 					<h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-						Cộng đồng tin tưởng Laundry Now
+						Cộng đồng tin tưởng Giặt ủi nhanh
 					</h2>
 					<p className="mt-4 text-lg leading-8 text-muted-foreground">
 						Phản hồi từ khách hàng và đối tác về trải nghiệm sử dụng nền tảng

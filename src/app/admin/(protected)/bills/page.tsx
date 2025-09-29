@@ -9,6 +9,7 @@ import {
 	Clock,
 	CreditCard,
 	DollarSign,
+	Edit,
 	FileText,
 	Package,
 	Percent,
@@ -20,6 +21,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
+import {
 	Select,
 	SelectContent,
 	SelectItem,
@@ -28,12 +36,17 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
+interface VendorInfo {
+	id: string;
+	name: string;
+	email: string;
+}
+
 interface BillItem {
 	id: string;
 	month: number;
 	year: number;
 	monthLabel: string;
-	status: 'PENDING' | 'PAID';
 	totalCOD: number;
 	totalQRCODE: number;
 	totalCODCompleted: number;
@@ -41,8 +54,10 @@ interface BillItem {
 	totalQRCODEDeliveryFee: number;
 	totalCommission: number;
 	totalAmountToReceive: number;
+	status: 'PENDING' | 'PAID';
 	createdAt: string;
 	updatedAt: string;
+	vendor: VendorInfo;
 	period: {
 		startDate: string;
 		endDate: string;
@@ -63,12 +78,21 @@ interface BillsResponse {
 	pagination: PaginationInfo;
 }
 
-export default function VendorBills() {
+interface VendorsResponse {
+	vendors: VendorInfo[];
+}
+
+export default function AdminBills() {
 	const [billsData, setBillsData] = useState<BillsResponse | null>(null);
+	const [vendors, setVendors] = useState<VendorInfo[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedYear, setSelectedYear] = useState<string>('all');
 	const [selectedMonth, setSelectedMonth] = useState<string>('all');
+	const [selectedVendor, setSelectedVendor] = useState<string>('all');
+	const [selectedStatus, setSelectedStatus] = useState<string>('all');
+	const [editingBill, setEditingBill] = useState<BillItem | null>(null);
+	const [isUpdating, setIsUpdating] = useState(false);
 	const { toast } = useToast();
 
 	// Generate year options (from 2025 to current year)
@@ -96,24 +120,63 @@ export default function VendorBills() {
 	const yearOptions = generateYearOptions();
 	const monthOptions = generateMonthOptions();
 
-	// Fetch bills data when page or filters change
-	useEffect(() => {
-		setCurrentPage(1); // Reset to first page when filters change
-	}, [selectedYear, selectedMonth]);
+	// Status options
+	const statusOptions = [
+		{ value: 'all', label: 'Tất cả trạng thái' },
+		{ value: 'PENDING', label: 'Chờ thanh toán' },
+		{ value: 'PAID', label: 'Đã thanh toán' },
+	];
 
+	// Fetch vendors on component mount
+	useEffect(() => {
+		const fetchVendors = async () => {
+			try {
+				const response = await fetch('/api/admin/vendors');
+				if (!response.ok) {
+					throw new Error('Không thể tải danh sách nhà cung cấp');
+				}
+				const data: VendorsResponse = await response.json();
+				setVendors(data.vendors);
+			} catch (error) {
+				console.error('Error fetching vendors:', error);
+				toast.error('Không thể tải danh sách nhà cung cấp');
+			}
+		};
+
+		fetchVendors();
+	}, [toast]);
+
+	// Reset page when filters change
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [selectedYear, selectedMonth, selectedVendor, selectedStatus]);
+
+	// Fetch bills data when page or filters change
 	useEffect(() => {
 		fetchBillsData(currentPage);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [currentPage, selectedYear, selectedMonth]);
+	}, [
+		currentPage,
+		selectedYear,
+		selectedMonth,
+		selectedVendor,
+		selectedStatus,
+	]);
 
 	const fetchBillsData = async (page: number) => {
 		setIsLoading(true);
 		try {
-			let url = `/api/vendor/bills?page=${page}&limit=10`;
+			let url = `/api/admin/bills?page=${page}&limit=10`;
 
 			// Add filters if selected
 			if (selectedYear !== 'all' && selectedMonth !== 'all') {
 				url += `&year=${selectedYear}&month=${selectedMonth}`;
+			}
+			if (selectedVendor !== 'all') {
+				url += `&vendorId=${selectedVendor}`;
+			}
+			if (selectedStatus !== 'all') {
+				url += `&status=${selectedStatus}`;
 			}
 
 			const response = await fetch(url);
@@ -134,6 +197,44 @@ export default function VendorBills() {
 			);
 		} finally {
 			setIsLoading(false);
+		}
+	};
+
+	const updateBillStatus = async (
+		billId: string,
+		newStatus: 'PENDING' | 'PAID',
+	) => {
+		setIsUpdating(true);
+		try {
+			const response = await fetch(`/api/admin/bills/${billId}/status`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ status: newStatus }),
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.error || 'Có lỗi xảy ra');
+			}
+
+			// Refresh bills data
+			await fetchBillsData(currentPage);
+
+			setEditingBill(null);
+			toast.success(
+				`Đã cập nhật trạng thái hóa đơn thành "${newStatus === 'PENDING' ? 'Chờ thanh toán' : 'Đã thanh toán'}"`,
+			);
+		} catch (error) {
+			console.error('Error updating bill status:', error);
+			toast.error(
+				error instanceof Error
+					? error.message
+					: 'Không thể cập nhật trạng thái hóa đơn',
+			);
+		} finally {
+			setIsUpdating(false);
 		}
 	};
 
@@ -192,20 +293,21 @@ export default function VendorBills() {
 	return (
 		<div className="space-y-6">
 			<div>
-				<h1 className="text-2xl font-bold">Hóa đơn thanh toán</h1>
+				<h1 className="text-2xl font-bold">Quản lý hóa đơn</h1>
 				<p className="text-muted-foreground">
-					Danh sách các hóa đơn thanh toán được tạo bởi admin theo từng tháng.
+					Quản lý và cập nhật trạng thái thanh toán các hóa đơn của nhà cung
+					cấp.
 				</p>
 			</div>
 
 			{/* Filters */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 				{/* Year Selector */}
 				<Card>
 					<CardHeader className="pb-3">
 						<CardTitle className="text-base flex items-center gap-2">
 							<Calendar className="h-4 w-4" />
-							Chọn năm
+							Năm
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
@@ -230,7 +332,7 @@ export default function VendorBills() {
 					<CardHeader className="pb-3">
 						<CardTitle className="text-base flex items-center gap-2">
 							<Calendar className="h-4 w-4" />
-							Chọn tháng
+							Tháng
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
@@ -254,6 +356,55 @@ export default function VendorBills() {
 					</CardContent>
 				</Card>
 
+				{/* Vendor Selector */}
+				<Card>
+					<CardHeader className="pb-3">
+						<CardTitle className="text-base flex items-center gap-2">
+							<Package className="h-4 w-4" />
+							Nhà cung cấp
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<Select value={selectedVendor} onValueChange={setSelectedVendor}>
+							<SelectTrigger>
+								<SelectValue placeholder="Chọn nhà cung cấp..." />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">Tất cả nhà cung cấp</SelectItem>
+								{vendors.map((vendor) => (
+									<SelectItem key={vendor.id} value={vendor.id}>
+										{vendor.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</CardContent>
+				</Card>
+
+				{/* Status Selector */}
+				<Card>
+					<CardHeader className="pb-3">
+						<CardTitle className="text-base flex items-center gap-2">
+							<CheckCircle className="h-4 w-4" />
+							Trạng thái
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<Select value={selectedStatus} onValueChange={setSelectedStatus}>
+							<SelectTrigger>
+								<SelectValue placeholder="Chọn trạng thái..." />
+							</SelectTrigger>
+							<SelectContent>
+								{statusOptions.map((option) => (
+									<SelectItem key={option.value} value={option.value}>
+										{option.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</CardContent>
+				</Card>
+
 				{/* Clear Filters */}
 				<Card>
 					<CardHeader className="pb-3">
@@ -265,16 +416,13 @@ export default function VendorBills() {
 							onClick={() => {
 								setSelectedYear('all');
 								setSelectedMonth('all');
+								setSelectedVendor('all');
+								setSelectedStatus('all');
 							}}
 							className="w-full"
 						>
 							Xóa bộ lọc
 						</Button>
-						<p className="text-xs text-muted-foreground mt-2">
-							{selectedYear !== 'all' && selectedMonth !== 'all'
-								? `Đang lọc: Tháng ${selectedMonth}/${selectedYear}`
-								: 'Hiển thị tất cả hóa đơn'}
-						</p>
 					</CardContent>
 				</Card>
 			</div>
@@ -313,9 +461,74 @@ export default function VendorBills() {
 								<div className="flex items-center justify-between">
 									<CardTitle className="flex items-center gap-2">
 										<FileText className="h-5 w-5" />
-										Hóa đơn {bill.monthLabel}
+										Hóa đơn {bill.monthLabel} - {bill.vendor.name}
 									</CardTitle>
-									{getStatusBadge(bill.status)}
+									<div className="flex items-center gap-3">
+										{getStatusBadge(bill.status)}
+										<Dialog
+											open={editingBill?.id === bill.id}
+											onOpenChange={(open) => {
+												if (!open) setEditingBill(null);
+											}}
+										>
+											<DialogTrigger asChild>
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={() => setEditingBill(bill)}
+												>
+													<Edit className="h-4 w-4 mr-2" />
+													Cập nhật trạng thái
+												</Button>
+											</DialogTrigger>
+											<DialogContent className="max-w-md">
+												<DialogHeader>
+													<DialogTitle>Cập nhật trạng thái hóa đơn</DialogTitle>
+												</DialogHeader>
+												<div className="space-y-4">
+													<div className="space-y-2">
+														<p className="text-sm">
+															<strong>Hóa đơn:</strong> {bill.monthLabel}
+														</p>
+														<p className="text-sm">
+															<strong>Nhà cung cấp:</strong> {bill.vendor.name}
+														</p>
+														<p className="text-sm">
+															<strong>Số tiền:</strong>{' '}
+															{formatCurrency(bill.totalAmountToReceive)}
+														</p>
+														<p className="text-sm">
+															<strong>Trạng thái hiện tại:</strong>{' '}
+															{bill.status === 'PENDING'
+																? 'Chờ thanh toán'
+																: 'Đã thanh toán'}
+														</p>
+													</div>
+													<div className="flex gap-2">
+														<Button
+															variant="outline"
+															className="flex-1"
+															onClick={() =>
+																updateBillStatus(bill.id, 'PENDING')
+															}
+															disabled={isUpdating || bill.status === 'PENDING'}
+														>
+															<Clock className="h-4 w-4 mr-2" />
+															Chờ thanh toán
+														</Button>
+														<Button
+															className="flex-1"
+															onClick={() => updateBillStatus(bill.id, 'PAID')}
+															disabled={isUpdating || bill.status === 'PAID'}
+														>
+															<CheckCircle className="h-4 w-4 mr-2" />
+															Đã thanh toán
+														</Button>
+													</div>
+												</div>
+											</DialogContent>
+										</Dialog>
+									</div>
 								</div>
 								<div className="text-sm text-muted-foreground">
 									Cập nhật lần cuối: {formatDateTime(bill.updatedAt)}
@@ -357,16 +570,16 @@ export default function VendorBills() {
 											</span>
 										</div>
 										<div className="text-lg font-bold text-destructive">
-											-{formatCurrency(bill.totalCommission)}
+											{formatCurrency(bill.totalCommission)}
 										</div>
 									</div>
 
-									{/* Amount to Receive */}
+									{/* Amount to Pay */}
 									<div className="p-4 bg-muted/50 rounded-lg">
 										<div className="flex items-center gap-2 mb-2">
 											<TrendingUp className="h-4 w-4 text-muted-foreground" />
 											<span className="text-sm font-medium">
-												Số tiền nhận được
+												Số tiền cần trả
 											</span>
 										</div>
 										<div className="text-lg font-bold text-primary">
@@ -427,26 +640,26 @@ export default function VendorBills() {
 											<div className="flex justify-between items-center">
 												<span className="text-sm">Hoa hồng COD (10%):</span>
 												<span className="font-medium text-destructive">
-													-{formatCurrency(bill.totalCODCompleted)}
+													{formatCurrency(bill.totalCODCompleted)}
 												</span>
 											</div>
 											<div className="flex justify-between items-center">
 												<span className="text-sm">Hoa hồng QR Code (10%):</span>
 												<span className="font-medium text-destructive">
-													-{formatCurrency(bill.totalQRCODECompleted)}
+													{formatCurrency(bill.totalQRCODECompleted)}
 												</span>
 											</div>
 											<div className="border-t pt-2">
 												<div className="flex justify-between items-center font-medium">
 													<span>Tổng hoa hồng:</span>
 													<span className="text-destructive">
-														-{formatCurrency(bill.totalCommission)}
+														{formatCurrency(bill.totalCommission)}
 													</span>
 												</div>
 											</div>
 											<div className="border-t pt-2">
 												<div className="flex justify-between items-center font-medium">
-													<span>Số tiền nhận được:</span>
+													<span>Số tiền cần trả:</span>
 													<span className="text-primary">
 														{formatCurrency(bill.totalAmountToReceive)}
 													</span>
@@ -455,60 +668,6 @@ export default function VendorBills() {
 										</CardContent>
 									</Card>
 								</div>
-
-								{/* Calculation Formula */}
-								<Card className="mt-6">
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2">
-											<DollarSign className="h-5 w-5" />
-											Công thức tính toán (Góc nhìn Vendor)
-										</CardTitle>
-									</CardHeader>
-									<CardContent className="space-y-3 text-sm">
-										<div>
-											<strong>Hoa hồng COD (10%):</strong>{' '}
-											{formatCurrency(bill.totalCOD)} × 10% ={' '}
-											{formatCurrency(bill.totalCODCompleted)}
-										</div>
-										<div>
-											<strong>Hoa hồng QR Code (10%):</strong>{' '}
-											{formatCurrency(bill.totalQRCODE)} × 10% ={' '}
-											{formatCurrency(bill.totalQRCODECompleted)}
-										</div>
-										<div>
-											<strong>Tổng hoa hồng phải trả:</strong>{' '}
-											{formatCurrency(bill.totalCODCompleted)} +{' '}
-											{formatCurrency(bill.totalQRCODECompleted)} ={' '}
-											{formatCurrency(bill.totalCommission)}
-										</div>
-										<div className="border-t pt-3">
-											<strong>Số tiền vendor sẽ nhận từ admin:</strong>
-											<div className="ml-4 space-y-1 text-muted-foreground">
-												<div>
-													= Doanh thu QR Code - Hoa hồng COD - Hoa hồng QR Code
-													+ Phí giao hàng QR
-												</div>
-												<div>
-													= {formatCurrency(bill.totalQRCODE)} -{' '}
-													{formatCurrency(bill.totalCODCompleted)} -{' '}
-													{formatCurrency(bill.totalQRCODECompleted)} +{' '}
-													{formatCurrency(bill.totalQRCODEDeliveryFee)}
-												</div>
-												<div className="font-medium text-primary">
-													= {formatCurrency(bill.totalAmountToReceive)}
-												</div>
-											</div>
-										</div>
-										<div className="text-xs text-muted-foreground bg-muted p-3 rounded-md">
-											<strong>Giải thích:</strong> Với đơn COD, bạn đã nhận tiền
-											mặt trực tiếp từ khách nên chỉ cần trả hoa hồng 10% cho
-											admin. Với đơn QR Code, khách đã thanh toán qua hệ thống,
-											admin sẽ chuyển khoản cho bạn số tiền còn lại sau khi trừ
-											hoa hồng. Phí giao hàng QR được cộng thêm vì đã tính vào
-											giá khách thanh toán.
-										</div>
-									</CardContent>
-								</Card>
 
 								{/* Period Info */}
 								<div className="mt-6 p-4 bg-muted/30 rounded-lg">
@@ -576,10 +735,10 @@ export default function VendorBills() {
 						<div className="text-center">
 							<FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
 							<h3 className="text-lg font-medium mb-2">
-								Chưa có hóa đơn thanh toán
+								Không tìm thấy hóa đơn nào
 							</h3>
 							<p className="text-muted-foreground">
-								Admin sẽ tạo hóa đơn thanh toán cho bạn vào cuối mỗi tháng.
+								Thử thay đổi bộ lọc hoặc tạo hóa đơn mới.
 							</p>
 						</div>
 					</CardContent>

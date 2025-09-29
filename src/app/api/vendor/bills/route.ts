@@ -73,6 +73,7 @@ export async function GET(request: NextRequest) {
 			month: bill.startDate.getMonth() + 1,
 			year: bill.startDate.getFullYear(),
 			monthLabel: `Tháng ${bill.startDate.getMonth() + 1}/${bill.startDate.getFullYear()}`,
+			status: bill.status,
 			totalCOD: bill.totalCOD,
 			totalQRCODE: bill.totalQRCODE,
 			totalCODCompleted: bill.totalCODCompleted,
@@ -84,10 +85,11 @@ export async function GET(request: NextRequest) {
 				bill.totalCODCompleted -
 				bill.totalQRCODECompleted +
 				bill.totalQRCODEDeliveryFee,
-			createdAt: bill.startDate,
+			createdAt: bill.startDate.toISOString(),
+			updatedAt: bill.endDate.toISOString(),
 			period: {
-				startDate: bill.startDate,
-				endDate: bill.endDate,
+				startDate: bill.startDate.toISOString(),
+				endDate: bill.endDate.toISOString(),
 			},
 		}));
 

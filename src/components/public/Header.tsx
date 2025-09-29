@@ -37,7 +37,9 @@ export default function Header() {
 				{/* Logo and Navigation */}
 				<div className="flex items-center space-x-8">
 					<Link href="/" className="flex items-center space-x-2">
-						<span className="text-2xl font-bold text-primary">Laundry Now</span>
+						<span className="text-2xl font-bold text-primary">
+							Giặt ủi nhanh
+						</span>
 					</Link>
 
 					{/* Desktop Navigation */}
@@ -80,7 +82,7 @@ export default function Header() {
 					<SheetContent side="right" className="w-[300px] sm:w-[400px]">
 						<SheetHeader>
 							<SheetTitle className="text-left text-2xl font-bold text-primary">
-								Laundry Now
+								Giặt ủi nhanh
 							</SheetTitle>
 						</SheetHeader>
 

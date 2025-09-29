@@ -28,6 +28,7 @@ export async function GET() {
 			totalSystemMoney,
 			totalOrdersThisMonth,
 			totalRevenueThisMonth,
+			premiumRevenueThisMonth,
 		] = await Promise.all([
 			// Count vendors with VENDOR role
 			prisma.user.count({
@@ -89,6 +90,20 @@ export async function GET() {
 					servicePrice: true,
 				},
 			}),
+
+			// Premium revenue this month
+			prisma.vendorPremiumPackage.findMany({
+				where: {
+					status: 'ACTIVE',
+					startDate: {
+						gte: new Date(currentYear, currentMonth - 1, 1),
+						lte: new Date(currentYear, currentMonth, 0, 23, 59, 59, 999),
+					},
+				},
+				include: {
+					package: true,
+				},
+			}),
 		]);
 
 		// Calculate system money (total money admin is holding from QR Code orders)
@@ -101,12 +116,22 @@ export async function GET() {
 		const monthlyRevenue = totalRevenueThisMonth._sum.servicePrice || 0;
 		const monthlyCommission = Math.round(monthlyRevenue * 0.1);
 
+		// Calculate premium revenue this month
+		const totalPremiumRevenue = premiumRevenueThisMonth.reduce(
+			(total, premiumPackage) => {
+				return total + premiumPackage.package.price;
+			},
+			0,
+		);
+
 		return NextResponse.json({
 			totalVendors,
 			totalCustomers,
 			pendingComplaints,
 			systemMoney, // Money admin is holding for vendors
 			adminCommission: monthlyCommission, // Admin's commission this month
+			premiumRevenue: totalPremiumRevenue, // Premium revenue this month
+			premiumPackagesCount: premiumRevenueThisMonth.length, // Number of premium packages sold
 			totalOrdersThisMonth,
 			monthlyRevenue,
 			month: currentMonth,

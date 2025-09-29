@@ -65,13 +65,13 @@ export async function POST(request: NextRequest) {
 		const totalAmount = order.servicePrice + order.deliveryFee;
 
 		// Tạo orderCode unique từ timestamp và order ID
-		const orderCode = parseInt(
+		const orderCodeNumber = parseInt(
 			Date.now().toString().slice(-8) + order.id.slice(-2),
 			10,
 		);
 
 		const paymentData: PaymentData = {
-			orderCode,
+			orderCode: orderCodeNumber,
 			amount: totalAmount,
 			description: `Don hang ${order.id.slice(-8)}`,
 			items: order.items.map((item) => ({
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 		// Lưu orderCode vào order để dùng trong webhook
 		await prisma.order.update({
 			where: { id: orderId },
-			data: { orderCode: orderCode },
+			data: { orderCode: orderCodeNumber.toString() },
 		});
 
 		// Trả về checkout URL để redirect
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
 			success: true,
 			data: {
 				checkoutUrl: paymentLinkResponse.checkoutUrl,
-				orderCode: orderCode,
+				orderCode: orderCodeNumber,
 			},
 		});
 	} catch (error) {

@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import { Button } from '@/components/ui/button';
 
 export default function Hero() {
@@ -34,9 +36,11 @@ export default function Hero() {
 
 							{/* CTA */}
 							<div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end">
-								<Button size="lg" className="h-12 px-8 text-base">
-									Tìm cửa hàng
-								</Button>
+								<Link href="/login">
+									<Button size="lg" className="h-12 px-8 text-base">
+										Tìm cửa hàng
+									</Button>
+								</Link>
 							</div>
 
 							{/* Trust Indicators */}
