@@ -24,15 +24,20 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// TODO: Add check to only allow bill creation at the end of the month
-		// const today = new Date();
-		// const lastDayOfMonth = new Date(year, month, 0).getDate();
-		// if (today.getDate() !== lastDayOfMonth || today.getMonth() + 1 !== month || today.getFullYear() !== year) {
-		//   return NextResponse.json(
-		//     { error: 'Chỉ có thể tạo bill vào ngày cuối tháng' },
-		//     { status: 400 }
-		//   );
-		// }
+		// Check if the month has completed before allowing bill creation
+		// Can only create bill after the month has ended
+		const today = new Date();
+		const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999); // Last day of the month at 23:59:59
+
+		if (today <= endOfMonth) {
+			return NextResponse.json(
+				{
+					error: `Chỉ có thể tạo bill sau khi tháng ${month}/${year} đã hoàn thành. Vui lòng thử lại từ ngày ${new Date(year, month, 1).toLocaleDateString('vi-VN')}.`,
+					canCreateAfter: new Date(year, month, 1).toISOString(),
+				},
+				{ status: 400 },
+			);
+		}
 
 		// Check if bill already exists for this vendor and month
 		const existingBill = await prisma.bill.findFirst({

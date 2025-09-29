@@ -148,6 +148,11 @@ export async function GET(request: NextRequest) {
 			billExists = !!existingBill;
 		}
 
+		// Check if the month has completed (can only create bill after month ends)
+		const today = new Date();
+		const canCreateBill = today > endDate;
+		const nextAvailableDate = new Date(year, month, 1); // First day of next month
+
 		return NextResponse.json({
 			month,
 			year,
@@ -166,6 +171,8 @@ export async function GET(request: NextRequest) {
 			},
 			vendorsList,
 			billExists,
+			canCreateBill,
+			nextAvailableDate: nextAvailableDate.toISOString(),
 		});
 	} catch (error) {
 		console.error('Admin revenue API error:', error);

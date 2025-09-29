@@ -56,6 +56,8 @@ interface RevenueStats {
 	};
 	vendorsList: VendorOption[];
 	billExists: boolean;
+	canCreateBill: boolean;
+	nextAvailableDate: string;
 }
 
 export default function AdminRevenue() {
@@ -166,6 +168,8 @@ export default function AdminRevenue() {
 
 			const data = await response.json();
 			toast.success(`Bill đã được tạo cho ${data.bill.vendorName}`);
+			// Refresh the data to update billExists status
+			fetchRevenueData();
 		} catch (error) {
 			console.error('Error creating bill:', error);
 			toast.error(
@@ -181,6 +185,25 @@ export default function AdminRevenue() {
 			style: 'currency',
 			currency: 'VND',
 		}).format(amount);
+	};
+
+	const getBillCreationMessage = () => {
+		if (!revenueStats) return 'Đang tải...';
+
+		if (selectedVendor === 'all') {
+			return 'Chỉ vendor cụ thể mới có thể tạo bill';
+		}
+
+		if (revenueStats.billExists) {
+			return 'Bill cho vendor và tháng này đã được tạo';
+		}
+
+		if (!revenueStats.canCreateBill) {
+			const nextDate = new Date(revenueStats.nextAvailableDate);
+			return `Chỉ có thể tạo bill sau khi tháng ${revenueStats.month}/${revenueStats.year} hoàn thành (từ ${nextDate.toLocaleDateString('vi-VN')})`;
+		}
+
+		return 'Sẵn sàng tạo bill cho vendor này';
 	};
 
 	return (
@@ -249,6 +272,14 @@ export default function AdminRevenue() {
 						<CardTitle className="text-base flex items-center gap-2">
 							<FileText className="h-4 w-4" />
 							Tạo bill thanh toán
+							{revenueStats && !revenueStats.canCreateBill && (
+								<div className="ml-auto">
+									<div
+										className="h-2 w-2 bg-yellow-500 rounded-full animate-pulse"
+										title="Tháng chưa hoàn thành"
+									/>
+								</div>
+							)}
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
@@ -258,7 +289,8 @@ export default function AdminRevenue() {
 								!selectedVendor ||
 								selectedVendor === 'all' ||
 								isCreatingBill ||
-								(revenueStats?.billExists && selectedVendor !== 'all')
+								(revenueStats?.billExists && selectedVendor !== 'all') ||
+								!revenueStats?.canCreateBill
 							}
 							className="w-full"
 						>
@@ -266,13 +298,12 @@ export default function AdminRevenue() {
 								? 'Đang tạo...'
 								: revenueStats?.billExists && selectedVendor !== 'all'
 									? 'Bill đã tồn tại'
-									: 'Tạo Bill'}
+									: !revenueStats?.canCreateBill
+										? 'Tháng chưa hoàn thành'
+										: 'Tạo Bill'}
 						</Button>
-						{/* TODO: Add check to only enable button at end of month */}
 						<p className="text-xs text-muted-foreground mt-2">
-							{revenueStats?.billExists && selectedVendor !== 'all'
-								? 'Bill cho vendor và tháng này đã được tạo'
-								: 'Chỉ vendor cụ thể mới có thể tạo bill'}
+							{getBillCreationMessage()}
 						</p>
 					</CardContent>
 				</Card>
@@ -293,6 +324,35 @@ export default function AdminRevenue() {
 						</Card>
 					))}
 				</div>
+			)}
+
+			{/* Month Status Info */}
+			{!isLoading && revenueStats && !revenueStats.canCreateBill && (
+				<Card className="border-yellow-200 bg-yellow-50">
+					<CardHeader>
+						<CardTitle className="flex items-center gap-2 text-yellow-800">
+							<Calendar className="h-5 w-5" />
+							Thông báo về tháng {revenueStats.month}/{revenueStats.year}
+						</CardTitle>
+					</CardHeader>
+					<CardContent className="text-yellow-700">
+						<p className="mb-2">
+							Tháng {revenueStats.month}/{revenueStats.year} vẫn đang trong quá
+							trình diễn ra.
+						</p>
+						<p className="text-sm">
+							<strong>
+								Bills chỉ có thể được tạo sau khi tháng hoàn thành
+							</strong>{' '}
+							(từ ngày{' '}
+							{new Date(revenueStats.nextAvailableDate).toLocaleDateString(
+								'vi-VN',
+							)}
+							). Điều này đảm bảo tính chính xác của dữ liệu doanh thu và tránh
+							việc phải cập nhật bill nhiều lần.
+						</p>
+					</CardContent>
+				</Card>
 			)}
 
 			{/* Revenue Stats */}
