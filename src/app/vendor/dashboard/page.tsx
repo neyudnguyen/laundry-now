@@ -48,6 +48,37 @@ export default function VendorDashboard() {
 		fetchPremiumPackages();
 	}, []);
 
+	// Xử lý payment result từ PayOS redirect
+	useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const payment = urlParams.get('payment');
+		const type = urlParams.get('type');
+
+		if (payment && type === 'premium') {
+			if (payment === 'success') {
+				// Thanh toán thành công
+				alert(
+					'Thanh toán gói Premium thành công! Cửa hàng của bạn đã được nâng cấp.',
+				);
+				// Clear URL params
+				window.history.replaceState(
+					{},
+					document.title,
+					window.location.pathname,
+				);
+			} else if (payment === 'cancel') {
+				// Thanh toán bị hủy
+				alert('Thanh toán đã bị hủy. Bạn có thể thử lại bất cứ lúc nào.');
+				// Clear URL params
+				window.history.replaceState(
+					{},
+					document.title,
+					window.location.pathname,
+				);
+			}
+		}
+	}, []);
+
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('vi-VN', {
 			style: 'currency',
@@ -55,10 +86,40 @@ export default function VendorDashboard() {
 		}).format(amount);
 	};
 
-	const handleSelectPackage = (packageId: string) => {
-		// Xử lý khi vendor chọn gói premium
-		console.log('Selected package:', packageId);
-		// Sẽ redirect đến trang thanh toán
+	const handleSelectPackage = async (packageId: string) => {
+		try {
+			setLoading(true);
+			setError(null);
+
+			// TODO: Lấy vendorId từ session/auth context
+			// Tạm thời hardcode để test
+			const vendorId = 'vendor_id_from_session';
+
+			const response = await fetch('/api/premium-packages/purchase', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					vendorId,
+					packageId,
+				}),
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				// Redirect đến PayOS payment
+				window.location.href = result.data.paymentLink;
+			} else {
+				setError(result.error || 'Có lỗi xảy ra khi tạo đơn thanh toán');
+			}
+		} catch (err) {
+			console.error('Error selecting package:', err);
+			setError('Có lỗi xảy ra khi tạo đơn thanh toán');
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	// Loading state
