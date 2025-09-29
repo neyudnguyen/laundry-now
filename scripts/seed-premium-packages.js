@@ -73,4 +73,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 	seedPremiumPackages();
 }
 
+void seedPremiumPackages();
+
 export { seedPremiumPackages };
