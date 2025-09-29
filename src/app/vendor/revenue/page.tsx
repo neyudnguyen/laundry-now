@@ -12,13 +12,6 @@ import {
 import { useEffect, useState } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
 interface RevenueStats {
@@ -39,64 +32,27 @@ interface RevenueStats {
 }
 
 export default function VendorRevenue() {
-	const [selectedMonth, setSelectedMonth] = useState<string>('');
 	const [revenueStats, setRevenueStats] = useState<RevenueStats | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const { toast } = useToast();
 
-	// Generate month options from January 2025 to current month
-	const generateMonthOptions = () => {
-		const options = [];
-		const currentDate = new Date();
-		const currentYear = currentDate.getFullYear();
-		const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
+	// Get current month and year
+	const currentDate = new Date();
+	const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
+	const currentYear = currentDate.getFullYear();
+	const currentMonthLabel = `Tháng ${currentMonth}/${currentYear}`;
 
-		// Start from January of current year
-		for (let month = 1; month <= currentMonth; month++) {
-			const value = `${month}-${currentYear}`;
-			const label = `Tháng ${month}/${currentYear}`;
-			options.push({ value, label });
-		}
-
-		// If we're in a different year than 2025, add previous years
-		if (currentYear > 2025) {
-			for (let year = 2025; year < currentYear; year++) {
-				for (let month = 1; month <= 12; month++) {
-					const value = `${month}-${year}`;
-					const label = `Tháng ${month}/${year}`;
-					options.unshift({ value, label }); // Add to beginning
-				}
-			}
-		}
-
-		return options.reverse(); // Latest first
-	};
-
-	const monthOptions = generateMonthOptions();
-
-	// Set default to current month
+	// Fetch revenue data for current month on component mount
 	useEffect(() => {
-		if (monthOptions.length > 0 && !selectedMonth) {
-			setSelectedMonth(monthOptions[0].value);
-		}
-	}, [monthOptions, selectedMonth]);
-
-	// Fetch revenue data when month changes
-	useEffect(() => {
-		if (selectedMonth) {
-			fetchRevenueData();
-		}
+		fetchRevenueData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedMonth]);
+	}, []);
 
 	const fetchRevenueData = async () => {
-		if (!selectedMonth) return;
-
 		setIsLoading(true);
 		try {
-			const [month, year] = selectedMonth.split('-');
 			const response = await fetch(
-				`/api/vendor/revenue?month=${month}&year=${year}`,
+				`/api/vendor/revenue?month=${currentMonth}&year=${currentYear}`,
 			);
 
 			if (!response.ok) {
@@ -134,27 +90,21 @@ export default function VendorRevenue() {
 				</p>
 			</div>
 
-			{/* Month Selector */}
+			{/* Current Month Display */}
 			<Card>
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2">
 						<Calendar className="h-5 w-5" />
-						Chọn tháng thống kê
+						Thống kê tháng hiện tại
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<Select value={selectedMonth} onValueChange={setSelectedMonth}>
-						<SelectTrigger className="w-full md:w-64">
-							<SelectValue placeholder="Chọn tháng..." />
-						</SelectTrigger>
-						<SelectContent>
-							{monthOptions.map((option) => (
-								<SelectItem key={option.value} value={option.value}>
-									{option.label}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+					<div className="text-lg font-semibold text-primary">
+						{currentMonthLabel}
+					</div>
+					<p className="text-sm text-muted-foreground mt-1">
+						Dữ liệu doanh thu được cập nhật theo tháng hiện tại
+					</p>
 				</CardContent>
 			</Card>
 

@@ -4,6 +4,7 @@ import { UserRole } from '@prisma/client';
 import {
 	BarChart3,
 	Bell,
+	FileText,
 	Home,
 	LogOut,
 	MessageSquare,
@@ -70,6 +71,11 @@ const menuItems = [
 		title: 'Thống kê doanh thu',
 		icon: BarChart3,
 		href: '/vendor/revenue',
+	},
+	{
+		title: 'Hóa đơn thanh toán',
+		icon: FileText,
+		href: '/vendor/bills',
 	},
 	{
 		title: 'Quản lý khiếu nại',
