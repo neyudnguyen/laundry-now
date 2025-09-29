@@ -1,152 +1,48 @@
 'use client';
 
-import {
-	AlertCircle,
-	Bell,
-	Calendar,
-	CheckCircle,
-	Clock,
-	DollarSign,
-	MessageSquare,
-	Package,
-	ShoppingBag,
-	TrendingUp,
-	Users,
-} from 'lucide-react';
+import { Check, Crown, Star, Zap } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function VendorDashboard() {
-	// Mock data for vendor dashboard (in real app, this would come from API)
-	const dashboardStats = {
-		totalOrders: 127,
-		activeOrders: 8,
-		monthlyRevenue: 15750000, // VND
-		monthlyCommission: 1575000, // 10% of revenue
-		completedOrders: 119,
-		pendingComplaints: 2,
-	};
-
-	const recentOrders = [
-		{
-			id: 'VN001',
-			customerPhone: '0901234567',
-			status: 'Chờ tiếp nhận',
-			items: ['Áo sơ mi x5', 'Quần tây x3'],
-			createdAt: '2025-09-18',
-			estimatedCompletion: '2025-09-20',
-			total: 250000,
-			commission: 5000,
-		},
-		{
-			id: 'VN002',
-			customerPhone: '0987654321',
-			status: 'Đang giặt',
-			items: ['Váy dạ hội x2', 'Áo khoác x1'],
-			createdAt: '2025-09-17',
-			estimatedCompletion: '2025-09-19',
-			total: 450000,
-			commission: 9000,
-		},
-		{
-			id: 'VN003',
-			customerPhone: '0912345678',
-			status: 'Đã giao',
-			items: ['Chăn ga gối x2 bộ', 'Rèm cửa x1'],
-			createdAt: '2025-09-15',
-			estimatedCompletion: '2025-09-17',
-			total: 350000,
-			commission: 7000,
-		},
-		{
-			id: 'VN004',
-			customerPhone: '0923456789',
-			status: 'Hoàn tất',
-			items: ['Đồ công sở x10 món'],
-			createdAt: '2025-09-14',
-			estimatedCompletion: '2025-09-16',
-			total: 500000,
-			commission: 10000,
-		},
-	];
-
-	const notifications = [
+	// Mock data cho các gói premium (trong thực tế sẽ lấy từ API)
+	const premiumPackages = [
 		{
 			id: '1',
-			message: 'Bạn có đơn hàng mới #VN001 từ khách hàng 0901234567',
-			time: '15 phút trước',
-			type: 'new_order',
+			name: 'Gói Premium 1 tháng',
+			type: 'MONTHLY',
+			price: 100000,
+			duration: 30,
+			description: 'Gói premium 1 tháng với các lợi ích cơ bản',
+			features: [
+				'Ưu tiên hiển thị trong top 10 cửa hàng',
+				'Tăng khả năng tiếp cận khách hàng',
+				'Hỗ trợ khách hàng ưu tiên',
+				'Báo cáo doanh thu cơ bản',
+			],
+			popular: false,
 		},
 		{
 			id: '2',
-			message: 'Đơn hàng #VN004 đã được khách hàng xác nhận hoàn tất',
-			time: '2 giờ trước',
-			type: 'completed',
-		},
-		{
-			id: '3',
-			message: 'Bạn đã nhận được thanh toán 350.000đ cho đơn hàng #VN003',
-			time: '5 giờ trước',
-			type: 'payment',
-		},
-		{
-			id: '4',
-			message: 'Khách hàng 0987654321 gửi khiếu nại cho đơn hàng #VN002',
-			time: '1 ngày trước',
-			type: 'complaint',
+			name: 'Gói Premium 1 năm',
+			type: 'YEARLY',
+			price: 600000,
+			duration: 365,
+			description: 'Gói premium 1 năm với đầy đủ tính năng và tiết kiệm 40%',
+			features: [
+				'Ưu tiên hiển thị trong top 10 cửa hàng',
+				'Tăng khả năng tiếp cận khách hàng',
+				'Hỗ trợ khách hàng ưu tiên 24/7',
+				'Phân tích doanh thu chi tiết',
+				'Tiết kiệm 40% so với gói tháng',
+				'Công cụ marketing nâng cao',
+				'Tư vấn kinh doanh chuyên sâu',
+			],
+			popular: true,
 		},
 	];
-
-	const monthlyStats = [
-		{ month: 'T1', revenue: 12500000, orders: 95 },
-		{ month: 'T2', revenue: 14200000, orders: 108 },
-		{ month: 'T3', revenue: 13800000, orders: 102 },
-		{ month: 'T4', revenue: 15750000, orders: 127 },
-	];
-
-	const getStatusBadge = (status: string) => {
-		switch (status) {
-			case 'Chờ tiếp nhận':
-				return <Badge variant="secondary">{status}</Badge>;
-			case 'Đã tiếp nhận':
-				return <Badge variant="default">{status}</Badge>;
-			case 'Đang giặt':
-				return <Badge variant="default">{status}</Badge>;
-			case 'Đã giao':
-				return <Badge variant="secondary">{status}</Badge>;
-			case 'Chờ thanh toán':
-				return <Badge variant="destructive">{status}</Badge>;
-			case 'Hoàn tất':
-				return <Badge variant="secondary">{status}</Badge>;
-			case 'Đơn hủy':
-				return <Badge variant="outline">{status}</Badge>;
-			default:
-				return <Badge variant="secondary">{status}</Badge>;
-		}
-	};
-
-	const getNotificationIcon = (type: string) => {
-		switch (type) {
-			case 'new_order':
-				return <Package className="h-4 w-4" />;
-			case 'completed':
-				return <CheckCircle className="h-4 w-4" />;
-			case 'payment':
-				return <DollarSign className="h-4 w-4" />;
-			case 'complaint':
-				return <MessageSquare className="h-4 w-4" />;
-			default:
-				return <Bell className="h-4 w-4" />;
-		}
-	};
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('vi-VN', {
@@ -155,253 +51,179 @@ export default function VendorDashboard() {
 		}).format(amount);
 	};
 
+	const handleSelectPackage = (packageId: string) => {
+		// Xử lý khi vendor chọn gói premium
+		console.log('Selected package:', packageId);
+		// Sẽ redirect đến trang thanh toán
+	};
+
 	return (
-		<div className="space-y-6">
-			{/* Welcome Message */}
-			<Card className="bg-primary text-primary-foreground">
-				<CardContent className="p-6">
-					<h1 className="text-2xl font-bold mb-2">
-						Chào mừng đến với Dashboard Nhà cung cấp!
-					</h1>
-					<p className="opacity-90">
-						Quản lý đơn hàng, theo dõi doanh thu và phát triển cửa hàng của bạn.
-					</p>
-				</CardContent>
-			</Card>
-
-			{/* Dashboard Stats */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Tổng đơn hàng</CardTitle>
-						<ShoppingBag className="h-4 w-4 text-muted-foreground" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">
-							{dashboardStats.totalOrders}
-						</div>
-						<p className="text-xs text-muted-foreground">Tất cả thời gian</p>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Đang xử lý</CardTitle>
-						<Clock className="h-4 w-4 text-muted-foreground" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">
-							{dashboardStats.activeOrders}
-						</div>
-						<p className="text-xs text-muted-foreground">Đơn hàng đang xử lý</p>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Doanh thu tháng
-						</CardTitle>
-						<TrendingUp className="h-4 w-4 text-muted-foreground" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">
-							{formatCurrency(dashboardStats.monthlyRevenue)}
-						</div>
-						<p className="text-xs text-muted-foreground">Tháng 9/2025</p>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Hoa hồng (10%)
-						</CardTitle>
-						<DollarSign className="h-4 w-4 text-muted-foreground" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">
-							{formatCurrency(dashboardStats.monthlyCommission)}
-						</div>
-						<p className="text-xs text-muted-foreground">Từ doanh thu tháng</p>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Hoàn tất</CardTitle>
-						<CheckCircle className="h-4 w-4 text-muted-foreground" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">
-							{dashboardStats.completedOrders}
-						</div>
-						<p className="text-xs text-muted-foreground">Đơn hàng hoàn tất</p>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Khiếu nại</CardTitle>
-						<AlertCircle className="h-4 w-4 text-muted-foreground" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">
-							{dashboardStats.pendingComplaints}
-						</div>
-						<p className="text-xs text-muted-foreground">Cần xử lý</p>
-					</CardContent>
-				</Card>
+		<div className="container mx-auto px-4 py-4 space-y-5">
+			{/* Header Section */}
+			<div className="text-center space-y-2">
+				<div className="flex justify-center">
+					<Crown className="h-8 w-8 text-primary" />
+				</div>
+				<h1 className="text-2xl md:text-3xl font-bold">Nâng cấp lên Premium</h1>
+				<p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
+					Gia tăng doanh thu và tiếp cận nhiều khách hàng hơn
+				</p>
 			</div>
 
-			{/* Recent Orders and Notifications */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-				{/* Recent Orders */}
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<ShoppingBag className="h-5 w-5" />
-							Đơn hàng gần đây
-						</CardTitle>
-						<CardDescription>4 đơn hàng mới nhất cần theo dõi</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-4">
-						{recentOrders.map((order) => (
-							<div
-								key={order.id}
-								className="flex items-start justify-between p-4 border rounded-lg"
+			{/* Premium Packages Grid */}
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-4xl mx-auto">
+				{premiumPackages.map((pkg) => (
+					<Card
+						key={pkg.id}
+						className={`relative overflow-hidden transition-all duration-300 hover:shadow-md ${
+							pkg.popular ? 'ring-2 ring-primary' : ''
+						}`}
+					>
+						{pkg.popular && (
+							<div className="absolute top-0 right-0 bg-primary text-primary-foreground px-2 py-1 text-xs font-medium">
+								<Star className="inline h-3 w-3 mr-1" />
+								Phổ biến
+							</div>
+						)}
+
+						<CardHeader className="text-center space-y-3 pb-4">
+							<div className="flex justify-center">
+								{pkg.type === 'MONTHLY' ? (
+									<Zap className="h-6 w-6 text-primary" />
+								) : (
+									<Crown className="h-6 w-6 text-primary" />
+								)}
+							</div>
+							<CardTitle className="text-lg">{pkg.name}</CardTitle>
+							<div className="space-y-1">
+								<div className="text-2xl font-bold">
+									{formatCurrency(pkg.price)}
+								</div>
+								<p className="text-xs text-muted-foreground">
+									{pkg.type === 'MONTHLY' ? 'mỗi tháng' : 'mỗi năm'}
+								</p>
+								{pkg.type === 'YEARLY' && (
+									<Badge variant="secondary" className="text-xs">
+										Tiết kiệm 40%
+									</Badge>
+								)}
+							</div>
+						</CardHeader>
+
+						<CardContent className="space-y-4 pt-0">
+							{/* Features List */}
+							<div className="space-y-2">
+								<h4 className="font-medium text-xs uppercase tracking-wide text-muted-foreground">
+									Tính năng:
+								</h4>
+								<ul className="space-y-2">
+									{pkg.features.slice(0, 4).map((feature, index) => (
+										<li key={index} className="flex items-start gap-2">
+											<Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+											<span className="text-xs leading-relaxed">{feature}</span>
+										</li>
+									))}
+									{pkg.features.length > 4 && (
+										<li className="text-xs text-muted-foreground ml-6">
+											+{pkg.features.length - 4} tính năng khác
+										</li>
+									)}
+								</ul>
+							</div>
+
+							{/* Action Button */}
+							<Button
+								className="w-full h-10 text-sm font-medium"
+								variant={pkg.popular ? 'default' : 'outline'}
+								onClick={() => handleSelectPackage(pkg.id)}
 							>
-								<div className="space-y-2">
-									<div className="flex items-center gap-2">
-										<span className="font-medium">#{order.id}</span>
-										{getStatusBadge(order.status)}
-									</div>
-									<div className="text-sm text-muted-foreground">
-										<div>KH: {order.customerPhone}</div>
-										<div>{order.items.join(', ')}</div>
-									</div>
-									<div className="flex items-center gap-4 text-xs text-muted-foreground">
-										<span className="flex items-center gap-1">
-											<Calendar className="h-3 w-3" />
-											{order.createdAt}
-										</span>
-										<span className="flex items-center gap-1">
-											<Clock className="h-3 w-3" />
-											Dự kiến: {order.estimatedCompletion}
-										</span>
-									</div>
-								</div>
-								<div className="text-right">
-									<div className="font-semibold">
-										{formatCurrency(order.total)}
-									</div>
-									<div className="text-sm text-muted-foreground">
-										HH: {formatCurrency(order.commission)}
-									</div>
-									<Button variant="outline" size="sm" className="mt-2">
-										Xử lý
-									</Button>
-								</div>
-							</div>
-						))}
-						<Button variant="outline" className="w-full">
-							Xem tất cả đơn hàng
-						</Button>
-					</CardContent>
-				</Card>
+								{pkg.popular ? (
+									<>
+										<Crown className="h-4 w-4 mr-2" />
+										Chọn gói Premium
+									</>
+								) : (
+									<>
+										<Zap className="h-4 w-4 mr-2" />
+										Chọn gói này
+									</>
+								)}
+							</Button>
 
-				{/* Notifications */}
-				<Card>
-					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
-							<Bell className="h-5 w-5" />
-							Thông báo
-						</CardTitle>
-						<CardDescription>
-							Cập nhật mới nhất về hoạt động cửa hàng
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-4">
-						{notifications.map((notification) => (
-							<div key={notification.id} className="p-4 border rounded-lg">
-								<div className="flex items-start gap-3">
-									{getNotificationIcon(notification.type)}
-									<div className="flex-1">
-										<p className="text-sm">{notification.message}</p>
-										<p className="text-xs text-muted-foreground mt-1">
-											{notification.time}
-										</p>
-									</div>
-								</div>
+							{/* Additional Info */}
+							<div className="text-center text-xs text-muted-foreground">
+								<p>{pkg.duration} ngày • PayOS</p>
 							</div>
-						))}
-						<Button variant="outline" className="w-full">
-							Xem tất cả thông báo
-						</Button>
-					</CardContent>
-				</Card>
+						</CardContent>
+					</Card>
+				))}
 			</div>
 
-			{/* Monthly Performance */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
-						<TrendingUp className="h-5 w-5" />
-						Hiệu suất theo tháng
-					</CardTitle>
-					<CardDescription>
-						Doanh thu và số lượng đơn hàng 4 tháng gần đây
-					</CardDescription>
+			{/* Benefits Section */}
+			<Card className="bg-muted/30">
+				<CardHeader className="text-center pb-3">
+					<CardTitle className="text-lg">Tại sao nên chọn Premium?</CardTitle>
 				</CardHeader>
-				<CardContent>
-					<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-						{monthlyStats.map((stat) => (
-							<div
-								key={stat.month}
-								className="text-center p-4 border rounded-lg"
-							>
-								<div className="text-lg font-bold">{stat.month}</div>
-								<div className="text-sm font-medium">
-									{formatCurrency(stat.revenue)}
-								</div>
-								<div className="text-xs text-muted-foreground">
-									{stat.orders} đơn hàng
-								</div>
-								<div className="text-xs text-muted-foreground">
-									HH: {formatCurrency(stat.revenue * 0.1)}
-								</div>
+				<CardContent className="pt-0">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div className="text-center space-y-2">
+							<div className="bg-primary/10 rounded-full p-2 w-8 h-8 mx-auto flex items-center justify-center">
+								<Star className="h-4 w-4 text-primary" />
 							</div>
-						))}
+							<h4 className="font-medium text-sm">Ưu tiên hiển thị</h4>
+							<p className="text-xs text-muted-foreground">
+								Top 10 đầu tiên khi khách tìm kiếm
+							</p>
+						</div>
+						<div className="text-center space-y-2">
+							<div className="bg-primary/10 rounded-full p-2 w-8 h-8 mx-auto flex items-center justify-center">
+								<Zap className="h-4 w-4 text-primary" />
+							</div>
+							<h4 className="font-medium text-sm">Tăng doanh thu</h4>
+							<p className="text-xs text-muted-foreground">
+								Tiếp cận nhiều khách hàng hơn
+							</p>
+						</div>
+						<div className="text-center space-y-2">
+							<div className="bg-primary/10 rounded-full p-2 w-8 h-8 mx-auto flex items-center justify-center">
+								<Crown className="h-4 w-4 text-primary" />
+							</div>
+							<h4 className="font-medium text-sm">Hỗ trợ đặc biệt</h4>
+							<p className="text-xs text-muted-foreground">
+								Hỗ trợ ưu tiên và marketing nâng cao
+							</p>
+						</div>
 					</div>
 				</CardContent>
 			</Card>
 
-			{/* Quick Actions */}
+			{/* FAQ Section */}
 			<Card>
-				<CardHeader>
-					<CardTitle>Thao tác nhanh</CardTitle>
-					<CardDescription>
-						Các hành động quản lý cửa hàng thường dùng
-					</CardDescription>
+				<CardHeader className="pb-3">
+					<CardTitle className="text-lg">Câu hỏi thường gặp</CardTitle>
 				</CardHeader>
-				<CardContent>
-					<div className="flex flex-wrap gap-4">
-						<Button className="flex items-center gap-2">
-							<Package className="h-4 w-4" />
-							Xử lý đơn hàng mới
-						</Button>
-						<Button variant="outline" className="flex items-center gap-2">
-							<TrendingUp className="h-4 w-4" />
-							Xem báo cáo doanh thu
-						</Button>
-						<Button variant="outline" className="flex items-center gap-2">
-							<MessageSquare className="h-4 w-4" />
-							Trả lời khiếu nại
-						</Button>
-						<Button variant="outline" className="flex items-center gap-2">
-							<Users className="h-4 w-4" />
-							Quản lý khách hàng
-						</Button>
+				<CardContent className="space-y-3 pt-0">
+					<div className="space-y-1">
+						<h4 className="font-medium text-sm">
+							Tôi có thể hủy gói Premium không?
+						</h4>
+						<p className="text-xs text-muted-foreground">
+							Bạn có thể hủy bất cứ lúc nào, gói vẫn có hiệu lực đến hết thời
+							hạn đã thanh toán.
+						</p>
+					</div>
+					<div className="space-y-1">
+						<h4 className="font-medium text-sm">Thanh toán như thế nào?</h4>
+						<p className="text-xs text-muted-foreground">
+							Thanh toán an toàn qua PayOS: thẻ ngân hàng, ví điện tử, QR Code.
+						</p>
+					</div>
+					<div className="space-y-1">
+						<h4 className="font-medium text-sm">Khi nào tôi thấy hiệu quả?</h4>
+						<p className="text-xs text-muted-foreground">
+							Ngay sau khi thanh toán, cửa hàng được ưu tiên hiển thị và tăng
+							lượng khách.
+						</p>
 					</div>
 				</CardContent>
 			</Card>
