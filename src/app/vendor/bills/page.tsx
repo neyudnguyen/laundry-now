@@ -3,8 +3,10 @@
 import {
 	Banknote,
 	Calendar,
+	CheckCircle,
 	ChevronLeft,
 	ChevronRight,
+	Clock,
 	CreditCard,
 	DollarSign,
 	FileText,
@@ -14,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -30,6 +33,7 @@ interface BillItem {
 	month: number;
 	year: number;
 	monthLabel: string;
+	status: 'PENDING' | 'PAID';
 	totalCOD: number;
 	totalQRCODE: number;
 	totalCODCompleted: number;
@@ -38,6 +42,7 @@ interface BillItem {
 	totalCommission: number;
 	totalAmountToReceive: number;
 	createdAt: string;
+	updatedAt: string;
 	period: {
 		startDate: string;
 		endDate: string;
@@ -149,6 +154,39 @@ export default function VendorBills() {
 			month: '2-digit',
 			year: 'numeric',
 		});
+	};
+
+	const formatDateTime = (dateString: string) => {
+		return new Date(dateString).toLocaleString('vi-VN', {
+			day: '2-digit',
+			month: '2-digit',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	};
+
+	const getStatusBadge = (status: 'PENDING' | 'PAID') => {
+		if (status === 'PAID') {
+			return (
+				<Badge
+					variant="default"
+					className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+				>
+					<CheckCircle className="h-3 w-3 mr-1" />
+					Đã thanh toán
+				</Badge>
+			);
+		}
+		return (
+			<Badge
+				variant="secondary"
+				className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100"
+			>
+				<Clock className="h-3 w-3 mr-1" />
+				Chờ thanh toán
+			</Badge>
+		);
 	};
 
 	return (
@@ -272,10 +310,16 @@ export default function VendorBills() {
 					{billsData.bills.map((bill) => (
 						<Card key={bill.id}>
 							<CardHeader>
-								<CardTitle className="flex items-center gap-2">
-									<FileText className="h-5 w-5" />
-									Hóa đơn {bill.monthLabel}
-								</CardTitle>
+								<div className="flex items-center justify-between">
+									<CardTitle className="flex items-center gap-2">
+										<FileText className="h-5 w-5" />
+										Hóa đơn {bill.monthLabel}
+									</CardTitle>
+									{getStatusBadge(bill.status)}
+								</div>
+								<div className="text-sm text-muted-foreground">
+									Cập nhật lần cuối: {formatDateTime(bill.updatedAt)}
+								</div>
 							</CardHeader>
 							<CardContent>
 								{/* Summary Cards */}
