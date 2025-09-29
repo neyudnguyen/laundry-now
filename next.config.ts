@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
 		dangerouslyAllowSVG: true,
 		contentDispositionType: 'attachment',
 	},
+	// Optimize for smaller Edge Functions
+	serverExternalPackages: ['@prisma/client', 'bcryptjs'],
 };
 
 export default nextConfig;
