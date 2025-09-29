@@ -54,11 +54,34 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
+		// Check if vendor exists and has VENDOR role
+		const vendor = await prisma.vendorProfile.findUnique({
+			where: { id: vendorId },
+			include: {
+				user: true,
+			},
+		});
+
+		if (!vendor) {
+			return NextResponse.json(
+				{ error: 'Vendor không tồn tại' },
+				{ status: 404 },
+			);
+		}
+
+		if (vendor.user.role !== 'VENDOR') {
+			return NextResponse.json(
+				{ error: 'User này hiện không phải là vendor' },
+				{ status: 400 },
+			);
+		}
+
 		// Date range for the selected month
 		const startDate = new Date(year, month - 1, 1);
 		const endDate = new Date(year, month, 0, 23, 59, 59, 999);
 
 		// Get all completed orders for this vendor in the month
+		// Additional safety check to ensure vendor still has VENDOR role
 		const orders = await prisma.order.findMany({
 			where: {
 				vendorId,
@@ -67,6 +90,11 @@ export async function POST(request: NextRequest) {
 					lte: endDate,
 				},
 				paymentStatus: 'COMPLETED' as const,
+				vendor: {
+					user: {
+						role: 'VENDOR',
+					},
+				},
 			},
 		});
 

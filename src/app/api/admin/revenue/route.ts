@@ -46,8 +46,16 @@ export async function GET(request: NextRequest) {
 		}
 
 		// Get all completed orders in the month (optionally filtered by vendor)
+		// Only include orders from vendors who currently have VENDOR role
 		const orders = await prisma.order.findMany({
-			where: baseConditions,
+			where: {
+				...baseConditions,
+				vendor: {
+					user: {
+						role: 'VENDOR',
+					},
+				},
+			},
 			include: {
 				vendor: {
 					include: {
@@ -102,7 +110,13 @@ export async function GET(request: NextRequest) {
 		}
 
 		// Get all vendors list for dropdown (regardless of current filter)
+		// Only include users who currently have VENDOR role
 		const allVendors = await prisma.vendorProfile.findMany({
+			where: {
+				user: {
+					role: 'VENDOR',
+				},
+			},
 			include: {
 				user: true,
 			},
