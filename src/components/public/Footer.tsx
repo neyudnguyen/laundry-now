@@ -148,7 +148,7 @@ export default function Footer() {
 				{/* Bottom Section */}
 				<div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
 					<p className="text-sm text-muted-foreground">
-						© {new Date().getFullYear()} Laundry Now. Tất cả quyền được bảo
+						© {new Date().getFullYear()} Giặt ủi nhanh. Tất cả quyền được bảo
 						lưu.
 					</p>
 
