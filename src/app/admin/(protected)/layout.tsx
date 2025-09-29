@@ -2,6 +2,7 @@
 
 import {
 	AlertTriangle,
+	DollarSign,
 	LayoutDashboard,
 	LogOut,
 	Shield,
@@ -48,6 +49,11 @@ const menuItems = [
 		title: 'Nhà cung cấp',
 		icon: Store,
 		href: '/admin/vendors',
+	},
+	{
+		title: 'Doanh thu',
+		icon: DollarSign,
+		href: '/admin/revenue',
 	},
 	{
 		title: 'Khiếu nại',
