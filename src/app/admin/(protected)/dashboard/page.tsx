@@ -116,7 +116,8 @@ export default function AdminDashboard() {
 				<div>
 					<h1 className="text-3xl font-bold">Dashboard Admin</h1>
 					<p className="text-muted-foreground">
-						Tổng quan hệ thống và quản lý khiếu nại
+						Tổng quan hệ thống - Thống kê tháng {new Date().getMonth() + 1}/
+						{new Date().getFullYear()}
 					</p>
 				</div>
 
@@ -159,9 +160,34 @@ export default function AdminDashboard() {
 			<div>
 				<h1 className="text-3xl font-bold">Dashboard Admin</h1>
 				<p className="text-muted-foreground">
-					Tổng quan hệ thống và quản lý khiếu nại
+					Tổng quan hệ thống - Thống kê tháng{' '}
+					{dashboardStats
+						? `${dashboardStats.month}/${dashboardStats.year}`
+						: 'hiện tại'}
 				</p>
-			</div>{' '}
+			</div>
+
+			{/* Current Month Info */}
+			{dashboardStats && (
+				<Card className="border-amber-200 bg-amber-50">
+					<CardContent className="flex items-center gap-3 py-4">
+						<div className="h-2 w-2 bg-amber-500 rounded-full animate-pulse"></div>
+						<div className="text-amber-800">
+							<p className="text-sm font-medium">
+								📊 Thống kê tháng hiện tại:{' '}
+								<strong>
+									Tháng {dashboardStats.month}/{dashboardStats.year}
+								</strong>
+							</p>
+							<p className="text-xs text-amber-600 mt-1">
+								Tất cả số liệu dưới đây chỉ tính từ đầu tháng{' '}
+								{dashboardStats.month} đến hiện tại
+							</p>
+						</div>
+					</CardContent>
+				</Card>
+			)}
+
 			{/* Main Stats Cards */}
 			{dashboardStats && (
 				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -176,7 +202,9 @@ export default function AdminDashboard() {
 							<div className="text-2xl font-bold">
 								{dashboardStats.totalVendors}
 							</div>
-							<p className="text-xs text-muted-foreground">Vendors hoạt động</p>
+							<p className="text-xs text-muted-foreground">
+								Tổng vendors trong hệ thống
+							</p>
 						</CardContent>
 					</Card>
 					<Card>
@@ -191,7 +219,7 @@ export default function AdminDashboard() {
 								{dashboardStats.totalCustomers}
 							</div>
 							<p className="text-xs text-muted-foreground">
-								Khách hàng đăng ký
+								Tổng customers trong hệ thống
 							</p>
 						</CardContent>
 					</Card>
@@ -244,7 +272,7 @@ export default function AdminDashboard() {
 								+{formatCurrency(dashboardStats.adminCommission)}
 							</div>
 							<p className="text-xs text-muted-foreground">
-								2% từ doanh thu {formatCurrency(dashboardStats.monthlyRevenue)}
+								2% từ {formatCurrency(dashboardStats.monthlyRevenue)} tháng này
 							</p>
 						</CardContent>
 					</Card>
@@ -260,7 +288,7 @@ export default function AdminDashboard() {
 								{dashboardStats.totalOrdersThisMonth}
 							</div>
 							<p className="text-xs text-muted-foreground">
-								Đơn hàng hoàn thành
+								Đơn hoàn thành tháng này
 							</p>
 						</CardContent>
 					</Card>
@@ -276,7 +304,7 @@ export default function AdminDashboard() {
 								{formatCurrency(dashboardStats.monthlyRevenue)}
 							</div>
 							<p className="text-xs text-muted-foreground">
-								Tổng doanh thu các vendor
+								Doanh thu tháng này
 							</p>
 						</CardContent>
 					</Card>
@@ -315,6 +343,17 @@ export default function AdminDashboard() {
 				</Card>
 			)}
 			{/* Complaint Stats Cards */}
+			<Card className="mb-4">
+				<CardContent className="py-4">
+					<div className="flex items-center gap-2 text-sm text-muted-foreground">
+						<AlertCircle className="h-4 w-4" />
+						<span>
+							<strong>Thống kê khiếu nại:</strong> Tổng số khiếu nại từ trước
+							đến nay (không giới hạn theo tháng)
+						</span>
+					</div>
+				</CardContent>
+			</Card>
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
