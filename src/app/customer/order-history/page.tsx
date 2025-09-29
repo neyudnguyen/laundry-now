@@ -101,17 +101,20 @@ const CustomerOrderHistoryPage = () => {
 
 			<Tabs defaultValue="ALL" className="w-full">
 				<div className="overflow-x-auto mb-6">
-					<TabsList className="grid w-full min-w-max grid-cols-8 lg:grid-cols-8">
+					<TabsList className="grid w-full min-w-max grid-cols-8 lg:grid-cols-8 h-auto">
 						{tabsWithCount.map((tab) => (
 							<TabsTrigger
 								key={tab.value}
 								value={tab.value}
-								className="flex flex-col items-center gap-1 h-auto py-2 px-2 text-xs lg:text-sm whitespace-nowrap"
+								className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs lg:text-sm whitespace-nowrap min-h-[60px] lg:min-h-[70px]"
 							>
-								<span className="truncate max-w-[80px] lg:max-w-none">
+								<span className="truncate max-w-[80px] lg:max-w-none leading-tight">
 									{tab.label}
 								</span>
-								<Badge variant="secondary" className="text-xs min-w-[20px]">
+								<Badge
+									variant="secondary"
+									className="text-xs min-w-[20px] shrink-0"
+								>
 									{tab.count}
 								</Badge>
 							</TabsTrigger>
