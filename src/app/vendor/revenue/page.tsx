@@ -86,7 +86,7 @@ export default function VendorRevenue() {
 			<div>
 				<h1 className="text-2xl font-bold">Thống kê doanh thu</h1>
 				<p className="text-muted-foreground">
-					Theo dõi doanh thu theo tháng và hoa hồng lợi nhuận (2%).
+					Theo dõi doanh thu theo tháng và hoa hồng lợi nhuận (10%).
 				</p>
 			</div>
 
@@ -170,7 +170,7 @@ export default function VendorRevenue() {
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 								<CardTitle className="text-sm font-medium">
-									Tổng hoa hồng (2%)
+									Tổng hoa hồng (10%)
 								</CardTitle>
 								<Percent className="h-4 w-4 text-muted-foreground" />
 							</CardHeader>
@@ -288,13 +288,13 @@ export default function VendorRevenue() {
 						</CardHeader>
 						<CardContent className="space-y-3 text-sm">
 							<div>
-								<strong>Hoa hồng COD (2%):</strong>{' '}
-								{formatCurrency(revenueStats.totalCODRevenue)} × 2% ={' '}
+								<strong>Hoa hồng COD (10%):</strong>{' '}
+								{formatCurrency(revenueStats.totalCODRevenue)} × 10% ={' '}
 								{formatCurrency(revenueStats.codCommission)}
 							</div>
 							<div>
-								<strong>Hoa hồng QR Code (2%):</strong>{' '}
-								{formatCurrency(revenueStats.totalQRCodeRevenue)} × 2% ={' '}
+								<strong>Hoa hồng QR Code (10%):</strong>{' '}
+								{formatCurrency(revenueStats.totalQRCodeRevenue)} × 10% ={' '}
 								{formatCurrency(revenueStats.qrcodeCommission)}
 							</div>
 							<div className="border-t pt-3">

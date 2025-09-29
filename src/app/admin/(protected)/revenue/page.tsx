@@ -452,7 +452,7 @@ export default function AdminRevenue() {
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 								<CardTitle className="text-sm font-medium">
-									Tổng hoa hồng (2%)
+									Tổng hoa hồng (10%)
 								</CardTitle>
 								<Percent className="h-4 w-4 text-muted-foreground" />
 							</CardHeader>
@@ -576,13 +576,13 @@ export default function AdminRevenue() {
 						</CardHeader>
 						<CardContent className="space-y-3 text-sm">
 							<div>
-								<strong>Hoa hồng từ COD (2%):</strong>{' '}
-								{formatCurrency(revenueStats.totalCODRevenue)} × 2% ={' '}
+								<strong>Hoa hồng từ COD (10%):</strong>{' '}
+								{formatCurrency(revenueStats.totalCODRevenue)} × 10% ={' '}
 								{formatCurrency(revenueStats.codCommission)}
 							</div>
 							<div>
-								<strong>Hoa hồng từ QR Code (2%):</strong>{' '}
-								{formatCurrency(revenueStats.totalQRCodeRevenue)} × 2% ={' '}
+								<strong>Hoa hồng từ QR Code (10%):</strong>{' '}
+								{formatCurrency(revenueStats.totalQRCodeRevenue)} × 10% ={' '}
 								{formatCurrency(revenueStats.qrcodeCommission)}
 							</div>
 							<div>
@@ -608,7 +608,7 @@ export default function AdminRevenue() {
 								</div>
 							</div>
 							<div className="text-xs text-muted-foreground bg-muted p-3 rounded-md">
-								<strong>Lưu ý:</strong> Admin nhận hoa hồng 2% từ tất cả đơn
+								<strong>Lưu ý:</strong> Admin nhận hoa hồng 10% từ tất cả đơn
 								hàng. Đối với đơn COD, vendor đã nhận tiền mặt nên chỉ cần trả
 								hoa hồng cho admin. Đối với đơn QR Code, admin đã nhận tiền từ
 								khách và sẽ trả cho vendor sau khi trừ hoa hồng.

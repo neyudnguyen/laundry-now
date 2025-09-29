@@ -272,7 +272,7 @@ export default function AdminDashboard() {
 								+{formatCurrency(dashboardStats.adminCommission)}
 							</div>
 							<p className="text-xs text-muted-foreground">
-								2% từ {formatCurrency(dashboardStats.monthlyRevenue)} tháng này
+								10% từ {formatCurrency(dashboardStats.monthlyRevenue)} tháng này
 							</p>
 						</CardContent>
 					</Card>
@@ -335,7 +335,7 @@ export default function AdminDashboard() {
 							</div>
 							<div className="text-xs text-blue-600 bg-blue-100 p-3 rounded">
 								<strong>Lưu ý:</strong> Số tiền này giảm khi admin tạo bill
-								thanh toán cho vendor. Admin nhận hoa hồng 2% và trả phần còn
+								thanh toán cho vendor. Admin nhận hoa hồng 10% và trả phần còn
 								lại cho vendor.
 							</div>
 						</div>

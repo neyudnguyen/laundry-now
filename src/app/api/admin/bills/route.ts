@@ -132,9 +132,9 @@ export async function POST(request: NextRequest) {
 			0,
 		);
 
-		// Calculate commissions (2%)
-		const totalCODCompleted = Math.round(totalCOD * 0.02);
-		const totalQRCODECompleted = Math.round(totalQRCODE * 0.02);
+		// Calculate commissions (10%)
+		const totalCODCompleted = Math.round(totalCOD * 0.1);
+		const totalQRCODECompleted = Math.round(totalQRCODE * 0.1);
 
 		// Create bill
 		const bill = await prisma.bill.create({

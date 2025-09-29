@@ -309,7 +309,7 @@ export default function VendorBills() {
 										<div className="flex items-center gap-2 mb-2">
 											<Percent className="h-4 w-4 text-muted-foreground" />
 											<span className="text-sm font-medium">
-												Tổng hoa hồng (2%)
+												Tổng hoa hồng (10%)
 											</span>
 										</div>
 										<div className="text-lg font-bold text-destructive">
@@ -381,13 +381,13 @@ export default function VendorBills() {
 										</CardHeader>
 										<CardContent className="space-y-3">
 											<div className="flex justify-between items-center">
-												<span className="text-sm">Hoa hồng COD (2%):</span>
+												<span className="text-sm">Hoa hồng COD (10%):</span>
 												<span className="font-medium text-destructive">
 													-{formatCurrency(bill.totalCODCompleted)}
 												</span>
 											</div>
 											<div className="flex justify-between items-center">
-												<span className="text-sm">Hoa hồng QR Code (2%):</span>
+												<span className="text-sm">Hoa hồng QR Code (10%):</span>
 												<span className="font-medium text-destructive">
 													-{formatCurrency(bill.totalQRCODECompleted)}
 												</span>
@@ -422,13 +422,13 @@ export default function VendorBills() {
 									</CardHeader>
 									<CardContent className="space-y-3 text-sm">
 										<div>
-											<strong>Hoa hồng COD (2%):</strong>{' '}
-											{formatCurrency(bill.totalCOD)} × 2% ={' '}
+											<strong>Hoa hồng COD (10%):</strong>{' '}
+											{formatCurrency(bill.totalCOD)} × 10% ={' '}
 											{formatCurrency(bill.totalCODCompleted)}
 										</div>
 										<div>
-											<strong>Hoa hồng QR Code (2%):</strong>{' '}
-											{formatCurrency(bill.totalQRCODE)} × 2% ={' '}
+											<strong>Hoa hồng QR Code (10%):</strong>{' '}
+											{formatCurrency(bill.totalQRCODE)} × 10% ={' '}
 											{formatCurrency(bill.totalQRCODECompleted)}
 										</div>
 										<div>
@@ -457,7 +457,7 @@ export default function VendorBills() {
 										</div>
 										<div className="text-xs text-muted-foreground bg-muted p-3 rounded-md">
 											<strong>Giải thích:</strong> Với đơn COD, bạn đã nhận tiền
-											mặt trực tiếp từ khách nên chỉ cần trả hoa hồng 2% cho
+											mặt trực tiếp từ khách nên chỉ cần trả hoa hồng 10% cho
 											admin. Với đơn QR Code, khách đã thanh toán qua hệ thống,
 											admin sẽ chuyển khoản cho bạn số tiền còn lại sau khi trừ
 											hoa hồng. Phí giao hàng QR được cộng thêm vì đã tính vào

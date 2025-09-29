@@ -78,9 +78,9 @@ export async function GET(request: NextRequest) {
 			0,
 		);
 
-		// Calculate commissions (2%)
-		const codCommission = Math.round(totalCODRevenue * 0.02);
-		const qrcodeCommission = Math.round(totalQRCodeRevenue * 0.02);
+		// Calculate commissions (10%)
+		const codCommission = Math.round(totalCODRevenue * 0.1);
+		const qrcodeCommission = Math.round(totalQRCodeRevenue * 0.1);
 
 		// Calculate total amount to receive
 		// = QR Code revenue - COD commission - QR Code commission + QR Code delivery fees

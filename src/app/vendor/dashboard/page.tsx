@@ -30,7 +30,7 @@ export default function VendorDashboard() {
 		totalOrders: 127,
 		activeOrders: 8,
 		monthlyRevenue: 15750000, // VND
-		monthlyCommission: 315000, // 2% of revenue
+		monthlyCommission: 1575000, // 10% of revenue
 		completedOrders: 119,
 		pendingComplaints: 2,
 	};
@@ -214,7 +214,9 @@ export default function VendorDashboard() {
 
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Hoa hồng (2%)</CardTitle>
+						<CardTitle className="text-sm font-medium">
+							Hoa hồng (10%)
+						</CardTitle>
 						<DollarSign className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
@@ -366,7 +368,7 @@ export default function VendorDashboard() {
 									{stat.orders} đơn hàng
 								</div>
 								<div className="text-xs text-muted-foreground">
-									HH: {formatCurrency(stat.revenue * 0.02)}
+									HH: {formatCurrency(stat.revenue * 0.1)}
 								</div>
 							</div>
 						))}

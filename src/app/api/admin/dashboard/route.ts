@@ -99,7 +99,7 @@ export async function GET() {
 
 		// Calculate admin commission for this month
 		const monthlyRevenue = totalRevenueThisMonth._sum.servicePrice || 0;
-		const monthlyCommission = Math.round(monthlyRevenue * 0.02);
+		const monthlyCommission = Math.round(monthlyRevenue * 0.1);
 
 		return NextResponse.json({
 			totalVendors,
