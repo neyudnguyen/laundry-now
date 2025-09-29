@@ -3,6 +3,7 @@
 import {
 	AlertTriangle,
 	DollarSign,
+	FileText,
 	LayoutDashboard,
 	LogOut,
 	Shield,
@@ -49,6 +50,11 @@ const menuItems = [
 		title: 'Nhà cung cấp',
 		icon: Store,
 		href: '/admin/vendors',
+	},
+	{
+		title: 'Hóa đơn',
+		icon: FileText,
+		href: '/admin/bills',
 	},
 	{
 		title: 'Doanh thu',
