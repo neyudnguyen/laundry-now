@@ -55,10 +55,15 @@ export async function POST(request: NextRequest) {
 		});
 
 		// Tạo PayOS payment link
+		const shortDescription =
+			premiumPackage.type === 'MONTHLY'
+				? 'Gói Premium 1 tháng'
+				: 'Gói Premium 1 năm';
+
 		const paymentData = {
 			orderCode,
 			amount: premiumPackage.price,
-			description: `Nâng cấp ${premiumPackage.name} - ${vendor.shopName}`,
+			description: shortDescription.substring(0, 25), // Đảm bảo <= 25 ký tự
 			returnUrl: `${process.env.NEXT_PUBLIC_URL}/vendor/dashboard?payment=success&type=premium`,
 			cancelUrl: `${process.env.NEXT_PUBLIC_URL}/vendor/dashboard?payment=cancel&type=premium`,
 		};

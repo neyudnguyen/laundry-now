@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, Crown, Star, Zap } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -20,33 +21,55 @@ interface PremiumPackage {
 }
 
 export default function VendorDashboard() {
+	const { data: session } = useSession();
 	const [premiumPackages, setPremiumPackages] = useState<PremiumPackage[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [vendorId, setVendorId] = useState<string | null>(null);
 
-	// Fetch premium packages từ API
+	// Fetch vendor profile và premium packages
 	useEffect(() => {
-		const fetchPremiumPackages = async () => {
+		const fetchData = async () => {
 			try {
 				setLoading(true);
-				const response = await fetch('/api/premium-packages');
-				const result = await response.json();
 
-				if (result.success) {
-					setPremiumPackages(result.data);
+				// Fetch vendor profile để lấy vendorId
+				const vendorResponse = await fetch('/api/vendor/profile');
+				if (vendorResponse.ok) {
+					const vendorData = await vendorResponse.json();
+					const vendorProfileId = vendorData?.user?.vendorProfile?.id;
+					if (vendorProfileId) {
+						setVendorId(vendorProfileId);
+					} else {
+						setError('Không tìm thấy thông tin vendor profile');
+						return;
+					}
 				} else {
-					setError(result.error || 'Failed to fetch premium packages');
+					setError('Không thể tải thông tin vendor');
+					return;
+				}
+
+				// Fetch premium packages
+				const packagesResponse = await fetch('/api/premium-packages');
+				const packagesResult = await packagesResponse.json();
+
+				if (packagesResult.success) {
+					setPremiumPackages(packagesResult.data);
+				} else {
+					setError(packagesResult.error || 'Failed to fetch premium packages');
 				}
 			} catch (err) {
-				console.error('Error fetching premium packages:', err);
-				setError('Failed to fetch premium packages');
+				console.error('Error fetching data:', err);
+				setError('Failed to fetch data');
 			} finally {
 				setLoading(false);
 			}
 		};
 
-		fetchPremiumPackages();
-	}, []);
+		if (session?.user?.id) {
+			fetchData();
+		}
+	}, [session?.user?.id]);
 
 	// Xử lý payment result từ PayOS redirect
 	useEffect(() => {
@@ -88,12 +111,13 @@ export default function VendorDashboard() {
 
 	const handleSelectPackage = async (packageId: string) => {
 		try {
+			if (!vendorId) {
+				setError('Không tìm thấy thông tin vendor');
+				return;
+			}
+
 			setLoading(true);
 			setError(null);
-
-			// TODO: Lấy vendorId từ session/auth context
-			// Tạm thời hardcode để test
-			const vendorId = 'vendor_id_from_session';
 
 			const response = await fetch('/api/premium-packages/purchase', {
 				method: 'POST',
