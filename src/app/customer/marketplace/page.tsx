@@ -1,6 +1,14 @@
 'use client';
 
-import { Mail, MapPin, Phone, ShoppingCart, Store, X } from 'lucide-react';
+import {
+	Crown,
+	Mail,
+	MapPin,
+	Phone,
+	ShoppingCart,
+	Store,
+	X,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -49,6 +57,7 @@ interface Vendor {
 	services: VendorService[];
 	averageRating: number;
 	reviewCount: number;
+	isPremium: boolean;
 }
 
 interface VendorDetail extends Vendor {
@@ -217,8 +226,13 @@ export default function VendorMarketplacePage() {
 			return true;
 		});
 
-		// Sort filtered results
+		// Sort filtered results with premium priority
 		filtered = filtered.sort((a, b) => {
+			// Always prioritize premium vendors first
+			if (a.isPremium && !b.isPremium) return -1;
+			if (!a.isPremium && b.isPremium) return 1;
+
+			// If both are premium or both are non-premium, apply selected sort
 			let comparison = 0;
 			switch (filters.sortBy) {
 				case 'rating':
@@ -639,9 +653,20 @@ export default function VendorMarketplacePage() {
 										</Avatar>
 									)}
 									<div className="flex-1 min-w-0">
-										<CardTitle className="text-lg line-clamp-1">
-											{vendor.shopName}
-										</CardTitle>
+										<div className="flex items-center gap-2">
+											<CardTitle className="text-lg line-clamp-1">
+												{vendor.shopName}
+											</CardTitle>
+											{vendor.isPremium && (
+												<Badge
+													variant="secondary"
+													className="bg-yellow-100 text-yellow-800 border-yellow-300"
+												>
+													<Crown className="h-3 w-3 mr-1" />
+													Premium
+												</Badge>
+											)}
+										</div>
 
 										{/* Rating */}
 										{vendor.reviewCount > 0 ? (
