@@ -16,8 +16,8 @@ const notoMono = Noto_Sans_Mono({
 });
 
 export const metadata: Metadata = {
-	title: 'Laundry Now',
-	description: 'Your one-stop solution for laundry services',
+	title: 'Giặt ủi nhanh',
+	description: 'Nền tảng giặt ủi nhanh cho người bận rộn',
 };
 
 const RootLayout = ({

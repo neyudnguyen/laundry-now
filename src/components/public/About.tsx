@@ -15,7 +15,7 @@ export default function About() {
 							<span className="text-primary">Giặt ủi hàng đầu</span>
 						</h2>
 						<p className="mt-6 text-lg leading-8 text-muted-foreground">
-							Laundry Now là nền tảng kết nối khách hàng với mạng lưới các cửa
+							Giặt ủi nhanh là nền tảng kết nối khách hàng với mạng lưới các cửa
 							hàng giặt ủi uy tín. Chúng tôi tạo ra một thị trường minh bạch,
 							giúp bạn dễ dàng tìm kiếm, so sánh và lựa chọn dịch vụ tốt nhất.
 						</p>
