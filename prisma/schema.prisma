@@ -312,7 +312,7 @@ model Bill {
   startDate              DateTime   @map("start_date")
   endDate                DateTime   @map("end_date")
 
-  vendorId String @unique @map("vendor_id")
+  vendorId String @map("vendor_id")
 
   vendor VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 
