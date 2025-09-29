@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function PATCH(
 	request: NextRequest,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		// Check authentication and admin role
@@ -15,6 +15,7 @@ export async function PATCH(
 		}
 
 		const { status } = await request.json();
+		const { id } = await params;
 
 		// Validate status
 		if (!['RESOLVED', 'REJECTED'].includes(status)) {
@@ -26,7 +27,7 @@ export async function PATCH(
 
 		// Update complaint status
 		const updatedComplaint = await prisma.complaint.update({
-			where: { id: params.id },
+			where: { id },
 			data: { status },
 			include: {
 				customer: {
