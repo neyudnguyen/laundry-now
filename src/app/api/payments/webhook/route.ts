@@ -5,6 +5,8 @@ import type { WebhookRequest } from '@/lib/payos';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
+	// return NextResponse.json({ success: true });
+
 	try {
 		const body: WebhookRequest = await request.json();
 
