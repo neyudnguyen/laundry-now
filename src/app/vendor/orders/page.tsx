@@ -1,7 +1,7 @@
 'use client';
 
 import { Eye, RefreshCw, Star } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,8 +14,21 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OrderDetailDialog from '@/components/vendor/OrderDetailDialog';
 import { useToast } from '@/hooks';
+
+// Định nghĩa các status và nhãn tiếng Việt
+const statusTabs = [
+	{ value: 'ALL', label: 'Tất cả' },
+	{ value: 'PENDING_CONFIRMATION', label: 'Chờ xác nhận' },
+	{ value: 'CONFIRMED', label: 'Đã xác nhận' },
+	{ value: 'PICKED_UP', label: 'Đã lấy đồ' },
+	{ value: 'IN_WASHING', label: 'Đang giặt' },
+	{ value: 'PAYMENT_REQUIRED', label: 'Cần thanh toán' },
+	{ value: 'COMPLETED', label: 'Hoàn tất' },
+	{ value: 'CANCELLED', label: 'Đã hủy' },
+];
 
 interface OrderItem {
 	id: string;
@@ -86,6 +99,23 @@ export default function VendorOrders() {
 	const [showOrderDetail, setShowOrderDetail] = useState(false);
 	const { toast } = useToast();
 
+	// Tính số lượng đơn hàng cho mỗi status
+	const tabsWithCount = useMemo(() => {
+		return statusTabs.map((tab) => ({
+			...tab,
+			count:
+				tab.value === 'ALL'
+					? orders.length
+					: orders.filter((order) => order.status === tab.value).length,
+		}));
+	}, [orders]);
+
+	// Lọc đơn hàng theo status
+	const getOrdersByStatus = (status: string) => {
+		if (status === 'ALL') return orders;
+		return orders.filter((order) => order.status === status);
+	};
+
 	const fetchOrders = useCallback(async () => {
 		try {
 			setLoading(true);
@@ -131,6 +161,117 @@ export default function VendorOrders() {
 		});
 	};
 
+	// Component bảng đơn hàng riêng để tái sử dụng
+	const OrderTable = ({ orders: orderList }: { orders: Order[] }) => {
+		if (orderList.length === 0) {
+			return (
+				<Card>
+					<CardContent className="py-12">
+						<div className="text-center">
+							<p className="text-muted-foreground">Không có đơn hàng nào</p>
+						</div>
+					</CardContent>
+				</Card>
+			);
+		}
+
+		return (
+			<Card>
+				<CardHeader>
+					<CardTitle>Danh sách đơn hàng ({orderList.length})</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>Thời gian</TableHead>
+								<TableHead>Khách hàng</TableHead>
+								<TableHead>Trạng thái</TableHead>
+								<TableHead>Loại thanh toán</TableHead>
+								<TableHead>Giao hàng</TableHead>
+								<TableHead>Đánh giá</TableHead>
+								<TableHead>Tổng tiền</TableHead>
+								<TableHead>Thao tác</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{orderList.map((order) => (
+								<TableRow key={order.id}>
+									<TableCell>{formatDateTime(order.createdAt)}</TableCell>
+									<TableCell>
+										<div>
+											<div className="font-medium">
+												{order.customer.fullName}
+											</div>
+											<div className="text-sm text-muted-foreground">
+												{order.customer.user.phone}
+											</div>
+										</div>
+									</TableCell>
+									<TableCell>
+										<Badge
+											variant={
+												statusVariants[
+													order.status as keyof typeof statusVariants
+												]
+											}
+										>
+											{statusLabels[order.status as keyof typeof statusLabels]}
+										</Badge>
+									</TableCell>
+									<TableCell>
+										{
+											paymentMethodLabels[
+												order.paymentMethod as keyof typeof paymentMethodLabels
+											]
+										}
+									</TableCell>
+									<TableCell>
+										{
+											pickupTypeLabels[
+												order.pickupType as keyof typeof pickupTypeLabels
+											]
+										}
+									</TableCell>
+									<TableCell>
+										{order.review ? (
+											<div className="flex items-center gap-2">
+												<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+												<span className="text-sm">{order.review.rating}/5</span>
+											</div>
+										) : order.status === 'COMPLETED' ? (
+											<span className="text-xs text-muted-foreground">
+												Chưa đánh giá
+											</span>
+										) : (
+											<span className="text-xs text-muted-foreground">-</span>
+										)}
+									</TableCell>
+									<TableCell className="font-medium">
+										{formatCurrency(getTotalAmount(order))}
+									</TableCell>
+									<TableCell>
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => {
+												setSelectedOrder(order);
+												setShowOrderDetail(true);
+											}}
+										>
+											<Eye className="w-4 h-4 mr-2" />
+											Xem chi tiết
+										</Button>
+									</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
+				</CardContent>
+			</Card>
+		);
+	};
+
 	if (loading) {
 		return (
 			<div className="space-y-6">
@@ -159,115 +300,35 @@ export default function VendorOrders() {
 				</Button>
 			</div>
 
-			{orders.length === 0 ? (
-				<Card>
-					<CardContent className="py-12">
-						<div className="text-center">
-							<p className="text-muted-foreground">Chưa có đơn hàng nào</p>
-						</div>
-					</CardContent>
-				</Card>
-			) : (
-				<Card>
-					<CardHeader>
-						<CardTitle>Danh sách đơn hàng ({orders.length})</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Thời gian</TableHead>
-									<TableHead>Khách hàng</TableHead>
-									<TableHead>Trạng thái</TableHead>
-									<TableHead>Loại thanh toán</TableHead>
-									<TableHead>Giao hàng</TableHead>
-									<TableHead>Đánh giá</TableHead>
-									<TableHead>Tổng tiền</TableHead>
-									<TableHead>Thao tác</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{orders.map((order) => (
-									<TableRow key={order.id}>
-										<TableCell>{formatDateTime(order.createdAt)}</TableCell>
-										<TableCell>
-											<div>
-												<div className="font-medium">
-													{order.customer.fullName}
-												</div>
-												<div className="text-sm text-muted-foreground">
-													{order.customer.user.phone}
-												</div>
-											</div>
-										</TableCell>
-										<TableCell>
-											<Badge
-												variant={
-													statusVariants[
-														order.status as keyof typeof statusVariants
-													]
-												}
-											>
-												{
-													statusLabels[
-														order.status as keyof typeof statusLabels
-													]
-												}
-											</Badge>
-										</TableCell>
-										<TableCell>
-											{
-												paymentMethodLabels[
-													order.paymentMethod as keyof typeof paymentMethodLabels
-												]
-											}
-										</TableCell>
-										<TableCell>
-											{
-												pickupTypeLabels[
-													order.pickupType as keyof typeof pickupTypeLabels
-												]
-											}
-										</TableCell>
-										<TableCell>
-											{order.review ? (
-												<div className="flex items-center gap-2">
-													<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-													<span className="text-sm">
-														{order.review.rating}/5
-													</span>
-												</div>
-											) : order.status === 'COMPLETED' ? (
-												<span className="text-xs text-muted-foreground">
-													Chưa đánh giá
-												</span>
-											) : (
-												<span className="text-xs text-muted-foreground">-</span>
-											)}
-										</TableCell>
-										<TableCell className="font-medium">
-											{formatCurrency(getTotalAmount(order))}
-										</TableCell>
-										<TableCell>
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() => {
-													setSelectedOrder(order);
-													setShowOrderDetail(true);
-												}}
-											>
-												<Eye className="w-4 h-4 mr-2" />
-												Xem chi tiết
-											</Button>
-										</TableCell>
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
-					</CardContent>
-				</Card>
-			)}
+			<Tabs defaultValue="ALL" className="w-full">
+				<div className="overflow-x-auto mb-6">
+					<TabsList className="grid w-full min-w-max grid-cols-8 lg:grid-cols-8 h-auto">
+						{tabsWithCount.map((tab) => (
+							<TabsTrigger
+								key={tab.value}
+								value={tab.value}
+								className="flex flex-col items-center gap-1 h-auto py-3 px-2 text-xs lg:text-sm whitespace-nowrap min-h-[60px] lg:min-h-[70px]"
+							>
+								<span className="truncate max-w-[80px] lg:max-w-none leading-tight">
+									{tab.label}
+								</span>
+								<Badge
+									variant="secondary"
+									className="text-xs min-w-[20px] shrink-0"
+								>
+									{tab.count}
+								</Badge>
+							</TabsTrigger>
+						))}
+					</TabsList>
+				</div>
+
+				{tabsWithCount.map((tab) => (
+					<TabsContent key={tab.value} value={tab.value} className="mt-6">
+						<OrderTable orders={getOrdersByStatus(tab.value)} />
+					</TabsContent>
+				))}
+			</Tabs>
 
 			<OrderDetailDialog
 				order={selectedOrder}
