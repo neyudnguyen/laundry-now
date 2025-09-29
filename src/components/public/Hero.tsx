@@ -22,20 +22,20 @@ export default function Hero() {
 							}}
 						>
 							<h1 className="text-4xl font-bold tracking-tight text-white">
-								<span className="block">Dịch vụ</span>
+								<span className="block">Kết nối</span>
 								<span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
 									Giặt ủi thông minh
 								</span>
 							</h1>
 							<p className="mt-6 text-lg leading-8 text-gray-200 sm:text-xl">
-								Nhanh chóng – Tiện lợi – Tiết kiệm thời gian. Đặt giặt ủi chỉ
-								với vài bước đơn giản.
+								Nền tảng kết nối khách hàng với các cửa hàng giặt ủi uy tín. Tìm
+								kiếm, so sánh và đặt dịch vụ dễ dàng.
 							</p>
 
 							{/* CTA */}
 							<div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end">
 								<Button size="lg" className="h-12 px-8 text-base">
-									Bắt đầu ngay
+									Tìm cửa hàng
 								</Button>
 							</div>
 
@@ -43,15 +43,15 @@ export default function Hero() {
 							<div className="mt-8 flex flex-wrap gap-6 text-sm text-gray-300">
 								<div className="flex items-center gap-2">
 									<div className="h-2 w-2 rounded-full bg-green-500" />
-									<span>Giao nhận tận nơi</span>
+									<span>Nhiều cửa hàng lựa chọn</span>
 								</div>
 								<div className="flex items-center gap-2">
 									<div className="h-2 w-2 rounded-full bg-blue-500" />
-									<span>Thanh toán linh hoạt</span>
+									<span>So sánh giá dễ dàng</span>
 								</div>
 								<div className="flex items-center gap-2">
 									<div className="h-2 w-2 rounded-full bg-purple-500" />
-									<span>Hỗ trợ 24/7</span>
+									<span>Đánh giá thật từ khách hàng</span>
 								</div>
 							</div>
 						</div>

@@ -6,27 +6,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const services = [
 	{
 		icon: Wind,
-		title: 'Giặt ủi',
+		title: 'Giặt ủi cơ bản',
 		description:
-			'Dịch vụ giặt ủi hoàn chỉnh với quy trình chuẩn. Quần áo sạch sẽ, thơm tho và được ủi phẳng phiu.',
-		price: 'Từ 15,000đ/kg',
-		features: ['Giặt bằng máy', 'Ủi chuyên nghiệp', 'Hương thơm tự nhiên'],
+			'Dịch vụ giặt ủi phổ biến nhất, phù hợp cho quần áo hàng ngày. Nhiều cửa hàng cung cấp với giá cạnh tranh.',
+		price: 'Từ 12,000đ/kg',
+		features: ['Giá cả hợp lý', 'Nhiều lựa chọn', 'Chất lượng đảm bảo'],
 	},
 	{
 		icon: Shirt,
-		title: 'Ủi quần áo',
+		title: 'Ủi chuyên nghiệp',
 		description:
-			'Chuyên ủi các loại quần áo công sở, đầm dạ hội và trang phục quan trọng. Đảm bảo phẳng phiu, không nhăn.',
-		price: 'Từ 10,000đ/chiếc',
-		features: ['Ủi thủ công', 'Bảo quản form dáng', 'Giao hàng cẩn thận'],
+			'Các cửa hàng chuyên về ủi quần áo công sở, đồng phục với kỹ thuật cao và thiết bị hiện đại.',
+		price: 'Từ 8,000đ/chiếc',
+		features: ['Kỹ thuật cao', 'Trang thiết bị tốt', 'Thời gian nhanh'],
 	},
 	{
 		icon: Sparkles,
-		title: 'Giặt khô',
+		title: 'Giặt khô cao cấp',
 		description:
-			'Giặt khô chuyên nghiệp cho các loại vải cao cấp, đồ da, áo khoác và trang phục đặc biệt.',
-		price: 'Từ 50,000đ/chiếc',
-		features: ['Hóa chất chuyên dụng', 'Bảo vệ chất liệu', 'Xử lý vết bẩn'],
+			'Mạng lưới cửa hàng chuyên xử lý đồ cao cấp, vải đặc biệt với công nghệ và hóa chất chuyên dụng.',
+		price: 'Từ 40,000đ/chiếc',
+		features: [
+			'Công nghệ tiên tiến',
+			'Chuyên gia kinh nghiệm',
+			'Bảo hành chất lượng',
+		],
 	},
 ];
 
@@ -37,10 +41,11 @@ export default function Services() {
 				{/* Section Header */}
 				<div className="mx-auto max-w-2xl text-center">
 					<h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-						Dịch vụ của chúng tôi
+						Dịch vụ đa dạng từ đối tác
 					</h2>
 					<p className="mt-4 text-lg leading-8 text-muted-foreground">
-						Lựa chọn dịch vụ phù hợp với nhu cầu của bạn
+						Khám phá các dịch vụ giặt ủi phong phú từ mạng lưới cửa hàng đối tác
+						của chúng tôi
 					</p>
 				</div>
 
@@ -85,7 +90,7 @@ export default function Services() {
 									</ul>
 
 									<Button className="w-full" variant="outline">
-										Đặt dịch vụ
+										Tìm cửa hàng
 									</Button>
 								</CardContent>
 							</Card>
@@ -96,11 +101,12 @@ export default function Services() {
 				{/* Additional Info */}
 				<div className="mx-auto mt-12 max-w-3xl text-center">
 					<p className="text-sm text-muted-foreground">
-						💡 <strong>Mẹo:</strong> Đặt combo nhiều dịch vụ để được giảm giá
-						đến 20%. Liên hệ hotline để biết thêm chi tiết.
+						💡 <strong>Lưu ý:</strong> Giá cả có thể khác nhau tùy theo từng cửa
+						hàng. Sử dụng nền tảng của chúng tôi để so sánh và tìm ưu đãi tốt
+						nhất.
 					</p>
 					<div className="mt-6">
-						<Button size="lg">Xem bảng giá chi tiết</Button>
+						<Button size="lg">Khám phá tất cả cửa hàng</Button>
 					</div>
 				</div>
 			</div>
