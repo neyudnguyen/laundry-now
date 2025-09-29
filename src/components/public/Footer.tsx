@@ -14,33 +14,31 @@ const footerLinks = {
 	helpAdvice: {
 		title: 'Hỗ trợ & Tư vấn',
 		links: [
-			{ name: 'Hỗ trợ khách hàng', href: '/support' },
-			{ name: 'Hướng dẫn sử dụng', href: '/guide' },
-			{ name: 'Câu hỏi thường gặp', href: '/faq' },
-			{ name: 'Điều khoản dịch vụ', href: '/terms' },
-			{ name: 'Chính sách bảo mật', href: '/privacy' },
-		],
-	},
-	company: {
-		title: 'Công ty',
-		links: [
-			{ name: 'Giới thiệu', href: '/about' },
-			{ name: 'Tuyển dụng', href: '/careers' },
-			{ name: 'Bảng giá dịch vụ', href: '/pricing' },
-			{ name: 'Hệ thống trung tâm', href: '/centers' },
-			{ name: 'Đối tác', href: '/partners' },
+			{ name: 'Hướng dẫn sử dụng', href: '#' },
+			{
+				name: 'Điều khoản dịch vụ',
+				href: 'https://bbsthlwqbrwfaxmwxieh.supabase.co/storage/v1/object/public/images/docs/DIEU%20KHOAN%20&%20CHINH%20SACH%20DICH%20VU.docx',
+				download: true,
+			},
+			{
+				name: 'Chính sách bảo mật',
+				href: 'https://bbsthlwqbrwfaxmwxieh.supabase.co/storage/v1/object/public/images/docs/DIEU%20KHOAN%20&%20CHINH%20SACH%20DICH%20VU.docx',
+				download: true,
+			},
+			{ name: 'Giới thiệu', href: '#' },
+			{ name: 'Câu hỏi thường gặp', href: '#' },
 		],
 	},
 	getInTouch: {
 		title: 'Liên hệ',
 		links: [
-			{ name: 'Hotline: 1900 1234', href: 'tel:19001234', icon: Phone },
+			{ name: 'Hotline: 0943846727', href: 'tel:0943846727', icon: Phone },
 			{
-				name: 'support@Laundry Now.vn',
-				href: 'mailto:support@Laundry Now.vn',
+				name: 'giacuinhanh@gmail.com',
+				href: 'mailto:giacuinhanh@gmail.com',
 				icon: Mail,
 			},
-			{ name: '123 Nguyễn Văn Linh, Q7, HCM', href: '/contact', icon: MapPin },
+			{ name: 'Đại học FPT Quy Nhơn', href: '#', icon: MapPin },
 		],
 	},
 };
@@ -55,10 +53,10 @@ export default function Footer() {
 	return (
 		<footer className="border-t bg-background">
 			<div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-				<div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+				<div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
 					{/* Company Info */}
 					<div className="lg:col-span-1">
-						<h3 className="text-2xl font-bold text-primary">Laundry Now</h3>
+						<h3 className="text-2xl font-bold text-primary">Giặt ủi nhanh</h3>
 						<p className="mt-4 text-sm text-muted-foreground">
 							Dịch vụ giặt ủi thông minh, nhanh chóng và tiện lợi. Mang đến trải
 							nghiệm tuyệt vời cho khách hàng với chất lượng đảm bảo và giá cả
@@ -98,25 +96,7 @@ export default function Footer() {
 								<li key={link.name}>
 									<Link
 										href={link.href}
-										className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-									>
-										{link.name}
-									</Link>
-								</li>
-							))}
-						</ul>
-					</div>
-
-					{/* Company */}
-					<div>
-						<h4 className="text-sm font-semibold text-foreground">
-							{footerLinks.company.title}
-						</h4>
-						<ul className="mt-4 space-y-3">
-							{footerLinks.company.links.map((link) => (
-								<li key={link.name}>
-									<Link
-										href={link.href}
+										{...(link.download && { download: true, target: '_blank' })}
 										className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 									>
 										{link.name}
