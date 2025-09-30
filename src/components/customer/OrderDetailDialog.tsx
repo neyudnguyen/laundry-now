@@ -67,9 +67,9 @@ const getPaymentMethodText = (method: Order['paymentMethod']) => {
 const getPickupTypeText = (type: Order['pickupType']) => {
 	switch (type) {
 		case 'HOME':
-			return 'Đón tại nhà';
+			return 'Giao tại nhà';
 		case 'STORE':
-			return 'Đón tại cửa hàng';
+			return 'Giao tại cửa hàng';
 		default:
 			return type;
 	}
@@ -135,7 +135,9 @@ export function OrderDetailDialog({
 							</div>
 
 							<div className="flex justify-between items-center">
-								<span className="text-sm font-medium">Hình thức đón:</span>
+								<span className="text-sm font-medium">
+									Hình thức giao hàng:
+								</span>
 								<span className="text-sm">
 									{getPickupTypeText(order.pickupType)}
 								</span>

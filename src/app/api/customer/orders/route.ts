@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Validate home address for home delivery
-		if (pickupType === 'HOME' && !homeAddress) {
+		if (pickupType === 'HOME' && (!homeAddress || homeAddress.trim() === '')) {
 			return NextResponse.json(
 				{ error: 'Địa chỉ giao hàng là bắt buộc khi chọn giao tận nhà' },
 				{ status: 400 },
