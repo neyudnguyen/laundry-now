@@ -129,20 +129,29 @@ const VendorProfilePage = () => {
 					<Separator />
 				</div>
 
-				{/* Content Layout - 5 sections */}
+				{/* Content Layout */}
 				<div className="space-y-8">
-					{/* Thông tin cơ bản */}
-					<section>
-						<VendorBasicInfo
-							initialData={{
-								shopName: vendorData?.user?.vendorProfile?.shopName || '',
-								phone: vendorData?.user?.phone || '',
-								email: vendorData?.user?.email || '',
-							}}
-							onSuccess={handleProfileUpdate}
-						/>
-					</section>
+					{/* First Row - 2 columns */}
+					<div className="grid lg:grid-cols-2 gap-8">
+						{/* Left - Thông tin cơ bản */}
+						<section>
+							<VendorBasicInfo
+								initialData={{
+									shopName: vendorData?.user?.vendorProfile?.shopName || '',
+									phone: vendorData?.user?.phone || '',
+									email: vendorData?.user?.email || '',
+								}}
+								onSuccess={handleProfileUpdate}
+							/>
+						</section>
 
+						{/* Right - Đổi mật khẩu */}
+						<section>
+							<ChangePasswordForm userRole="vendor" />
+						</section>
+					</div>
+
+					{/* Remaining sections - Full width */}
 					{/* Thông tin ngân hàng */}
 					<section>
 						<VendorBankingInfo
@@ -170,11 +179,6 @@ const VendorProfilePage = () => {
 							vendorId={vendorData?.user?.vendorProfile?.id}
 							onSuccess={handleProfileUpdate}
 						/>
-					</section>
-
-					{/* Đổi mật khẩu */}
-					<section>
-						<ChangePasswordForm userRole="vendor" />
 					</section>
 				</div>
 			</div>
