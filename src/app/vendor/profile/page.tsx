@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { ChangePasswordForm } from '@/components/ui/ChangePasswordForm';
 import { Separator } from '@/components/ui/separator';
 import { VendorAddressManager } from '@/components/vendor/VendorAddressManager';
 import { VendorBankingInfo } from '@/components/vendor/VendorBankingInfo';
@@ -128,7 +129,7 @@ const VendorProfilePage = () => {
 					<Separator />
 				</div>
 
-				{/* Content Layout - 4 sections */}
+				{/* Content Layout - 5 sections */}
 				<div className="space-y-8">
 					{/* Thông tin cơ bản */}
 					<section>
@@ -169,6 +170,11 @@ const VendorProfilePage = () => {
 							vendorId={vendorData?.user?.vendorProfile?.id}
 							onSuccess={handleProfileUpdate}
 						/>
+					</section>
+
+					{/* Đổi mật khẩu */}
+					<section>
+						<ChangePasswordForm userRole="vendor" />
 					</section>
 				</div>
 			</div>

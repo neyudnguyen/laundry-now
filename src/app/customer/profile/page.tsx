@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { CustomerAddressManager } from '@/components/customer/CustomerAddressManager';
 import { CustomerBasicInfo } from '@/components/customer/CustomerBasicInfo';
+import { ChangePasswordForm } from '@/components/ui/ChangePasswordForm';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 
@@ -108,7 +109,7 @@ const CustomerProfilePage = () => {
 					<Separator />
 				</div>
 
-				{/* Content Layout - 2 sections */}
+				{/* Content Layout - 3 sections */}
 				<div className="space-y-8">
 					{/* Thông tin cơ bản */}
 					<section>
@@ -125,6 +126,11 @@ const CustomerProfilePage = () => {
 					{/* Quản lý địa chỉ */}
 					<section>
 						<CustomerAddressManager />
+					</section>
+
+					{/* Đổi mật khẩu */}
+					<section>
+						<ChangePasswordForm userRole="customer" />
 					</section>
 				</div>
 			</div>
