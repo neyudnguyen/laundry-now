@@ -42,7 +42,7 @@ export default function VendorsPage() {
 				}
 
 				const data = await response.json();
-				setVendors(data || []);
+				setVendors(data.vendors || []);
 			} catch (err) {
 				setError(err instanceof Error ? err.message : 'Có lỗi xảy ra');
 			} finally {
