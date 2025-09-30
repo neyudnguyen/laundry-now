@@ -14,6 +14,7 @@ interface CreateOrderRequest {
 	pickupType: 'HOME' | 'STORE';
 	paymentMethod: 'COD' | 'QRCODE';
 	notes?: string;
+	homeAddress?: string;
 	items: OrderItem[];
 }
 
@@ -29,12 +30,21 @@ export async function POST(request: NextRequest) {
 		}
 
 		const body: CreateOrderRequest = await request.json();
-		const { vendorId, pickupType, paymentMethod, notes, items } = body;
+		const { vendorId, pickupType, paymentMethod, notes, homeAddress, items } =
+			body;
 
 		// Validate required fields
 		if (!vendorId) {
 			return NextResponse.json(
 				{ error: 'Vendor ID là bắt buộc' },
+				{ status: 400 },
+			);
+		}
+
+		// Validate home address for home delivery
+		if (pickupType === 'HOME' && !homeAddress) {
+			return NextResponse.json(
+				{ error: 'Địa chỉ giao hàng là bắt buộc khi chọn giao tận nhà' },
 				{ status: 400 },
 			);
 		}
@@ -105,6 +115,7 @@ export async function POST(request: NextRequest) {
 			servicePrice: servicePrice,
 			deliveryFee: 0, // Không tính phí giao hàng cố định
 			notes: notes || '',
+			homeAddress: homeAddress || null,
 			...(orderItems.length > 0 && {
 				items: {
 					create: orderItems,

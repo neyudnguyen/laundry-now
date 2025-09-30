@@ -20,6 +20,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -54,18 +61,29 @@ interface OrderItem {
 	quantity: number;
 }
 
+interface CustomerAddress {
+	id: string;
+	province: string;
+	district: string;
+	ward: string;
+	street: string;
+	fullAddress: string;
+}
+
 const CustomerOrdersPage = () => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const vendorId = searchParams.get('vendorId');
 
 	const [vendor, setVendor] = useState<Vendor | null>(null);
+	const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [submitting, setSubmitting] = useState(false);
 
 	// Form states
 	const [pickupType, setPickupType] = useState<'HOME' | 'STORE'>('STORE');
 	const [paymentMethod, setPaymentMethod] = useState<'COD' | 'QRCODE'>('COD');
+	const [selectedAddressId, setSelectedAddressId] = useState<string>('');
 	const [notes, setNotes] = useState('');
 	const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 
@@ -74,16 +92,26 @@ const CustomerOrdersPage = () => {
 			if (!vendorId) return;
 
 			try {
-				const response = await fetch(`/api/vendors/${vendorId}`);
-				if (response.ok) {
-					const vendorData = await response.json();
+				// Load vendor info
+				const vendorResponse = await fetch(`/api/vendors/${vendorId}`);
+				if (vendorResponse.ok) {
+					const vendorData = await vendorResponse.json();
 					setVendor(vendorData);
 				} else {
 					toast.error('Không thể tải thông tin cửa hàng');
 				}
+
+				// Load customer addresses
+				const addressesResponse = await fetch('/api/customer/addresses');
+				if (addressesResponse.ok) {
+					const addressesData = await addressesResponse.json();
+					setAddresses(addressesData.addresses || []);
+				} else {
+					console.error('Error loading addresses');
+				}
 			} catch (error) {
-				console.error('Error loading vendor:', error);
-				toast.error('Có lỗi xảy ra khi tải thông tin cửa hàng');
+				console.error('Error loading data:', error);
+				toast.error('Có lỗi xảy ra khi tải thông tin');
 			} finally {
 				setLoading(false);
 			}
@@ -91,6 +119,13 @@ const CustomerOrdersPage = () => {
 
 		load();
 	}, [vendorId]);
+
+	const handlePickupTypeChange = (type: 'HOME' | 'STORE') => {
+		setPickupType(type);
+		if (type === 'STORE') {
+			setSelectedAddressId('');
+		}
+	};
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('vi-VN', {
@@ -156,9 +191,20 @@ const CustomerOrdersPage = () => {
 	const handleSubmitOrder = async () => {
 		if (!vendor) return;
 
+		// Validate address selection for home delivery
+		if (pickupType === 'HOME' && !selectedAddressId) {
+			toast.error('Vui lòng chọn địa chỉ giao hàng');
+			return;
+		}
+
 		setSubmitting(true);
 
 		try {
+			const selectedAddress =
+				pickupType === 'HOME'
+					? addresses.find((addr) => addr.id === selectedAddressId)
+					: null;
+
 			const response = await fetch('/api/customer/orders', {
 				method: 'POST',
 				headers: {
@@ -169,6 +215,7 @@ const CustomerOrdersPage = () => {
 					pickupType,
 					paymentMethod,
 					notes,
+					homeAddress: selectedAddress?.fullAddress || null,
 					items: orderItems.map((item) => ({
 						serviceId: item.serviceId,
 						quantity: item.quantity,
@@ -397,7 +444,7 @@ const CustomerOrdersPage = () => {
 									type="button"
 									variant={pickupType === 'STORE' ? 'default' : 'outline'}
 									className="flex items-center gap-2 h-auto p-3"
-									onClick={() => setPickupType('STORE')}
+									onClick={() => handlePickupTypeChange('STORE')}
 								>
 									<Store className="h-4 w-4" />
 									<span>Nhận tại cửa hàng</span>
@@ -406,13 +453,59 @@ const CustomerOrdersPage = () => {
 									type="button"
 									variant={pickupType === 'HOME' ? 'default' : 'outline'}
 									className="flex items-center gap-2 h-auto p-3"
-									onClick={() => setPickupType('HOME')}
+									onClick={() => handlePickupTypeChange('HOME')}
 								>
 									<Home className="h-4 w-4" />
 									<span>Giao tận nhà</span>
 								</Button>
 							</div>
 						</div>
+
+						{/* Address Selection for Home Delivery */}
+						{pickupType === 'HOME' && (
+							<div>
+								<Label className="text-base font-medium">
+									Chọn địa chỉ giao hàng *
+								</Label>
+								{addresses.length > 0 ? (
+									<Select
+										value={selectedAddressId}
+										onValueChange={setSelectedAddressId}
+									>
+										<SelectTrigger className="mt-2">
+											<SelectValue placeholder="Chọn địa chỉ giao hàng..." />
+										</SelectTrigger>
+										<SelectContent>
+											{addresses.map((address) => (
+												<SelectItem key={address.id} value={address.id}>
+													<div className="flex flex-col">
+														<span className="font-medium">
+															{address.street}
+														</span>
+														<span className="text-sm text-muted-foreground">
+															{address.ward}, {address.district},{' '}
+															{address.province}
+														</span>
+													</div>
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								) : (
+									<div className="mt-2 p-3 border rounded-lg bg-muted/50">
+										<p className="text-sm text-muted-foreground mb-2">
+											Bạn chưa có địa chỉ nào. Vui lòng thêm địa chỉ trước khi
+											chọn giao tận nhà.
+										</p>
+										<Link href="/customer/profile">
+											<Button size="sm" variant="outline">
+												Thêm địa chỉ
+											</Button>
+										</Link>
+									</div>
+								)}
+							</div>
+						)}
 
 						{/* Payment Method */}
 						<div>
