@@ -216,6 +216,7 @@ model Order {
   deliveryFee   Int           @default(0) @map("delivery_fee")
   notes         String?       @map("notes")
   orderCode     String?       @unique @map("order_code") // PayOS orderCode
+  homeAddress   String?       @map("home_address") // Địa chỉ giao tại nhà nếu pickupType = HOME
 
   customerId String  @map("customer_id")
   vendorId   String  @map("vendor_id")
