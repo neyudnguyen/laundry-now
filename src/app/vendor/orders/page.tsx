@@ -62,6 +62,7 @@ interface Order {
 	servicePrice: number;
 	deliveryFee: number;
 	notes?: string;
+	homeAddress?: string;
 	createdAt: string;
 	customer: {
 		fullName: string;

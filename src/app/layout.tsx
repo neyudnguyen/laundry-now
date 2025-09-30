@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next';
 import type { Metadata } from 'next';
 import { Noto_Sans, Noto_Sans_Mono } from 'next/font/google';
 
@@ -32,6 +33,7 @@ const RootLayout = ({
 					{children}
 					<Toaster />
 				</Providers>
+				<Analytics />
 			</body>
 		</html>
 	);

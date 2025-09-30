@@ -53,6 +53,7 @@ interface Order {
 	servicePrice: number;
 	deliveryFee: number;
 	notes?: string;
+	homeAddress?: string;
 	createdAt: string;
 	customer: {
 		fullName: string;
@@ -390,7 +391,7 @@ export default function OrderDetailDialog({
 
 				<div className="space-y-6">
 					{/* Order Info */}
-					<div className="grid grid-cols-2 gap-4">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div>
 							<Label>Khách hàng</Label>
 							<div className="mt-1">
@@ -408,7 +409,45 @@ export default function OrderDetailDialog({
 								</Badge>
 							</div>
 						</div>
+						<div>
+							<Label>Hình thức giao nhận</Label>
+							<div className="mt-1">
+								<span className="text-sm">
+									{order.pickupType === 'HOME'
+										? 'Giao tận nhà'
+										: 'Nhận tại cửa hàng'}
+								</span>
+							</div>
+						</div>
+						<div>
+							<Label>Phương thức thanh toán</Label>
+							<div className="mt-1">
+								<span className="text-sm">
+									{order.paymentMethod === 'COD' ? 'Tiền mặt' : 'Chuyển khoản'}
+								</span>
+							</div>
+						</div>
 					</div>
+
+					{/* Home Address - Only show for HOME delivery */}
+					{order.pickupType === 'HOME' && order.homeAddress && (
+						<div className="border-t pt-4">
+							<Label>Địa chỉ giao hàng</Label>
+							<div className="mt-1 p-3 bg-muted/50 rounded-lg">
+								<p className="text-sm">{order.homeAddress}</p>
+							</div>
+						</div>
+					)}
+
+					{/* Order Notes */}
+					{order.notes && (
+						<div className="border-t pt-4">
+							<Label>Ghi chú từ khách hàng</Label>
+							<div className="mt-1 p-3 bg-muted/50 rounded-lg">
+								<p className="text-sm">{order.notes}</p>
+							</div>
+						</div>
+					)}
 
 					{/* Delivery Fee Settings - Only for PICKED_UP status with HOME delivery */}
 					{canEditDeliveryFee && (
@@ -802,14 +841,6 @@ export default function OrderDetailDialog({
 									</Button>
 								))}
 							</div>
-							{order.status === 'PAYMENT_REQUIRED' &&
-								order.paymentMethod === 'QRCODE' && (
-									<div className="mt-2">
-										<Button variant="outline" disabled>
-											Quét QR
-										</Button>
-									</div>
-								)}
 						</div>
 					)}
 				</div>

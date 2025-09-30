@@ -34,8 +34,8 @@ const footerLinks = {
 		links: [
 			{ name: 'Hotline: 0943846727', href: 'tel:0943846727', icon: Phone },
 			{
-				name: 'giacuinhanh@gmail.com',
-				href: 'mailto:giacuinhanh@gmail.com',
+				name: 'giatuinhanh@gmail.com',
+				href: 'mailto:giatuinhanh@gmail.com',
 				icon: Mail,
 			},
 			{ name: 'Đại học FPT Quy Nhơn', href: '#', icon: MapPin },

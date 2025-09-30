@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { ChangePasswordForm } from '@/components/ui/ChangePasswordForm';
 import { Separator } from '@/components/ui/separator';
 import { VendorAddressManager } from '@/components/vendor/VendorAddressManager';
 import { VendorBankingInfo } from '@/components/vendor/VendorBankingInfo';
@@ -128,20 +129,29 @@ const VendorProfilePage = () => {
 					<Separator />
 				</div>
 
-				{/* Content Layout - 4 sections */}
+				{/* Content Layout */}
 				<div className="space-y-8">
-					{/* Thông tin cơ bản */}
-					<section>
-						<VendorBasicInfo
-							initialData={{
-								shopName: vendorData?.user?.vendorProfile?.shopName || '',
-								phone: vendorData?.user?.phone || '',
-								email: vendorData?.user?.email || '',
-							}}
-							onSuccess={handleProfileUpdate}
-						/>
-					</section>
+					{/* First Row - 2 columns */}
+					<div className="grid lg:grid-cols-2 gap-8">
+						{/* Left - Thông tin cơ bản */}
+						<section>
+							<VendorBasicInfo
+								initialData={{
+									shopName: vendorData?.user?.vendorProfile?.shopName || '',
+									phone: vendorData?.user?.phone || '',
+									email: vendorData?.user?.email || '',
+								}}
+								onSuccess={handleProfileUpdate}
+							/>
+						</section>
 
+						{/* Right - Đổi mật khẩu */}
+						<section>
+							<ChangePasswordForm userRole="vendor" />
+						</section>
+					</div>
+
+					{/* Remaining sections - Full width */}
 					{/* Thông tin ngân hàng */}
 					<section>
 						<VendorBankingInfo

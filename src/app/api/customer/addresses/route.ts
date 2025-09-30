@@ -28,7 +28,18 @@ export async function GET() {
 			);
 		}
 
-		return NextResponse.json({ addresses: customerProfile.addresses });
+		return NextResponse.json({
+			addresses: customerProfile.addresses.map((address) => ({
+				id: address.id,
+				province: address.province,
+				district: address.district,
+				ward: address.ward,
+				street: address.street,
+				fullAddress: `${address.street}, ${address.ward}, ${address.district}, ${address.province}`,
+				createdAt: address.createdAt,
+				updatedAt: address.updatedAt,
+			})),
+		});
 	} catch (error) {
 		console.error('Error getting addresses:', error);
 		return NextResponse.json(

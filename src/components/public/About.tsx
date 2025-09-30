@@ -1,4 +1,5 @@
 import { ArrowRight, CheckCircle, Clock, Shield, Star } from 'lucide-react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -49,10 +50,12 @@ export default function About() {
 						</div>
 
 						<div className="mt-8">
-							<Button size="lg" className="group">
-								Khám phá cửa hàng
-								<ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-							</Button>
+							<Link href="/login">
+								<Button size="lg" className="group">
+									Khám phá cửa hàng
+									<ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+								</Button>
+							</Link>
 						</div>
 					</div>
 

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { CustomerAddressManager } from '@/components/customer/CustomerAddressManager';
 import { CustomerBasicInfo } from '@/components/customer/CustomerBasicInfo';
+import { ChangePasswordForm } from '@/components/ui/ChangePasswordForm';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 
@@ -108,21 +109,29 @@ const CustomerProfilePage = () => {
 					<Separator />
 				</div>
 
-				{/* Content Layout - 2 sections */}
+				{/* Content Layout */}
 				<div className="space-y-8">
-					{/* Thông tin cơ bản */}
-					<section>
-						<CustomerBasicInfo
-							initialData={{
-								fullName: customerData?.user?.profile?.fullName || '',
-								phone: customerData?.user?.phone || '',
-								email: customerData?.user?.email || '',
-							}}
-							onSuccess={handleProfileUpdate}
-						/>
-					</section>
+					{/* First Row - 2 columns */}
+					<div className="grid lg:grid-cols-2 gap-8">
+						{/* Left - Thông tin cơ bản */}
+						<section>
+							<CustomerBasicInfo
+								initialData={{
+									fullName: customerData?.user?.profile?.fullName || '',
+									phone: customerData?.user?.phone || '',
+									email: customerData?.user?.email || '',
+								}}
+								onSuccess={handleProfileUpdate}
+							/>
+						</section>
 
-					{/* Quản lý địa chỉ */}
+						{/* Right - Đổi mật khẩu */}
+						<section>
+							<ChangePasswordForm userRole="customer" />
+						</section>
+					</div>
+
+					{/* Second Row - Full width */}
 					<section>
 						<CustomerAddressManager />
 					</section>

@@ -43,7 +43,7 @@ export default function MapSection() {
 										<div className="text-center">
 											<h4 className="font-semibold text-foreground">Email</h4>
 											<p className="text-muted-foreground">
-												giacuinhanh@gmail.com
+												giatuinhanh@gmail.com
 											</p>
 											<p className="text-sm text-muted-foreground">
 												Phản hồi khiếu nại và góp ý

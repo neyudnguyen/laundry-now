@@ -1,4 +1,5 @@
 import { Shirt, Sparkles, Wind } from 'lucide-react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -89,9 +90,11 @@ export default function Services() {
 										))}
 									</ul>
 
-									<Button className="w-full" variant="outline">
-										Tìm cửa hàng
-									</Button>
+									<Link href="/login">
+										<Button className="w-full" variant="outline">
+											Tìm cửa hàng
+										</Button>
+									</Link>
 								</CardContent>
 							</Card>
 						);
@@ -106,7 +109,9 @@ export default function Services() {
 						nhất.
 					</p>
 					<div className="mt-6">
-						<Button size="lg">Khám phá tất cả cửa hàng</Button>
+						<Link href="/login">
+							<Button size="lg">Khám phá tất cả cửa hàng</Button>
+						</Link>
 					</div>
 				</div>
 			</div>
