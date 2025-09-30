@@ -1,11 +1,17 @@
 'use client';
 
-import { Eye, EyeOff, Key } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -84,10 +90,8 @@ export const ChangePasswordForm = ({ userRole }: ChangePasswordFormProps) => {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle className="flex items-center gap-2">
-					<Key className="h-5 w-5" />
-					Đổi mật khẩu
-				</CardTitle>
+				<CardTitle>Đổi mật khẩu</CardTitle>
+				<CardDescription>Cập nhật mật khẩu của tài khoản</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<form onSubmit={handleSubmit} className="space-y-4">
