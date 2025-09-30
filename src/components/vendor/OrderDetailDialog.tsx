@@ -802,14 +802,6 @@ export default function OrderDetailDialog({
 									</Button>
 								))}
 							</div>
-							{order.status === 'PAYMENT_REQUIRED' &&
-								order.paymentMethod === 'QRCODE' && (
-									<div className="mt-2">
-										<Button variant="outline" disabled>
-											Quét QR
-										</Button>
-									</div>
-								)}
 						</div>
 					)}
 				</div>
