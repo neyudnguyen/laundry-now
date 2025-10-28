@@ -7,6 +7,7 @@ import {
 	LayoutDashboard,
 	LogOut,
 	Shield,
+	ShoppingCart,
 	Store,
 	Users,
 } from 'lucide-react';
@@ -50,6 +51,11 @@ const menuItems = [
 		title: 'Nhà cung cấp',
 		icon: Store,
 		href: '/admin/vendors',
+	},
+	{
+		title: 'Đơn hàng',
+		icon: ShoppingCart,
+		href: '/admin/orders',
 	},
 	{
 		title: 'Hóa đơn',
