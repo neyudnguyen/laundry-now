@@ -86,41 +86,6 @@ const statusLabels = {
 	CANCELLED: 'Đã hủy',
 };
 
-const statusActions = {
-	PENDING_CONFIRMATION: [
-		{ action: 'CONFIRMED', label: 'Xác nhận đơn', variant: 'default' as const },
-		{ action: 'CANCELLED', label: 'Hủy đơn', variant: 'destructive' as const },
-	],
-	CONFIRMED: [
-		{
-			action: 'PICKED_UP',
-			label: 'Đã lấy đồ',
-			variant: 'default' as const,
-		},
-	],
-	PICKED_UP: [
-		{
-			action: 'IN_WASHING',
-			label: 'Bắt đầu giặt',
-			variant: 'default' as const,
-		},
-	],
-	IN_WASHING: [
-		{
-			action: 'PAYMENT_REQUIRED',
-			label: 'Yêu cầu thanh toán',
-			variant: 'default' as const,
-		},
-	],
-	PAYMENT_REQUIRED: [
-		{
-			action: 'COMPLETED',
-			label: 'Hoàn tất đơn hàng',
-			variant: 'default' as const,
-		},
-	],
-};
-
 export default function OrderDetailDialog({
 	order,
 	isOpen,
@@ -128,6 +93,7 @@ export default function OrderDetailDialog({
 }: OrderDetailDialogProps) {
 	const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 	const [editingItem, setEditingItem] = useState<OrderItem | null>(null);
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [vendorServices, setVendorServices] = useState<VendorServiceFee[]>([]);
 	const [newItem, setNewItem] = useState({
 		serviceId: '',
